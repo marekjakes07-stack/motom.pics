@@ -1,179 +1,254 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <title>Epická sága Jukla</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: #fffbe6;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neuvěřitelný osud Jukla – Od SS k sambě</title>
 
-    header {
-      background: linear-gradient(to right, #000000, #434343);
-      color: #fff;
-      padding: 50px 20px;
-      text-align: center;
-      animation: fadeIn 2s ease-in;
-    }
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
 
-    h1 {
-      font-size: 3.5em;
-      margin: 0;
-      text-shadow: 2px 2px #ff0000;
-    }
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    color: #fff;
+    background: linear-gradient(-45deg, #2a5298, #1e3c72, #00a8cc, #2f5d62);
+    background-size: 400% 400%;
+    animation: bgMove 25s ease infinite;
+    overflow-x: hidden;
+  }
 
-    h2 {
-      color: #333;
-      margin-top: 40px;
-      font-size: 2em;
-    }
+  header {
+    text-align: center;
+    padding: 80px 20px 40px;
+    background: rgba(0, 0, 0, 0.4);
+    animation: fadeIn 2s ease;
+  }
 
-    section {
-      padding: 60px;
-      animation: slideIn 1.5s ease-out;
-    }
+  header h1 {
+    font-size: 3em;
+    margin: 0;
+    text-shadow: 0 0 20px #00ffff;
+  }
 
-    .chapter {
-      margin-bottom: 80px;
-      position: relative;
-      padding-left: 20px;
-      border-left: 5px dashed #444;
-    }
+  header p {
+    color: #dff;
+    font-size: 1.2em;
+  }
 
-    .chapter::before {
-      content: "📘";
-      position: absolute;
-      left: -40px;
-      top: 0;
-      font-size: 2em;
-      animation: bounce 2s infinite;
-    }
+  section {
+    max-width: 900px;
+    margin: 60px auto;
+    background: rgba(255,255,255,0.1);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    animation: floatIn 1.5s ease;
+  }
 
-    .chapter img {
-      width: 100%;
-      max-width: 600px;
-      border-radius: 10px;
-      margin-top: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
+  h2 {
+    color: #ffe066;
+    text-shadow: 0 0 10px #ff6;
+    margin-top: 0;
+  }
 
-    .quote {
-      font-style: italic;
-      background: #fff8dc;
-      padding: 15px 25px;
-      border-left: 6px solid #ffa500;
-      margin: 30px 0;
-      animation: pulse 3s infinite;
-    }
+  p {
+    line-height: 1.7em;
+    font-size: 1.1em;
+  }
 
-    .jukl-img {
-      width: 250px;
-      border-radius: 50%;
-      border: 6px dashed #ff69b4;
-      animation: spin 20s linear infinite;
-      display: block;
-      margin: 0 auto 40px;
-    }
+  .jukl-img {
+    width: 100%;
+    border-radius: 10px;
+    margin: 20px 0;
+    animation: pulse 6s infinite ease-in-out;
+  }
 
-    .parallax {
-      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Dancing_House_Prague.jpg/640px-Dancing_House_Prague.jpg');
-      height: 400px;
-      background-attachment: fixed;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
-    }
+  footer {
+    text-align: center;
+    padding: 40px;
+    font-size: 0.9em;
+    color: #eee;
+    background: rgba(0,0,0,0.4);
+  }
 
-    footer {
-      background-color: #222;
-      color: #fff;
-      text-align: center;
-      padding: 30px;
-      font-size: 1em;
-    }
+  /* Animace */
+  @keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
+  @keyframes floatIn {
+    from {opacity: 0; transform: translateY(30px);}
+    to {opacity: 1; transform: translateY(0);}
+  }
 
-    @keyframes slideIn {
-      from { transform: translateX(-100%); }
-      to { transform: translateX(0); }
-    }
+  @keyframes pulse {
+    0%, 100% {transform: scale(1);}
+    50% {transform: scale(1.03);}
+  }
 
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
+  @keyframes bgMove {
+    0% {background-position: 0% 50%;}
+    50% {background-position: 100% 50%;}
+    100% {background-position: 0% 50%;}
+  }
 
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
+  /* Tlačítko */
+  .music-btn {
+    background: #ffe066;
+    color: #222;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+  }
+  .music-btn:hover {
+    background: #fff08a;
+    transform: scale(1.1);
+  }
 
-    @keyframes pulse {
-      0% { background-color: #fff8dc; }
-      50% { background-color: #ffe4b5; }
-      100% { background-color: #fff8dc; }
-    }
-  </style>
+  /* Citace */
+  blockquote {
+    font-style: italic;
+    color: #fffa;
+    border-left: 3px solid #ffe066;
+    padding-left: 15px;
+    margin: 20px 0;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1>Epická sága Jukla</h1>
-    <p>Od zelného sudu až po TikTok slávu</p>
-  </header>
 
-  <section>
-    <img src="https://via.placeholder.com/250x250.png?text=Jukl" alt="Jukl" class="jukl-img">
+<header>
+  <h1>Neuvěřitelný osud Jukla</h1>
+  <p>Od vojenské uniformy k sambovému rytmu, přes lamy, filozofii a klobásy</p>
+  <button class="music-btn" onclick="toggleMusic()">🎵 Zapnout sambu</button>
+  <audio id="samba" loop>
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_35ff0132f7.mp3?filename=samba-party-106657.mp3" type="audio/mpeg">
+  </audio>
+</header>
 
-    <div class="chapter">
-      <h2>1. Zelné zmizení (1945)</h2>
-      <p>Jukl se ukryl v sudu se zelím a nechal se odvézt do Hamburku. Tam se vydával za norského kuchaře Olaf von Brambor, který tvrdil, že jeho specialita je „banánový guláš s hořčicí“.</p>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Sauerkraut-1.jpg/640px-Sauerkraut-1.jpg" alt="Sud se zelím">
-    </div>
+<section>
+  <h2>1. Útěk přes oceán</h2>
+  <img src="https://cdn.pixabay.com/photo/2017/07/31/21/54/ship-2563638_1280.jpg" alt="Loď do Argentiny" class="jukl-img">
+  <p>
+    Rok 1946. Jukl stojí na palubě staré nákladní lodi. V kapse má falešný pas,
+    čtyři bonbony Hašlerky a mapu Jižní Ameriky nakreslenou na ubrousku.  
+    Jeho plán? Prostý – utéct co nejdál od Evropy a stát se někým jiným.  
+    Netušil, že se brzy proslaví jako <strong>nejpomalejší tanečník samby v Buenos Aires</strong>.
+  </p>
+</section>
 
-    <div class="chapter">
-      <h2>2. Tango v pampě (1946)</h2>
-      <p>V Argentině založil taneční školu pro lamy. Jeho styl „Paso de Patagonie“ se stal virálním mezi farmáři. Lamy tančily, Jukl zpíval a občas explodoval konfety.</p>
-      <div class="quote">„Nikdy jsem netančil tak vášnivě jako s lamou jménem Ricardo.“ – Jukl</div>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Llama_lying_down.jpg/640px-Llama_lying_down.jpg" alt="Taneční lama">
-    </div>
+<section>
+  <h2>2. Jukl a první samba</h2>
+  <img src="https://cdn.pixabay.com/photo/2018/04/02/22/27/samba-3287995_1280.jpg" alt="Tanec v Buenos Aires" class="jukl-img">
+  <p>
+    V Argentině potkal instruktorku samby jménem Dolores del Fuego, která tvrdila,
+    že „každý může tančit, pokud má duši plnou fazolí“.  
+    Jukl měl duši spíš plnou guláše, ale snažil se. Brzy se z něj stal tanečník jménem
+    <strong>Juanito el Torpédo</strong>.  
+  </p>
+  <blockquote>
+    „Rytmus mám! Jen tělo mě zrazuje.“ — Jukl, 1947
+  </blockquote>
+</section>
 
-    <div class="chapter">
-      <h2>3. UFO incident (1953)</h2>
-      <p>Tvrdil, že byl unesen mimozemšťany, ale později se ukázalo, že to byl jen výlet balónem s příliš silným vínem. Přistál v Paraguayi, kde ho místní považovali za proroka.</p>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/UFO_illustration.png/640px-UFO_illustration.png" alt="UFO">
-    </div>
+<section>
+  <h2>3. Mluvící papoušek Carlos</h2>
+  <img src="https://cdn.pixabay.com/photo/2016/03/05/19/02/parrot-1232418_1280.jpg" alt="Papoušek Carlos" class="jukl-img">
+  <p>
+    Na tržišti v Rosariu koupil papouška, který tvrdil, že pochází z Brna.
+    Papoušek se jmenoval Carlos a kromě španělštiny ovládal i moravský dialekt.
+    Společně cestovali po pampách, jedli empanády a zpívali české lidovky s bossa novou.
+  </p>
+</section>
 
-    <div class="chapter">
-      <h2>4. Himalájský jogín (1968)</h2>
-      <p>Našel vnitřní klid v jeskyni, kde meditoval 12 let s kozou jménem Šárka. Naučil se levitovat (nebo to aspoň tvrdil). Jeho mantra zněla: „Om nom nom česnek.“</p>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Himalayas.jpg/640px-Himalayas.jpg" alt="Himaláje">
-    </div>
+<section>
+  <h2>4. Cesta přes Andy</h2>
+  <img src="https://cdn.pixabay.com/photo/2017/05/23/22/36/andes-2334839_1280.jpg" alt="Andy" class="jukl-img">
+  <p>
+    Když se Jukl rozhodl překročit Andy, místní mu půjčili lamu jménem Esperanza.
+    Llama byla tvrdohlavá, ale Jukl ji naučil tančit na tři.  
+    Cestou napsal knihu <em>„Samba na svahu“</em>, která se stala hitem mezi horolezci.
+  </p>
+</section>
 
-    <div class="chapter">
-      <h2>5. Návrat do Evropy (1989)</h2>
-      <p>V převleku za francouzského someliéra se dostal do Československa. V Praze otevřel bar „U Tančícího Jukla“, kde servíroval víno z pampelišek a tančil flamenco na stole.</p>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Dancing_House_Prague.jpg/640px-Dancing_House_Prague.jpg" alt="Tančící dům">
-    </div>
+<section>
+  <h2>5. Guru z Patagonie</h2>
+  <img src="https://cdn.pixabay.com/photo/2020/04/04/11/10/mountain-5002090_1280.jpg" alt="Patagonie" class="jukl-img">
+  <p>
+    Po letech tance a lam se Jukl rozhodl stát filozofem.  
+    Začal pořádat semináře s názvem <strong>„Najdi svůj rytmus, i když nevíš, kde jsi“</strong>.
+    Přicházeli k němu turisté, kteří odcházeli zmatení, ale šťastní.  
+    Jukl tvrdil, že smyslem života je „tleskat, i když hudba ještě nezačala“.
+  </p>
+</section>
 
-    <div class="chapter">
-      <h2>6. TikTok hvězda (2025)</h2>
-      <p>Jeho video „Tango s traktorem“ se stalo virálním. Dnes má přes 3 miliony sledujících a vlastní značku kombajnů s LED podsvícením. Jeho merch zahrnuje ponožky s lamou Ricardem.</p>
-      <div class="quote">„Když nemůžeš utéct minulosti, zatancuj jí!“ – Jukl</div>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Tractor_dancing.jpg/640px-Tractor_dancing.jpg" alt="Tango s traktorem">
-    </div>
-  </section>
+<section>
+  <h2>6. Internetový influencer</h2>
+  <img src="https://cdn.pixabay.com/photo/2019/12/15/17/41/social-media-4698426_1280.jpg" alt="Influencer Jukl" class="jukl-img">
+  <p>
+    V 90. letech (zázrakem stále živ) objevil internet.  
+    Spustil blog <em>„Jukl’s Journey“</em>, kde sdílel rady o tanci, grilování a existenciální krizi.  
+    Jeden jeho příspěvek – „Jak poznat směr života podle rytmu samby“ – se stal virálním.  
+    Získal 3 miliony sledujících a pozvání do talk show <strong>Tango con Esteban</strong>.
+  </p>
+</section>
 
-  <div class="parallax"></div>
+<section>
+  <h2>7. Návrat do Česka</h2>
+  <img src="https://cdn.pixabay.com/photo/2020/03/25/20/22/prague-4968612_1280.jpg" alt="Praha" class="jukl-img">
+  <p>
+    V roce 2010 mu papoušek Carlos prohlásil:  
+    <em>„Juku, já chci knedlík.“</em>  
+    A bylo rozhodnuto. Po sérii letenek, ztracených kufrů a krátkém pobytu v Peru
+    se Jukl vrátil do Česka. Na letišti ho nikdo nepoznal – kromě celníka,
+    který si chtěl udělat selfie.
+  </p>
+</section>
 
-  <footer>
-    &copy; 2025 – Všechno je smyšlené. Pokud se v tom někdo pozná, je to čistě náhoda. 🕺🌍
-  </footer>
+<section>
+  <h2>8. Muzeum klobás a samby</h2>
+  <img src="https://cdn.pixabay.com/photo/2022/01/24/19/24/sausages-6965459_1280.jpg" alt="Muzeum klobás" class="jukl-img">
+  <p>
+    V rodném městě otevřel <strong>Muzeum klobás a samby</strong>.  
+    Každý pátek pořádal živé tance s degustací uzenin.  
+    Papoušek Carlos byl ředitelem marketingu a občas DJem.  
+    Dnes se říká, že když kolem muzea projdete o půlnoci,
+    slyšíte v dálce sambu, cítíte vůni klobás
+    a slabý hlas šeptá:  
+  </p>
+  <blockquote>
+    „Rytmus nikdy neumírá – jen si dá párek.“
+  </blockquote>
+</section>
+
+<footer>
+  © 2025 – Příběh Jukla, zcela fiktivní a absurdní.  
+  <br>Made with 💃, 🦜 & 🥩
+</footer>
+
+<script>
+  const audio = document.getElementById('samba');
+  let playing = false;
+
+  function toggleMusic() {
+    if (!playing) {
+      audio.play();
+      playing = true;
+      event.target.textContent = "🔇 Vypnout sambu";
+    } else {
+      audio.pause();
+      playing = false;
+      event.target.textContent = "🎵 Zapnout sambu";
+    }
+  }
+</script>
+
 </body>
-</html
+</html>
