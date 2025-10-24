@@ -2,64 +2,97 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Neuvěřitelný život SS důstojníka Jukla</title>
+  <title>Epická sága Jukla</title>
   <style>
     body {
       margin: 0;
       font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: linear-gradient(to right, #f0f8ff, #ffe4e1);
+      background: #fffbe6;
       overflow-x: hidden;
     }
 
     header {
-      background-color: #222;
+      background: linear-gradient(to right, #000000, #434343);
       color: #fff;
-      padding: 20px;
+      padding: 50px 20px;
       text-align: center;
       animation: fadeIn 2s ease-in;
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 3.5em;
       margin: 0;
+      text-shadow: 2px 2px #ff0000;
+    }
+
+    h2 {
+      color: #333;
+      margin-top: 40px;
+      font-size: 2em;
     }
 
     section {
-      padding: 40px;
+      padding: 60px;
       animation: slideIn 1.5s ease-out;
     }
 
-    .jukl-img {
-      width: 200px;
-      border-radius: 50%;
-      animation: spin 10s linear infinite;
-    }
-
-    .timeline {
-      margin-top: 30px;
-      padding-left: 20px;
-      border-left: 4px dashed #444;
-    }
-
-    .event {
-      margin-bottom: 30px;
+    .chapter {
+      margin-bottom: 80px;
       position: relative;
+      padding-left: 20px;
+      border-left: 5px dashed #444;
     }
 
-    .event::before {
-      content: "🕵️";
+    .chapter::before {
+      content: "📘";
       position: absolute;
       left: -40px;
       top: 0;
-      font-size: 1.5em;
+      font-size: 2em;
+      animation: bounce 2s infinite;
+    }
+
+    .chapter img {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .quote {
+      font-style: italic;
+      background: #fff8dc;
+      padding: 15px 25px;
+      border-left: 6px solid #ffa500;
+      margin: 30px 0;
+      animation: pulse 3s infinite;
+    }
+
+    .jukl-img {
+      width: 250px;
+      border-radius: 50%;
+      border: 6px dashed #ff69b4;
+      animation: spin 20s linear infinite;
+      display: block;
+      margin: 0 auto 40px;
+    }
+
+    .parallax {
+      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Dancing_House_Prague.jpg/640px-Dancing_House_Prague.jpg');
+      height: 400px;
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
     }
 
     footer {
       background-color: #222;
       color: #fff;
       text-align: center;
-      padding: 20px;
-      font-size: 0.9em;
+      padding: 30px;
+      font-size: 1em;
     }
 
     @keyframes fadeIn {
@@ -76,42 +109,71 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0% { background-color: #fff8dc; }
+      50% { background-color: #ffe4b5; }
+      100% { background-color: #fff8dc; }
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Neuvěřitelný život SS důstojníka Jukla</h1>
-    <p>Od Berlína přes Buenos Aires až po Brno</p>
+    <h1>Epická sága Jukla</h1>
+    <p>Od zelného sudu až po TikTok slávu</p>
   </header>
 
   <section>
-    <img src="https://via.placeholder.com/200" alt="Jukl" class="jukl-img">
-    <div class="timeline">
-      <div class="event">
-        <h2>1945 – Útěk z Německa</h2>
-        <p>Jukl se schoval v sudu od zelí a nechal se odvézt do přístavu. Tam se vydával za norského rybáře jménem "Olaf von Brambor".</p>
-      </div>
-      <div class="event">
-        <h2>1946 – Argentina</h2>
-        <p>V Buenos Aires otevřel taneční školu pro lamy. Jeho styl "tango s výbuchem" se stal virálním mezi místními farmáři.</p>
-      </div>
-      <div class="event">
-        <h2>1955 – Expedice do Patagonie</h2>
-        <p>Jukl tvrdil, že našel Yettiho, ale ukázalo se, že to byl jen obrovský kaktus s parukou.</p>
-      </div>
-      <div class="event">
-        <h2>1970 – Cestování po světě</h2>
-        <p>Navštívil 42 zemí v převleku za turistického průvodce. V Japonsku ho omylem zvolili starostou vesnice, kde se mluví jen v haiku.</p>
-      </div>
-      <div class="event">
-        <h2>2020 – Návrat do ČR</h2>
-        <p>Vrátil se jako influencer na TikToku pod jménem @JuklDanceMaster. Jeho video "Tango s traktorem" má přes 2 miliony zhlédnutí.</p>
-      </div>
+    <img src="https://via.placeholder.com/250x250.png?text=Jukl" alt="Jukl" class="jukl-img">
+
+    <div class="chapter">
+      <h2>1. Zelné zmizení (1945)</h2>
+      <p>Jukl se ukryl v sudu se zelím a nechal se odvézt do Hamburku. Tam se vydával za norského kuchaře Olaf von Brambor, který tvrdil, že jeho specialita je „banánový guláš s hořčicí“.</p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Sauerkraut-1.jpg/640px-Sauerkraut-1.jpg" alt="Sud se zelím">
+    </div>
+
+    <div class="chapter">
+      <h2>2. Tango v pampě (1946)</h2>
+      <p>V Argentině založil taneční školu pro lamy. Jeho styl „Paso de Patagonie“ se stal virálním mezi farmáři. Lamy tančily, Jukl zpíval a občas explodoval konfety.</p>
+      <div class="quote">„Nikdy jsem netančil tak vášnivě jako s lamou jménem Ricardo.“ – Jukl</div>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Llama_lying_down.jpg/640px-Llama_lying_down.jpg" alt="Taneční lama">
+    </div>
+
+    <div class="chapter">
+      <h2>3. UFO incident (1953)</h2>
+      <p>Tvrdil, že byl unesen mimozemšťany, ale později se ukázalo, že to byl jen výlet balónem s příliš silným vínem. Přistál v Paraguayi, kde ho místní považovali za proroka.</p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/UFO_illustration.png/640px-UFO_illustration.png" alt="UFO">
+    </div>
+
+    <div class="chapter">
+      <h2>4. Himalájský jogín (1968)</h2>
+      <p>Našel vnitřní klid v jeskyni, kde meditoval 12 let s kozou jménem Šárka. Naučil se levitovat (nebo to aspoň tvrdil). Jeho mantra zněla: „Om nom nom česnek.“</p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Himalayas.jpg/640px-Himalayas.jpg" alt="Himaláje">
+    </div>
+
+    <div class="chapter">
+      <h2>5. Návrat do Evropy (1989)</h2>
+      <p>V převleku za francouzského someliéra se dostal do Československa. V Praze otevřel bar „U Tančícího Jukla“, kde servíroval víno z pampelišek a tančil flamenco na stole.</p>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Dancing_House_Prague.jpg/640px-Dancing_House_Prague.jpg" alt="Tančící dům">
+    </div>
+
+    <div class="chapter">
+      <h2>6. TikTok hvězda (2025)</h2>
+      <p>Jeho video „Tango s traktorem“ se stalo virálním. Dnes má přes 3 miliony sledujících a vlastní značku kombajnů s LED podsvícením. Jeho merch zahrnuje ponožky s lamou Ricardem.</p>
+      <div class="quote">„Když nemůžeš utéct minulosti, zatancuj jí!“ – Jukl</div>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Tractor_dancing.jpg/640px-Tractor_dancing.jpg" alt="Tango s traktorem">
     </div>
   </section>
 
+  <div class="parallax"></div>
+
   <footer>
-    &copy; 2025 – Fiktivní příběh pro pobavení. Všechny postavy a události jsou smyšlené.
+    &copy; 2025 – Všechno je smyšlené. Pokud se v tom někdo pozná, je to čistě náhoda. 🕺🌍
   </footer>
 </body>
-</html>
+</html
