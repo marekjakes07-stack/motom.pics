@@ -1,129 +1,117 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BusPhotogs Unite</title>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Neuvěřitelný život SS důstojníka Jukla</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background: #111;
-      color: #f5f5f5;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background: linear-gradient(to right, #f0f8ff, #ffe4e1);
+      overflow-x: hidden;
     }
+
     header {
-      background: #ff0033;
-      padding: 2rem;
+      background-color: #222;
+      color: #fff;
+      padding: 20px;
       text-align: center;
-      font-family: 'Anton', sans-serif;
-      font-size: 3rem;
-      letter-spacing: 2px;
+      animation: fadeIn 2s ease-in;
     }
+
+    h1 {
+      font-size: 2.5em;
+      margin: 0;
+    }
+
     section {
-      padding: 2rem;
-      max-width: 900px;
-      margin: auto;
+      padding: 40px;
+      animation: slideIn 1.5s ease-out;
     }
-    h2 {
-      font-family: 'Anton', sans-serif;
-      color: #ff0033;
-      font-size: 2rem;
-      margin-top: 2rem;
+
+    .jukl-img {
+      width: 200px;
+      border-radius: 50%;
+      animation: spin 10s linear infinite;
     }
-    p, li {
-      font-size: 1.1rem;
-      line-height: 1.6;
+
+    .timeline {
+      margin-top: 30px;
+      padding-left: 20px;
+      border-left: 4px dashed #444;
     }
-    ul {
-      list-style: square;
-      padding-left: 1.5rem;
+
+    .event {
+      margin-bottom: 30px;
+      position: relative;
     }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
+
+    .event::before {
+      content: "🕵️";
+      position: absolute;
+      left: -40px;
+      top: 0;
+      font-size: 1.5em;
     }
-    .gallery img {
-      width: 100%;
-      border: 3px solid #ff0033;
-    }
-    .cta {
-      background: #ff0033;
-      color: #111;
-      text-align: center;
-      padding: 2rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-top: 3rem;
-    }
+
     footer {
+      background-color: #222;
+      color: #fff;
       text-align: center;
-      padding: 1rem;
-      font-size: 0.9rem;
-      background: #222;
-      color: #aaa;
+      padding: 20px;
+      font-size: 0.9em;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(0); }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <header>🚌 BUSPHOTOGS UNITE</header>
+  <header>
+    <h1>Neuvěřitelný život SS důstojníka Jukla</h1>
+    <p>Od Berlína přes Buenos Aires až po Brno</p>
+  </header>
 
   <section>
-    <h2>🔥 OUR MISSION</h2>
-    <p>We are the Bus Photographers. We capture the soul of the streets, the poetry of public transit, the rhythm of the urban jungle.</p>
-    <blockquote>“Every bus is a canvas. Every route is a revolution.”</blockquote>
-
-    <h2>📸 WHY BUSES?</h2>
-    <ul>
-      <li><strong>Raw Humanity</strong>: No filters. Just faces, stories, and motion.</li>
-      <li><strong>Rolling Stages</strong>: Each bus is a theater of life — drama, comedy, solitude.</li>
-      <li><strong>Global Pulse</strong>: From Prague to São Paulo, buses beat with the heart of the city.</li>
-    </ul>
-
-    <h2>🌍 JOIN THE UPRISING</h2>
-    <p>We’re not influencers. We’re infiltrators. We don’t chase clout. We chase truth. We don’t ask permission. We shoot first.</p>
-    <p><strong>Become a BusPhotog:</strong></p>
-    <ul>
-      <li>Submit your best shots</li>
-      <li>Tag <code>#BusPhotogWorldDomination</code></li>
-      <li>Get featured in our global gallery</li>
-    </ul>
-
-    <h2>🧠 PROPAGANDA ZONE</h2>
-    <blockquote>“The revolution will not be Ubered.”</blockquote>
-    <blockquote>“Zoom with your feet. Focus with your soul.”</blockquote>
-    <blockquote>“If it’s not blurry, you weren’t close enough.”</blockquote>
-    <p><a href="#">📥 Download the Starter Pack</a></p>
-
-    <h2>🖼️ GALLERY OF THE GLORIOUS</h2>
-    <div class="gallery">
-      <img src="https://source.unsplash.com/featured/?bus" alt="Bus photo">
-      <img src="https://source.unsplash.com/featured/?transit" alt="Transit photo">
-      <img src="https://source.unsplash.com/featured/?commute" alt="Commute photo">
+    <img src="https://via.placeholder.com/200" alt="Jukl" class="jukl-img">
+    <div class="timeline">
+      <div class="event">
+        <h2>1945 – Útěk z Německa</h2>
+        <p>Jukl se schoval v sudu od zelí a nechal se odvézt do přístavu. Tam se vydával za norského rybáře jménem "Olaf von Brambor".</p>
+      </div>
+      <div class="event">
+        <h2>1946 – Argentina</h2>
+        <p>V Buenos Aires otevřel taneční školu pro lamy. Jeho styl "tango s výbuchem" se stal virálním mezi místními farmáři.</p>
+      </div>
+      <div class="event">
+        <h2>1955 – Expedice do Patagonie</h2>
+        <p>Jukl tvrdil, že našel Yettiho, ale ukázalo se, že to byl jen obrovský kaktus s parukou.</p>
+      </div>
+      <div class="event">
+        <h2>1970 – Cestování po světě</h2>
+        <p>Navštívil 42 zemí v převleku za turistického průvodce. V Japonsku ho omylem zvolili starostou vesnice, kde se mluví jen v haiku.</p>
+      </div>
+      <div class="event">
+        <h2>2020 – Návrat do ČR</h2>
+        <p>Vrátil se jako influencer na TikToku pod jménem @JuklDanceMaster. Jeho video "Tango s traktorem" má přes 2 miliony zhlédnutí.</p>
+      </div>
     </div>
-
-    <h2>🧢 MERCH THAT MOVES</h2>
-    <ul>
-      <li>“Bus or Die” hoodies</li>
-      <li>“Route 666” enamel pins</li>
-      <li>“I Brake for Art” tote bags</li>
-    </ul>
-    <p>All proceeds fund our next global exhibition: <em>BusLines: The Arteries of Civilization</em></p>
-
-    <h2>🧠 THE MANIFESTO</h2>
-    <p>We believe:</p>
-    <ul>
-      <li>Art should be inconvenient.</li>
-      <li>Beauty rides in diesel fumes.</li>
-      <li>The world is best seen through scratched plexiglass.</li>
-    </ul>
-    <p>We are not waiting for the world to notice. We are taking it one frame at a time.</p>
   </section>
 
-  <div class="cta">🚀 READY TO ROLL?<br>Find your nearest bus stop. Load your camera. Open your mind. Upload your truth.</div>
-
-  <footer>© 2025 BusPhotog Movement. All routes lead to revolution.</footer>
+  <footer>
+    &copy; 2025 – Fiktivní příběh pro pobavení. Všechny postavy a události jsou smyšlené.
+  </footer>
 </body>
 </html>
