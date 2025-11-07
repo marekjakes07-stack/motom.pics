@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Dash - Generované Levely</title>
+    <title>Tetris s Texturovanými Bloky</title>
     <style>
         * {
             margin: 0;
@@ -20,7 +20,6 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            overflow-x: hidden;
         }
         
         .container {
@@ -43,18 +42,49 @@
         }
         
         .game-container {
-            position: relative;
-            width: 100%;
-            height: 400px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .game-board {
+            position: relative;
             border: 3px solid #ffcc00;
-            border-radius: 10px;
+            border-radius: 5px;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
         }
         
         canvas {
             display: block;
+            background-color: #0f1c2e;
+        }
+        
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 200px;
+        }
+        
+        .panel-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ffcc00;
+        }
+        
+        .panel-section h2 {
+            margin-bottom: 10px;
+            color: #ffcc00;
+            font-size: 1.2rem;
+        }
+        
+        .next-piece canvas {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
         }
         
         .controls {
@@ -88,6 +118,7 @@
             border-radius: 10px;
             margin-top: 20px;
             text-align: left;
+            max-width: 600px;
         }
         
         .instructions h2 {
@@ -114,12 +145,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             padding: 30px;
             border-radius: 10px;
             text-align: center;
             display: none;
             z-index: 10;
+            border: 2px solid #ffcc00;
         }
         
         .game-over h2 {
@@ -134,497 +166,546 @@
             font-size: 1.2rem;
         }
         
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-            margin-bottom: 10px;
-            overflow: hidden;
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            text-align: left;
         }
         
-        .progress {
-            height: 100%;
-            background: #ffcc00;
-            width: 0%;
-            transition: width 0.3s;
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .key {
+            display: inline-block;
+            background: rgba(255, 204, 0, 0.2);
+            border: 1px solid #ffcc00;
+            border-radius: 3px;
+            padding: 2px 6px;
+            margin: 0 2px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Geometry Dash</h1>
-        <p class="subtitle">Generované levely - Všechny skoky jsou možné!</p>
-        
-        <div class="level-info">
-            <div>Level: <span id="level">1</span></div>
-            <div class="score">Skóre: <span id="score">0</span></div>
-            <div>Dokončeno: <span id="progress">0</span>%</div>
-        </div>
-        
-        <div class="progress-bar">
-            <div class="progress" id="progressBar"></div>
-        </div>
+        <h1>Tetris s Texturovanými Bloky</h1>
+        <p class="subtitle">Klasický Tetris s vlastními texturami bloků</p>
         
         <div class="game-container">
-            <canvas id="gameCanvas" width="900" height="400"></canvas>
-            <div class="game-over" id="gameOver">
-                <h2>Game Over!</h2>
-                <p>Vaše skóre: <span id="finalScore">0</span></p>
-                <p>Dosáhli jste levelu: <span id="finalLevel">1</span></p>
-                <button id="restartButton">Hrát znovu</button>
+            <div class="game-board">
+                <canvas id="gameCanvas" width="300" height="600"></canvas>
+                <div class="game-over" id="gameOver">
+                    <h2>Game Over!</h2>
+                    <p>Vaše skóre: <span id="finalScore">0</span></p>
+                    <p>Nejvyšší level: <span id="finalLevel">1</span></p>
+                    <button id="restartButton">Hrát znovu</button>
+                </div>
+            </div>
+            
+            <div class="side-panel">
+                <div class="panel-section">
+                    <h2>Skóre</h2>
+                    <div class="score" id="score">0</div>
+                    <div class="level-info">
+                        <div>Level: <span id="level">1</span></div>
+                        <div>Řádky: <span id="lines">0</span></div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h2>Další kousek</h2>
+                    <div class="next-piece">
+                        <canvas id="nextPieceCanvas" width="120" height="120"></canvas>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h2>Statistiky</h2>
+                    <div class="stats">
+                        <div class="stat-item">I: <span id="statI">0</span></div>
+                        <div class="stat-item">J: <span id="statJ">0</span></div>
+                        <div class="stat-item">L: <span id="statL">0</span></div>
+                        <div class="stat-item">O: <span id="statO">0</span></div>
+                        <div class="stat-item">S: <span id="statS">0</span></div>
+                        <div class="stat-item">T: <span id="statT">0</span></div>
+                        <div class="stat-item">Z: <span id="statZ">0</span></div>
+                    </div>
+                </div>
+                
+                <div class="panel-section">
+                    <h2>Ovládání</h2>
+                    <div style="text-align: left; font-size: 0.9rem;">
+                        <p><span class="key">←</span> <span class="key">→</span> Pohyb</p>
+                        <p><span class="key">↓</span> Rychlý pád</p>
+                        <p><span class="key">↑</span> Rotace</p>
+                        <p><span class="key">Space</span> Okamžitý pád</p>
+                        <p><span class="key">P</span> Pozastavit</p>
+                    </div>
+                </div>
             </div>
         </div>
         
         <div class="controls">
             <button id="startButton">Start hry</button>
-            <button id="jumpButton">Skok (Space)</button>
+            <button id="pauseButton">Pozastavit</button>
         </div>
         
         <div class="instructions">
             <h2>Návod k hraní</h2>
             <ul>
-                <li>Stiskněte tlačítko "Start hry" pro začátek</li>
-                <li>Použijte mezerník nebo tlačítko "Skok" pro překonávání překážek</li>
-                <li>Můžete skákat na platformy i z platformy</li>
-                <li>Vyhněte se červeným trnům - zabijí vás při kontaktu</li>
-                <li>Každý dokončený level vám přidá 100 bodů</li>
-                <li>Hra končí, když narazíte do překážky nebo spadnete dolů</li>
+                <li>Cílem je skládat kompletní vodorovné řádky z padajících kousků</li>
+                <li>Každý kompletní řádek zmizí a získáte body</li>
+                <li>Čím více řádků najednou, tím více bodů získáte</li>
+                <li>Rychlost hry se zvyšuje s každým levelem</li>
+                <li>Hra končí, když kousky dosáhnou vrcholu hrací plochy</li>
+                <li>Každý typ kousku má vlastní barvu a texturu</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // Inicializace canvasu
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        // Inicializace canvasů
+        const gameCanvas = document.getElementById('gameCanvas');
+        const gameCtx = gameCanvas.getContext('2d');
+        const nextPieceCanvas = document.getElementById('nextPieceCanvas');
+        const nextPieceCtx = nextPieceCanvas.getContext('2d');
         
-        // Načtení vlastního pozadí - ZDE MŮŽETE ZMĚNIT POZADÍ LEVELU
-        // Stačí změnit src na cestu k vašemu obrázku
-        const backgroundImage = new Image();
-        backgroundImage.src = 'Motom vjetnamec.png'; // ZDE VLOŽTE URL NEBO CESTU K VAŠEMU OBRÁZKU
-        // Například: backgroundImage.src = 'moje-pozadi.jpg';
+        // Konstanty hry
+        const BOARD_WIDTH = 10;
+        const BOARD_HEIGHT = 20;
+        const BLOCK_SIZE = 30;
+        
+        // Vytvoření textury bloku - simulace obrázku "Motom vjetnamec.png"
+        function createBlockTexture(color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = BLOCK_SIZE;
+            canvas.height = BLOCK_SIZE;
+            const ctx = canvas.getContext('2d');
+            
+            // Hlavní barva bloku
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, BLOCK_SIZE, BLOCK_SIZE);
+            
+            // Stíny pro 3D efekt
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.fillRect(0, 0, BLOCK_SIZE, 2);
+            ctx.fillRect(0, 0, 2, BLOCK_SIZE);
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(0, BLOCK_SIZE - 2, BLOCK_SIZE, 2);
+            ctx.fillRect(BLOCK_SIZE - 2, 0, 2, BLOCK_SIZE);
+            
+            // Vzor/textura uvnitř bloku
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // Vytvoření jednoduchého vzoru
+            for (let i = 5; i < BLOCK_SIZE; i += 8) {
+                ctx.beginPath();
+                ctx.moveTo(i, 5);
+                ctx.lineTo(i, BLOCK_SIZE - 5);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(5, i);
+                ctx.lineTo(BLOCK_SIZE - 5, i);
+                ctx.stroke();
+            }
+            
+            return canvas;
+        }
+        
+        // Barvy pro různé typy kousků
+        const PIECE_COLORS = {
+            'I': '#00f0f0', // Cyan
+            'J': '#0000f0', // Modrá
+            'L': '#f0a000', // Oranžová
+            'O': '#f0f000', // Žlutá
+            'S': '#00f000', // Zelená
+            'T': '#a000f0', // Fialová
+            'Z': '#f00000'  // Červená
+        };
+        
+        // Tvary kousků
+        const PIECES = {
+            'I': [
+                [0, 0, 0, 0],
+                [1, 1, 1, 1],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
+            ],
+            'J': [
+                [1, 0, 0],
+                [1, 1, 1],
+                [0, 0, 0]
+            ],
+            'L': [
+                [0, 0, 1],
+                [1, 1, 1],
+                [0, 0, 0]
+            ],
+            'O': [
+                [1, 1],
+                [1, 1]
+            ],
+            'S': [
+                [0, 1, 1],
+                [1, 1, 0],
+                [0, 0, 0]
+            ],
+            'T': [
+                [0, 1, 0],
+                [1, 1, 1],
+                [0, 0, 0]
+            ],
+            'Z': [
+                [1, 1, 0],
+                [0, 1, 1],
+                [0, 0, 0]
+            ]
+        };
         
         // Proměnné hry
         let gameRunning = false;
+        let gamePaused = false;
         let score = 0;
         let level = 1;
-        let cameraX = 0;
-        let progress = 0;
-        
-        let player = {
-            x: 100,
-            y: 300,
-            width: 30,
-            height: 30,
-            velocityY: 0,
-            gravity: 0.8,
-            jumpForce: -16,
-            isJumping: false,
-            color: '#ffcc00',
-            onGround: false
+        let lines = 0;
+        let board = [];
+        let currentPiece = null;
+        let nextPiece = null;
+        let dropTime = 0;
+        let dropInterval = 1000; // ms
+        let pieceStatistics = {
+            'I': 0, 'J': 0, 'L': 0, 'O': 0, 'S': 0, 'T': 0, 'Z': 0
         };
         
-        let platforms = [];
-        let spikes = [];
-        let levelLength = 0;
+        // Textury bloků
+        let blockTextures = {};
         
         // Prvky UI
         const startButton = document.getElementById('startButton');
-        const jumpButton = document.getElementById('jumpButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const restartButton = document.getElementById('restartButton');
         const scoreElement = document.getElementById('score');
         const levelElement = document.getElementById('level');
-        const progressElement = document.getElementById('progress');
-        const progressBar = document.getElementById('progressBar');
+        const linesElement = document.getElementById('lines');
         const gameOverScreen = document.getElementById('gameOver');
         const finalScoreElement = document.getElementById('finalScore');
         const finalLevelElement = document.getElementById('finalLevel');
-        const restartButton = document.getElementById('restartButton');
         
-        // Funkce pro generování levelu
-        function generateLevel(levelNum) {
-            platforms = [];
-            spikes = [];
-            cameraX = 0;
-            progress = 0;
-            
-            // Startovní platforma
-            platforms.push({
-                x: 0,
-                y: canvas.height - 50,
-                width: 200,
-                height: 50,
-                color: '#3498db'
-            });
-            
-            let currentX = 200;
-            levelLength = 3000 + (levelNum * 500); // Délka levelu se zvyšuje s každým levelem
-            
-            // Generování platform s pravidly pro proveditelnost
-            while (currentX < levelLength) {
-                const platformType = Math.random();
-                
-                // Různé typy platform podle úrovně
-                if (levelNum <= 2) {
-                    // Jednoduché platformy pro první levely
-                    if (platformType < 0.7) {
-                        // Normální platforma
-                        const width = 80 + Math.random() * 120;
-                        const gap = 50 + Math.random() * 100;
-                        const height = canvas.height - 100 - Math.random() * 150;
-                        
-                        platforms.push({
-                            x: currentX + gap,
-                            y: height,
-                            width: width,
-                            height: 20,
-                            color: '#3498db'
-                        });
-                        
-                        currentX += gap + width;
-                    } else {
-                        // Série malých platforem
-                        const count = 2 + Math.floor(Math.random() * 3);
-                        const baseHeight = canvas.height - 100 - Math.random() * 150;
-                        
-                        for (let i = 0; i < count; i++) {
-                            platforms.push({
-                                x: currentX + (i * 100),
-                                y: baseHeight,
-                                width: 60,
-                                height: 20,
-                                color: '#3498db'
-                            });
-                        }
-                        
-                        currentX += count * 100;
-                    }
-                } else if (levelNum <= 5) {
-                    // Středně obtížné platformy
-                    if (platformType < 0.5) {
-                        // Normální platforma
-                        const width = 80 + Math.random() * 120;
-                        const gap = 60 + Math.random() * 120;
-                        const height = canvas.height - 100 - Math.random() * 200;
-                        
-                        platforms.push({
-                            x: currentX + gap,
-                            y: height,
-                            width: width,
-                            height: 20,
-                            color: '#3498db'
-                        });
-                        
-                        currentX += gap + width;
-                    } else if (platformType < 0.8) {
-                        // Série malých platforem
-                        const count = 2 + Math.floor(Math.random() * 4);
-                        const baseHeight = canvas.height - 100 - Math.random() * 200;
-                        
-                        for (let i = 0; i < count; i++) {
-                            const heightVariation = i % 2 === 0 ? 0 : -40;
-                            platforms.push({
-                                x: currentX + (i * 80),
-                                y: baseHeight + heightVariation,
-                                width: 50,
-                                height: 20,
-                                color: '#3498db'
-                            });
-                        }
-                        
-                        currentX += count * 80;
-                    } else {
-                        // Platforma s trny
-                        const width = 100 + Math.random() * 100;
-                        const gap = 70 + Math.random() * 100;
-                        const height = canvas.height - 100 - Math.random() * 150;
-                        
-                        platforms.push({
-                            x: currentX + gap,
-                            y: height,
-                            width: width,
-                            height: 20,
-                            color: '#3498db'
-                        });
-                        
-                        // Přidání trnů na platformu
-                        const spikeCount = Math.floor(width / 30);
-                        for (let i = 0; i < spikeCount; i++) {
-                            if (Math.random() < 0.5) { // 50% šance na trn
-                                spikes.push({
-                                    x: currentX + gap + 15 + (i * 30),
-                                    y: height - 20,
-                                    width: 20,
-                                    height: 20,
-                                    color: '#e74c3c'
-                                });
-                            }
-                        }
-                        
-                        currentX += gap + width;
-                    }
-                } else {
-                    // Obtížné platformy pro vyšší levely
-                    if (platformType < 0.4) {
-                        // Normální platforma
-                        const width = 80 + Math.random() * 120;
-                        const gap = 70 + Math.random() * 130;
-                        const height = canvas.height - 100 - Math.random() * 250;
-                        
-                        platforms.push({
-                            x: currentX + gap,
-                            y: height,
-                            width: width,
-                            height: 20,
-                            color: '#3498db'
-                        });
-                        
-                        currentX += gap + width;
-                    } else if (platformType < 0.7) {
-                        // Série malých platforem
-                        const count = 3 + Math.floor(Math.random() * 4);
-                        const baseHeight = canvas.height - 100 - Math.random() * 250;
-                        
-                        for (let i = 0; i < count; i++) {
-                            const heightVariation = (i % 3) * -30;
-                            platforms.push({
-                                x: currentX + (i * 70),
-                                y: baseHeight + heightVariation,
-                                width: 40,
-                                height: 20,
-                                color: '#3498db'
-                            });
-                        }
-                        
-                        currentX += count * 70;
-                    } else {
-                        // Platforma s trny
-                        const width = 100 + Math.random() * 100;
-                        const gap = 80 + Math.random() * 120;
-                        const height = canvas.height - 100 - Math.random() * 200;
-                        
-                        platforms.push({
-                            x: currentX + gap,
-                            y: height,
-                            width: width,
-                            height: 20,
-                            color: '#3498db'
-                        });
-                        
-                        // Přidání trnů na platformu
-                        const spikeCount = Math.floor(width / 25);
-                        for (let i = 0; i < spikeCount; i++) {
-                            if (Math.random() < 0.7) { // 70% šance na trn
-                                spikes.push({
-                                    x: currentX + gap + 12 + (i * 25),
-                                    y: height - 20,
-                                    width: 20,
-                                    height: 20,
-                                    color: '#e74c3c'
-                                });
-                            }
-                        }
-                        
-                        currentX += gap + width;
-                    }
-                }
-                
-                // Přidání náhodných trnů mezi platformami (pouze pro vyšší levely)
-                if (levelNum > 3 && Math.random() < 0.3) {
-                    const spikeCount = 1 + Math.floor(Math.random() * 3);
-                    const spikeY = canvas.height - 50 - Math.random() * 100;
-                    
-                    for (let i = 0; i < spikeCount; i++) {
-                        spikes.push({
-                            x: currentX + (i * 40),
-                            y: spikeY,
-                            width: 20,
-                            height: 20,
-                            color: '#e74c3c'
-                        });
-                    }
-                    
-                    currentX += spikeCount * 40;
-                }
-            }
-            
-            // Finální platforma
-            platforms.push({
-                x: levelLength - 100,
-                y: canvas.height - 100,
-                width: 200,
-                height: 20,
-                color: '#2ecc71'
-            });
-            
-            // Resetování pozice hráče
-            player.x = 100;
-            player.y = 250;
-            player.velocityY = 0;
-            player.isJumping = false;
-            player.onGround = true;
-        }
-        
-        // Funkce pro detekci kolize
-        function checkCollision(obj1, obj2) {
-            return obj1.x < obj2.x + obj2.width &&
-                   obj1.x + obj1.width > obj2.x &&
-                   obj1.y < obj2.y + obj2.height &&
-                   obj1.y + obj1.height > obj2.y;
-        }
-        
-        // Funkce pro detekci kolize s trny
-        function checkSpikeCollision(player, spike) {
-            // Trojúhelníková kolize - zjednodušená na obdélník pro jednoduchost
-            return player.x < spike.x + spike.width &&
-                   player.x + player.width > spike.x &&
-                   player.y < spike.y + spike.height &&
-                   player.y + player.height > spike.y;
-        }
-        
-        // Funkce pro skok
-        function jump() {
-            if (!player.isJumping && player.onGround) {
-                player.velocityY = player.jumpForce;
-                player.isJumping = true;
-                player.onGround = false;
-            }
-        }
-        
-        // Posluchače událostí
-        document.addEventListener('keydown', function(event) {
-            if (event.code === 'Space' && gameRunning) {
-                jump();
-                event.preventDefault();
-            }
+        // Inicializace statistik
+        const statElements = {};
+        ['I', 'J', 'L', 'O', 'S', 'T', 'Z'].forEach(piece => {
+            statElements[piece] = document.getElementById(`stat${piece}`);
         });
         
-        jumpButton.addEventListener('click', jump);
+        // Funkce pro inicializaci hry
+        function initGame() {
+            // Vytvoření textur pro všechny typy bloků
+            for (const piece in PIECE_COLORS) {
+                blockTextures[piece] = createBlockTexture(PIECE_COLORS[piece]);
+            }
+            
+            // Inicializace prázdné hrací plochy
+            board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
+            
+            // Resetování statistik
+            score = 0;
+            level = 1;
+            lines = 0;
+            dropInterval = 1000;
+            pieceStatistics = { 'I': 0, 'J': 0, 'L': 0, 'O': 0, 'S': 0, 'T': 0, 'Z': 0 };
+            
+            updateUI();
+        }
         
-        startButton.addEventListener('click', startGame);
-        restartButton.addEventListener('click', startGame);
+        // Funkce pro vytvoření nového kousku
+        function createPiece() {
+            const pieces = 'IJLOSTZ';
+            const type = pieces[Math.floor(Math.random() * pieces.length)];
+            
+            return {
+                type: type,
+                shape: PIECES[type],
+                x: Math.floor(BOARD_WIDTH / 2) - Math.floor(PIECES[type][0].length / 2),
+                y: 0,
+                rotation: 0
+            };
+        }
+        
+        // Funkce pro rotaci kousku
+        function rotatePiece(piece) {
+            const newShape = [];
+            const size = piece.shape.length;
+            
+            // Vytvoření transponované matice
+            for (let i = 0; i < size; i++) {
+                newShape[i] = [];
+                for (let j = 0; j < size; j++) {
+                    newShape[i][j] = piece.shape[size - 1 - j][i];
+                }
+            }
+            
+            // Kontrola kolize po rotaci
+            const oldShape = piece.shape;
+            piece.shape = newShape;
+            
+            if (checkCollision(piece)) {
+                piece.shape = oldShape;
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Funkce pro kontrolu kolize
+        function checkCollision(piece) {
+            for (let y = 0; y < piece.shape.length; y++) {
+                for (let x = 0; x < piece.shape[y].length; x++) {
+                    if (piece.shape[y][x]) {
+                        const boardX = piece.x + x;
+                        const boardY = piece.y + y;
+                        
+                        if (
+                            boardX < 0 ||
+                            boardX >= BOARD_WIDTH ||
+                            boardY >= BOARD_HEIGHT ||
+                            (boardY >= 0 && board[boardY][boardX])
+                        ) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        
+        // Funkce pro přesun kousku na hrací plochu
+        function mergePiece() {
+            for (let y = 0; y < currentPiece.shape.length; y++) {
+                for (let x = 0; x < currentPiece.shape[y].length; x++) {
+                    if (currentPiece.shape[y][x]) {
+                        const boardY = currentPiece.y + y;
+                        if (boardY >= 0) {
+                            board[boardY][currentPiece.x + x] = currentPiece.type;
+                        }
+                    }
+                }
+            }
+            
+            // Aktualizace statistik
+            pieceStatistics[currentPiece.type]++;
+            updateStats();
+        }
+        
+        // Funkce pro kontrolu kompletních řádků
+        function checkLines() {
+            let linesCleared = 0;
+            
+            for (let y = BOARD_HEIGHT - 1; y >= 0; y--) {
+                if (board[y].every(cell => cell !== 0)) {
+                    // Odstranění řádku
+                    board.splice(y, 1);
+                    // Přidání nového prázdného řádku nahoru
+                    board.unshift(Array(BOARD_WIDTH).fill(0));
+                    linesCleared++;
+                    y++; // Zkontrolovat znovu stejný index
+                }
+            }
+            
+            if (linesCleared > 0) {
+                // Výpočet skóre
+                const linePoints = [0, 40, 100, 300, 1200]; // Body za 0, 1, 2, 3, 4 řádky
+                score += linePoints[linesCleared] * level;
+                lines += linesCleared;
+                
+                // Zvýšení levelu každých 10 řádků
+                level = Math.floor(lines / 10) + 1;
+                
+                // Zrychlení hry
+                dropInterval = Math.max(100, 1000 - (level - 1) * 100);
+                
+                updateUI();
+            }
+        }
+        
+        // Funkce pro pohyb kousku
+        function movePiece(dx, dy) {
+            if (!gameRunning || gamePaused) return;
+            
+            currentPiece.x += dx;
+            currentPiece.y += dy;
+            
+            if (checkCollision(currentPiece)) {
+                currentPiece.x -= dx;
+                currentPiece.y -= dy;
+                
+                // Pokud se pohyboval dolů a narazil, zafixujeme kousek
+                if (dy > 0) {
+                    mergePiece();
+                    checkLines();
+                    
+                    // Vytvoření nového kousku
+                    currentPiece = nextPiece;
+                    nextPiece = createPiece();
+                    drawNextPiece();
+                    
+                    // Kontrola konce hry
+                    if (checkCollision(currentPiece)) {
+                        gameOver();
+                    }
+                }
+                
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Funkce pro okamžitý pád
+        function hardDrop() {
+            if (!gameRunning || gamePaused) return;
+            
+            while (movePiece(0, 1)) {
+                // Pokračujeme v pádu, dokud je to možné
+            }
+        }
+        
+        // Funkce pro vykreslení hrací plochy
+        function drawBoard() {
+            gameCtx.fillStyle = '#0f1c2e';
+            gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Vykreslení mřížky
+            gameCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            gameCtx.lineWidth = 1;
+            
+            for (let x = 0; x <= BOARD_WIDTH; x++) {
+                gameCtx.beginPath();
+                gameCtx.moveTo(x * BLOCK_SIZE, 0);
+                gameCtx.lineTo(x * BLOCK_SIZE, gameCanvas.height);
+                gameCtx.stroke();
+            }
+            
+            for (let y = 0; y <= BOARD_HEIGHT; y++) {
+                gameCtx.beginPath();
+                gameCtx.moveTo(0, y * BLOCK_SIZE);
+                gameCtx.lineTo(gameCanvas.width, y * BLOCK_SIZE);
+                gameCtx.stroke();
+            }
+            
+            // Vykreslení bloků na hrací ploše
+            for (let y = 0; y < BOARD_HEIGHT; y++) {
+                for (let x = 0; x < BOARD_WIDTH; x++) {
+                    if (board[y][x]) {
+                        const type = board[y][x];
+                        gameCtx.drawImage(blockTextures[type], x * BLOCK_SIZE, y * BLOCK_SIZE);
+                    }
+                }
+            }
+            
+            // Vykreslení aktuálního kousku
+            if (currentPiece) {
+                for (let y = 0; y < currentPiece.shape.length; y++) {
+                    for (let x = 0; x < currentPiece.shape[y].length; x++) {
+                        if (currentPiece.shape[y][x]) {
+                            gameCtx.drawImage(
+                                blockTextures[currentPiece.type],
+                                (currentPiece.x + x) * BLOCK_SIZE,
+                                (currentPiece.y + y) * BLOCK_SIZE
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Funkce pro vykreslení dalšího kousku
+        function drawNextPiece() {
+            nextPieceCtx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+            nextPieceCtx.fillRect(0, 0, nextPieceCanvas.width, nextPieceCanvas.height);
+            
+            if (nextPiece) {
+                const pieceSize = nextPiece.shape.length;
+                const offsetX = (nextPieceCanvas.width - pieceSize * BLOCK_SIZE) / 2;
+                const offsetY = (nextPieceCanvas.height - pieceSize * BLOCK_SIZE) / 2;
+                
+                for (let y = 0; y < pieceSize; y++) {
+                    for (let x = 0; x < pieceSize; x++) {
+                        if (nextPiece.shape[y][x]) {
+                            nextPieceCtx.drawImage(
+                                blockTextures[nextPiece.type],
+                                offsetX + x * BLOCK_SIZE,
+                                offsetY + y * BLOCK_SIZE
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Funkce pro aktualizaci UI
+        function updateUI() {
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            linesElement.textContent = lines;
+        }
+        
+        // Funkce pro aktualizaci statistik
+        function updateStats() {
+            for (const piece in pieceStatistics) {
+                statElements[piece].textContent = pieceStatistics[piece];
+            }
+        }
         
         // Funkce pro start hry
         function startGame() {
-            gameRunning = true;
-            score = 0;
-            level = 1;
-            updateScore();
-            updateLevel();
-            generateLevel(level);
-            gameOverScreen.style.display = 'none';
-            gameLoop();
+            if (!gameRunning) {
+                initGame();
+                currentPiece = createPiece();
+                nextPiece = createPiece();
+                drawNextPiece();
+                gameRunning = true;
+                gamePaused = false;
+                gameOverScreen.style.display = 'none';
+                pauseButton.textContent = 'Pozastavit';
+                
+                // Spuštění herní smyčky
+                gameLoop();
+            } else if (gamePaused) {
+                gamePaused = false;
+                pauseButton.textContent = 'Pozastavit';
+            }
         }
         
-        // Funkce pro aktualizaci skóre
-        function updateScore() {
-            scoreElement.textContent = score;
-        }
-        
-        // Funkce pro aktualizaci levelu
-        function updateLevel() {
-            levelElement.textContent = level;
-        }
-        
-        // Funkce pro aktualizaci progresu
-        function updateProgress() {
-            progress = Math.min(100, Math.max(0, (player.x / levelLength) * 100));
-            progressElement.textContent = Math.round(progress);
-            progressBar.style.width = progress + '%';
+        // Funkce pro pozastavení hry
+        function togglePause() {
+            if (gameRunning) {
+                gamePaused = !gamePaused;
+                pauseButton.textContent = gamePaused ? 'Pokračovat' : 'Pozastavit';
+            }
         }
         
         // Hlavní herní smyčka
         function gameLoop() {
             if (!gameRunning) return;
             
-            // Vyčištění canvasu
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Vykreslení pozadí
-            if (backgroundImage.src) {
-                ctx.drawImage(backgroundImage, -cameraX * 0.5, 0, canvas.width, canvas.height);
-                ctx.drawImage(backgroundImage, -cameraX * 0.5 + canvas.width, 0, canvas.width, canvas.height);
-            } else {
-                // Výchozí pozadí
-                ctx.fillStyle = '#0f3460';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (!gamePaused) {
+                const currentTime = Date.now();
                 
-                // Vykreslení "země"
-                ctx.fillStyle = '#1a1a2e';
-                ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
-            }
-            
-            // Aplikace gravitace
-            player.velocityY += player.gravity;
-            player.y += player.velocityY;
-            
-            // Resetování stavu na zemi
-            player.onGround = false;
-            
-            // Detekce kolize s platformami
-            for (const platform of platforms) {
-                // Vykreslení platformy (s ohledem na kameru)
-                ctx.fillStyle = platform.color;
-                ctx.fillRect(platform.x - cameraX, platform.y, platform.width, platform.height);
-                
-                // Kolize shora (hráč přistane na platformě)
-                if (player.velocityY > 0 &&
-                    player.x < platform.x + platform.width &&
-                    player.x + player.width > platform.x &&
-                    player.y + player.height <= platform.y + 10 &&
-                    player.y + player.height + player.velocityY >= platform.y) {
-                    
-                    player.y = platform.y - player.height;
-                    player.velocityY = 0;
-                    player.isJumping = false;
-                    player.onGround = true;
+                // Automatický pád kousku
+                if (currentTime - dropTime > dropInterval) {
+                    movePiece(0, 1);
+                    dropTime = currentTime;
                 }
-            }
-            
-            // Detekce kolize s trny
-            for (const spike of spikes) {
-                // Vykreslení trnu jako trojúhelníku
-                ctx.fillStyle = spike.color;
-                ctx.beginPath();
-                ctx.moveTo(spike.x - cameraX + spike.width/2, spike.y);
-                ctx.lineTo(spike.x - cameraX, spike.y + spike.height);
-                ctx.lineTo(spike.x - cameraX + spike.width, spike.y + spike.height);
-                ctx.closePath();
-                ctx.fill();
                 
-                // Detekce kolize
-                if (checkSpikeCollision(player, {x: spike.x, y: spike.y, width: spike.width, height: spike.height})) {
-                    gameOver();
-                    return;
-                }
+                // Vykreslení hry
+                drawBoard();
             }
-            
-            // Pohyb kamery
-            if (player.x > canvas.width / 2) {
-                cameraX = player.x - canvas.width / 2;
-            }
-            
-            // Kontrola pádu dolů
-            if (player.y > canvas.height) {
-                gameOver();
-                return;
-            }
-            
-            // Kontrola dokončení levelu
-            if (player.x > levelLength) {
-                score += 100;
-                level++;
-                updateScore();
-                updateLevel();
-                generateLevel(level);
-            }
-            
-            // Vykreslení hráče
-            ctx.fillStyle = player.color;
-            ctx.fillRect(player.x - cameraX, player.y, player.width, player.height);
-            
-            // Aktualizace progresu
-            updateProgress();
             
             // Pokračování herní smyčky
             requestAnimationFrame(gameLoop);
@@ -638,11 +719,54 @@
             gameOverScreen.style.display = 'block';
         }
         
-        // Inicializace hry
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "white";
-        ctx.textAlign = "center";
-        ctx.fillText("Stiskněte 'Start hry' pro začátek", canvas.width / 2, canvas.height / 2);
+        // Posluchače událostí
+        startButton.addEventListener('click', startGame);
+        pauseButton.addEventListener('click', togglePause);
+        restartButton.addEventListener('click', startGame);
+        
+        document.addEventListener('keydown', function(event) {
+            if (!gameRunning || gamePaused) return;
+            
+            switch (event.key) {
+                case 'ArrowLeft':
+                    movePiece(-1, 0);
+                    break;
+                case 'ArrowRight':
+                    movePiece(1, 0);
+                    break;
+                case 'ArrowDown':
+                    movePiece(0, 1);
+                    break;
+                case 'ArrowUp':
+                    rotatePiece(currentPiece);
+                    break;
+                case ' ':
+                    hardDrop();
+                    break;
+                case 'p':
+                case 'P':
+                    togglePause();
+                    break;
+            }
+            
+            // Zabránění výchozímu chování šipek
+            if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', ' '].includes(event.key)) {
+                event.preventDefault();
+            }
+        });
+        
+        // Inicializace hry při načtení stránky
+        initGame();
+        drawBoard();
+        drawNextPiece();
+        
+        // Úvodní zpráva
+        gameCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        gameCtx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+        gameCtx.fillStyle = 'white';
+        gameCtx.font = '20px Arial';
+        gameCtx.textAlign = 'center';
+        gameCtx.fillText('Stiskněte "Start hry"', gameCanvas.width / 2, gameCanvas.height / 2);
     </script>
 </body>
 </html>
