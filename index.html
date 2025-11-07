@@ -1,351 +1,405 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<title>Juklova Argentinská Odysea</title>
-<style>
-  /* --- Základní chaos --- */
-  body {
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);
-    background-size: 600% 600%;
-    animation: bgShift 20s ease infinite;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    overflow-x: hidden;
-    color: white;
-  }
-  <img src="Motom vjetnamec.png">
-
-  @keyframes bgShift {
-    0% {background-position:0% 50%;}
-    50% {background-position:100% 50%;}
-    100% {background-position:0% 50%;}
-  }
-
-  h1 {
-    font-size: 4em;
-    text-align: center;
-    animation: rotateText 10s linear infinite;
-  }
-
-  @keyframes rotateText {
-    0% {transform: rotate(0deg);}
-    50% {transform: rotate(180deg);}
-    100% {transform: rotate(360deg);}
-  }
-
-  .explosion {
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    background: radial-gradient(circle, yellow, red);
-    border-radius: 50%;
-    pointer-events: none;
-    animation: explode 1s ease-out forwards;
-  }
-
-  @keyframes explode {
-    0% {transform: scale(0);}
-    50% {transform: scale(3);}
-    100% {transform: scale(0);}
-  }
-
-  .story {
-    width: 80%;
-    margin: 20px auto;
-    font-size: 1.2em;
-    line-height: 1.5em;
-    text-align: justify;
-    animation: floatText 6s ease-in-out infinite alternate;
-  }
-
-  @keyframes floatText {
-    0% {transform: translateY(0px);}
-    50% {transform: translateY(-20px);}
-    100% {transform: translateY(0px);}
-  }
-
-  .rotateRandom {
-    display: inline-block;
-    animation: spinRandom 5s linear infinite;
-  }
-
-  @keyframes spinRandom {
-    0% {transform: rotate(0deg);}
-    25% {transform: rotate(90deg);}
-    50% {transform: rotate(180deg);}
-    75% {transform: rotate(270deg);}
-    100% {transform: rotate(360deg);}
-  }
-
-  button {
-    display: block;
-    margin: 20px auto;
-    padding: 15px 30px;
-    font-size: 1.5em;
-    background: linear-gradient(90deg, orange, pink, cyan);
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% {transform: scale(1);}
-    50% {transform: scale(1.2);}
-    100% {transform: scale(1);}
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Dash - Webová Hra</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #cccccc;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+            border: 3px solid #ffcc00;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+        }
+        
+        canvas {
+            display: block;
+            background-color: #0f3460;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #ffcc00;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #ffd633;
+            transform: scale(1.05);
+        }
+        
+        .customization {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .customization h2 {
+            margin-bottom: 15px;
+            color: #ffcc00;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            padding: 8px 12px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ffcc00;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .instructions h2 {
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .score {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .game-over h2 {
+            color: #ff3333;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Geometry Dash</h1>
+        <p class="subtitle">Jednoduchá webová verze</p>
+        
+        <div class="score">Skóre: <span id="score">0</span></div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="400"></canvas>
+            <div class="game-over" id="gameOver">
+                <h2>Game Over!</h2>
+                <p>Vaše skóre: <span id="finalScore">0</span></p>
+                <button id="restartButton">Hrát znovu</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="startButton">Start hry</button>
+            <button id="jumpButton">Skok (Space)</button>
+        </div>
+        
+        <div class="customization">
+            <h2>Přizpůsobení hry</h2>
+            <div class="input-group">
+                <label for="backgroundImage">URL obrázku pro pozadí levelu:</label>
+                <input type="text" id="backgroundImage" placeholder="Vložte URL obrázku zde">
+                <button id="changeBackground">Změnit pozadí</button>
+            </div>
+            <!-- MÍSTO PRO VAŠE POZADÍ -->
+            <!-- Pokud chcete použít lokální obrázek, nahrajte jej do stejné složky jako tento soubor -->
+            <!-- a změňte src atribut v následujícím řádku: -->
+            <!-- <img id="customBg" src="vas-obrazek.jpg" style="display:none"> -->
+            <img id="customBg" src="Motom vjetnamec.png" style="display:none">
+        </div>
+        
+        <div class="instructions">
+            <h2>Návod k hraní</h2>
+            <ul>
+                <li>Stiskněte tlačítko "Start hry" pro začátek</li>
+                <li>Použijte mezerník nebo tlačítko "Skok" pro překonávání překážek</li>
+                <li>Vaše skóre se zvyšuje s každou úspěšně překonanou překážkou</li>
+                <li>Hra končí, když narazíte do překážky</li>
+                <li>Můžete změnit pozadí levelu pomocí URL obrázku</li>
+            </ul>
+        </div>
+    </div>
 
-<h1><span class="rotateRandom">JUKL</span> <span class="rotateRandom">JUKL</span> <span class="rotateRandom">JUKL</span></h1>
-
-<div class="story">
-  Kapitola 1: Útěk z galaxie nudných uniformovaných papírů. Jukl, bývalý důstojník imaginárního impéria, 
-  zjistil, že jeho mapy času mají díru. Jednoho dne, při pití čaje s ponožkami, se rozhodl, že uteče do Argentiny.
-  Ne, ne tak obyčejně. Přes obří vesmírný vysavač, který vyfukoval konfety a lamí šampony zároveň. 
-  Každý krok byl doprovázen explozí duhových hvězd a náhodnými prskajícími texty: 
-  <span class="rotateRandom">JUKL!</span> <span class="rotateRandom">BOOM!</span> <span class="rotateRandom">LAMY!</span>
-</div>
-
-<button onclick="createExplosion()">Klikni pro explozi reality!</button>
-
-<script>
-  // --- Funkce pro explozivní chaos ---
-  function createExplosion() {
-    for(let i=0; i<10; i++){
-      let e = document.createElement('div');
-      e.classList.add('explosion');
-      e.style.left = Math.random()*window.innerWidth + 'px';
-      e.style.top = Math.random()*window.innerHeight + 'px';
-      document.body.appendChild(e);
-      setTimeout(()=>{e.remove()},1000);
-    }
-  }
-
-  // --- Automatické náhodné exploze ---
-  setInterval(createExplosion, 3000);
-
-  // --- Random textové šílenství ---
-  const story = document.querySelector('.story');
-  setInterval(() => {
-    const words = ['JUKL', 'LAMY', 'EXPLOZE', 'ČAJ', 'PONOŽKY', 'VYSAVAČ'];
-    const randomWord = words[Math.floor(Math.random()*words.length)];
-    const span = document.createElement('span');
-    span.classList.add('rotateRandom');
-    span.textContent = randomWord + ' ';
-    story.appendChild(span);
-    story.scrollIntoView({behavior:'smooth', block:'end'});
-  }, 800);
-</script>
-
-  <!-- Část 2 příběhu a vizuálního chaosu -->
-<div class="story">
-  Kapitola 2: Argentina a Lamí Balet  
-  Jukl konečně dopadl na argentinskou půdu v obřím duhovém balónu, který připomínal mix pračky a mikrovlnky.  
-  Lamí obyvatelé byli zmatení, ale nadšení – každý krok Jukla doprovázely konfety a náhodné výbuchy cukrových mraků.  
-  <span class="rotateRandom">LAMY TANČÍ!</span> <span class="rotateRandom">JUKL SKÁČE!</span> <span class="rotateRandom">BOOM!</span>  
-  Jukl otevřel školu tance, kde učil lamy piruety, přičemž každá pirueta spustila **malou animovanou explozi** s efektem „poletující ponožky“.  
-</div>
-
-<button onclick="spawnLamDance()">Klikni pro lamí balet!</button>
-
-<script>
-  // --- Lamí balet exploze ---
-  function spawnLamDance() {
-    for(let i=0; i<7; i++){
-      let l = document.createElement('div');
-      l.classList.add('explosion');
-      l.style.background = 'radial-gradient(circle, pink, purple)';
-      l.style.left = Math.random()*window.innerWidth + 'px';
-      l.style.top = Math.random()*window.innerHeight + 'px';
-      l.style.width = (30+Math.random()*50) + 'px';
-      l.style.height = l.style.width;
-      document.body.appendChild(l);
-      setTimeout(()=>{l.remove()},1200);
-    }
-  }
-
-  // --- Automatický lamí balet ---
-  setInterval(spawnLamDance, 5000);
-
-  // --- Časové skoky ---
-  const story2 = document.querySelectorAll('.story')[1];
-  setInterval(() => {
-    const jumps = ['ČASOVÝ SKOK!', 'VYSAVAČ TIME!', 'LAMÍ PONOŽKY!', 'EXPL0Z!'];
-    const randomJump = jumps[Math.floor(Math.random()*jumps.length)];
-    const span = document.createElement('span');
-    span.classList.add('rotateRandom');
-    span.style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
-    span.textContent = randomJump + ' ';
-    story2.appendChild(span);
-    story2.scrollIntoView({behavior:'smooth', block:'end'});
-  }, 1000);
-</script>
-
-  <!-- Část 3: Evropa a české muzeum ponožek -->
-<div class="story">
-  Kapitola 3: Evropa, časové smyčky a muzeum ponožek  
-  Jukl nastoupil do své časem řízené pračky a proletěl Evropou. Francie? Exploze croissantů.  
-  Německo? Náhodné konfety a lamy v uniformách. A nakonec ČR!  
-  Praha ho přivítala deštěm ponožek. Jukl založil své **muzeum ponožkového impéria**, kde každá ponožka měla vlastní hologram,  
-  animovaného papírového důstojníka a malou konfetu, která explodovala, když někdo klikl na exponát.  
-  <span class="rotateRandom">MUSEUM!</span> <span class="rotateRandom">PONOŽKY!</span> <span class="rotateRandom">BOOM!</span>
-</div>
-
-<button onclick="spawnSockExplosion()">Klikni pro explodující ponožky!</button>
-
-<script>
-  // --- Explodující ponožky ---
-  function spawnSockExplosion() {
-    for(let i=0; i<12; i++){
-      let s = document.createElement('div');
-      s.classList.add('explosion');
-      s.style.background = 'radial-gradient(circle, orange, yellow)';
-      s.style.borderRadius = '20%';
-      s.style.left = Math.random()*window.innerWidth + 'px';
-      s.style.top = Math.random()*window.innerHeight + 'px';
-      s.style.width = (20+Math.random()*40)+'px';
-      s.style.height = s.style.width;
-      document.body.appendChild(s);
-      setTimeout(()=>{s.remove()},1200);
-    }
-  }
-
-  // --- Náhodné exploze po kliknutí na text ---
-  document.querySelectorAll('.rotateRandom').forEach(span => {
-    span.addEventListener('click', spawnSockExplosion);
-  });
-
-  // --- Náhodné evropské dobrodružství ---
-  const story3 = document.querySelectorAll('.story')[2];
-  setInterval(() => {
-    const adventures = ['CROISSANT BOOM!', 'LAMÍ UNIFORMY!', 'HOLOGRAM PONOŽKY!', 'EXPL0Z!'];
-    const adv = adventures[Math.floor(Math.random()*adventures.length)];
-    const span = document.createElement('span');
-    span.classList.add('rotateRandom');
-    span.style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
-    span.textContent = adv + ' ';
-    story3.appendChild(span);
-    story3.scrollIntoView({behavior:'smooth', block:'end'});
-  }, 900);
-</script>
-
-  <!-- Část 4: Extra chaos a vizuální šílenství -->
-<div class="story">
-  Kapitola 4: Absolutní chaos v muzeu ponožek  
-  Jukl si řekl: „Proč by měla být historie nudná?“ A tak každá ponožka začala létat, blikající mapy Evropy se otáčely a  
-  konfety vybuchovaly při každém kliknutí. Dokonce i lamí hologramy se začaly točit kolem sebe a zpívat imaginární operu.  
-  <span class="rotateRandom">POZOŽKY LETÍ!</span> <span class="rotateRandom">MAPY BLINK!</span> <span class="rotateRandom">LAMÍ OPERA!</span>
-</div>
-
-<button onclick="spawnSockConfetti()">Klikni pro konfety a létající ponožky!</button>
-
-<script>
-  // --- Létající ponožky a konfety ---
-  function spawnSockConfetti() {
-    for(let i=0;i<20;i++){
-      let c = document.createElement('div');
-      c.classList.add('explosion');
-      c.style.width = (10+Math.random()*30)+'px';
-      c.style.height = c.style.width;
-      c.style.left = Math.random()*window.innerWidth+'px';
-      c.style.top = Math.random()*window.innerHeight+'px';
-      c.style.background = 'radial-gradient(circle, pink, cyan)';
-      c.style.borderRadius = Math.random()*50+'%';
-      c.style.animation = 'floatConfetti '+(2+Math.random()*3)+'s ease-in-out forwards';
-      document.body.appendChild(c);
-      setTimeout(()=>{c.remove()},3000);
-    }
-  }
-
-  // --- Animace konfety ---
-  const style = document.createElement('style');
-  style.innerHTML = `
-    @keyframes floatConfetti {
-      0% {transform: translateY(0px) rotate(0deg);}
-      50% {transform: translateY(-100px) rotate(180deg);}
-      100% {transform: translateY(0px) rotate(360deg);}
-    }
-  `;
-  document.head.appendChild(style);
-
-  // --- Automatické létající ponožky a konfety každých 4s ---
-  setInterval(spawnSockConfetti, 4000);
-
-  // --- Náhodné blikající mapy ---
-  const story4 = document.querySelectorAll('.story')[3];
-  setInterval(() => {
-    const maps = ['EUROPA BLINK!', 'PRAGUE SPIN!', 'LAMÍ MAPA!', 'KONFETI EXPLOZE!'];
-    const mapText = maps[Math.floor(Math.random()*maps.length)];
-    const span = document.createElement('span');
-    span.classList.add('rotateRandom');
-    span.style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
-    span.textContent = mapText + ' ';
-    story4.appendChild(span);
-    story4.scrollIntoView({behavior:'smooth', block:'end'});
-  }, 700);
-</script>
-
-  <!-- Část 5: Mega-finále – absolutní chaos -->
-<div class="story">
-  Kapitola 5: Finální exploze Juklova impéria  
-  A pak nastal den, kdy celé muzeum ponožek, lamí hologramy, blikající mapy a konfety spojily síly.  
-  Jukl stiskl tlačítko „SUPER EXPLOZE“ a celý svět se roztočil, zbarvil do neonových barev a každá ponožka se stala mini-supernovou.  
-  <span class="rotateRandom">FINÁLE!</span> <span class="rotateRandom">LAMÍ SUPER NOVA!</span> <span class="rotateRandom">EXPLOZE!</span>
-</div>
-
-<button onclick="megaExplosion()">Klikni pro MEGA EXPLOZI!</button>
-
-<script>
-  // --- Funkce mega exploze ---
-  function megaExplosion() {
-    for(let i=0;i<50;i++){
-      let e = document.createElement('div');
-      e.classList.add('explosion');
-      e.style.width = (20+Math.random()*60)+'px';
-      e.style.height = e.style.width;
-      e.style.left = Math.random()*window.innerWidth+'px';
-      e.style.top = Math.random()*window.innerHeight+'px';
-      e.style.background = 'radial-gradient(circle, '+randomColor()+', '+randomColor()+')';
-      e.style.borderRadius = Math.random()*50+'%';
-      e.style.animation = 'floatConfetti '+(1+Math.random()*2)+'s ease-in-out forwards';
-      document.body.appendChild(e);
-      setTimeout(()=>{e.remove()},3000);
-    }
-  }
-
-  function randomColor(){
-    return '#'+Math.floor(Math.random()*16777215).toString(16);
-  }
-
-  // --- Poskakující a rotující celé tělo stránky ---
-  setInterval(() => {
-    document.body.style.transform = `rotate(${Math.random()*10-5}deg) scale(${1+Math.random()*0.1})`;
-  }, 200);
-
-  // --- Extra náhodný textový chaos ---
-  const story5 = document.querySelectorAll('.story')[4];
-  setInterval(() => {
-    const chaos = ['SUPER LAMA!', 'PONOŽKOVÁ BOMBA!', 'EXPLOZIVNÍ HISTORIE!', 'ČAJ S KONFETAMI!'];
-    const word = chaos[Math.floor(Math.random()*chaos.length)];
-    const span = document.createElement('span');
-    span.classList.add('rotateRandom');
-    span.style.color = '#'+Math.floor(Math.random()*16777215).toString(16);
-    span.style.fontSize = (12+Math.random()*30)+'px';
-    span.textContent = word + ' ';
-    story5.appendChild(span);
-    story5.scrollIntoView({behavior:'smooth', block:'end'});
-  }, 500);
-
-  // --- Kliknutí na texty spustí mega explozi ---
-  document.querySelectorAll('.rotateRandom').forEach(span => {
-    span.addEventListener('click', megaExplosion);
-  });
-</script>
-
+    <script>
+        // Inicializace canvasu
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Proměnné hry
+        let gameRunning = false;
+        let score = 0;
+        let gameSpeed = 5;
+        let obstacles = [];
+        let player = {
+            x: 100,
+            y: canvas.height - 50,
+            width: 30,
+            height: 30,
+            velocityY: 0,
+            gravity: 0.8,
+            jumpForce: -15,
+            isJumping: false,
+            color: '#ffcc00'
+        };
+        
+        // Prvky UI
+        const startButton = document.getElementById('startButton');
+        const jumpButton = document.getElementById('jumpButton');
+        const scoreElement = document.getElementById('score');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartButton');
+        const backgroundImageInput = document.getElementById('backgroundImage');
+        const changeBackgroundButton = document.getElementById('changeBackground');
+        const customBg = document.getElementById('customBg');
+        
+        // Funkce pro změnu pozadí
+        changeBackgroundButton.addEventListener('click', function() {
+            const imageUrl = backgroundImageInput.value.trim();
+            if (imageUrl) {
+                customBg.src = imageUrl;
+                // Po načtení obrázku ho použijeme jako pozadí
+                customBg.onload = function() {
+                    console.log("Pozadí bylo úspěšně změněno!");
+                };
+                customBg.onerror = function() {
+                    alert("Chyba při načítání obrázku. Zkontrolujte URL.");
+                };
+            } else {
+                alert("Zadejte platnou URL obrázku.");
+            }
+        });
+        
+        // Funkce pro skok
+        function jump() {
+            if (!player.isJumping) {
+                player.velocityY = player.jumpForce;
+                player.isJumping = true;
+            }
+        }
+        
+        // Posluchače událostí
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' && gameRunning) {
+                jump();
+                event.preventDefault(); // Zabránit scrollování stránky
+            }
+        });
+        
+        jumpButton.addEventListener('click', jump);
+        
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        
+        // Funkce pro start hry
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            obstacles = [];
+            player.y = canvas.height - 50;
+            player.isJumping = false;
+            player.velocityY = 0;
+            gameSpeed = 5;
+            gameOverScreen.style.display = 'none';
+            updateScore();
+            gameLoop();
+        }
+        
+        // Funkce pro vytvoření překážky
+        function createObstacle() {
+            const height = Math.random() * 50 + 20;
+            obstacles.push({
+                x: canvas.width,
+                y: canvas.height - height,
+                width: 20,
+                height: height,
+                color: '#ff3333'
+            });
+        }
+        
+        // Funkce pro detekci kolize
+        function checkCollision(player, obstacle) {
+            return player.x < obstacle.x + obstacle.width &&
+                   player.x + player.width > obstacle.x &&
+                   player.y < obstacle.y + obstacle.height &&
+                   player.y + player.height > obstacle.y;
+        }
+        
+        // Funkce pro aktualizaci skóre
+        function updateScore() {
+            scoreElement.textContent = score;
+        }
+        
+        // Hlavní herní smyčka
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // Vyčištění canvasu
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Vykreslení pozadí
+            if (customBg.src) {
+                // Pokud je nastavené vlastní pozadí, použijeme ho
+                ctx.drawImage(customBg, 0, 0, canvas.width, canvas.height);
+            } else {
+                // Výchozí pozadí
+                ctx.fillStyle = '#0f3460';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Vykreslení "země"
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+            }
+            
+            // Aplikace gravitace
+            player.velocityY += player.gravity;
+            player.y += player.velocityY;
+            
+            // Zajištění, že hráč zůstane na zemi
+            if (player.y > canvas.height - player.height - 20) {
+                player.y = canvas.height - player.height - 20;
+                player.isJumping = false;
+                player.velocityY = 0;
+            }
+            
+            // Vykreslení hráče
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Generování překážek
+            if (Math.random() < 0.02) {
+                createObstacle();
+            }
+            
+            // Aktualizace a vykreslení překážek
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x -= gameSpeed;
+                
+                // Vykreslení překážky
+                ctx.fillStyle = obstacles[i].color;
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+                
+                // Detekce kolize
+                if (checkCollision(player, obstacles[i])) {
+                    gameOver();
+                    return;
+                }
+                
+                // Odstranění překážek, které opustily obrazovku
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
+                    score++;
+                    updateScore();
+                    
+                    // Zvyšování rychlosti hry
+                    if (score % 5 === 0) {
+                        gameSpeed += 0.5;
+                    }
+                }
+            }
+            
+            // Pokračování herní smyčky
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Funkce pro konec hry
+        function gameOver() {
+            gameRunning = false;
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'block';
+        }
+        
+        // Inicializace hry
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText("Stiskněte 'Start hry' pro začátek", canvas.width / 2, canvas.height / 2);
+    </script>
 </body>
 </html>
-
