@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tetris s Texturovanými Bloky</title>
+    <title>Tetris s Obrázkem v Blocích</title>
     <style>
         * {
             margin: 0;
@@ -187,12 +187,21 @@
             margin: 0 2px;
             font-family: monospace;
         }
+        
+        .image-notice {
+            background: rgba(255, 100, 100, 0.2);
+            border: 1px solid #ff6666;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Tetris s Texturovanými Bloky</h1>
-        <p class="subtitle">Klasický Tetris s vlastními texturami bloků</p>
+        <h1>Tetris s Obrázkem v Blocích</h1>
+        <p class="subtitle">Klasický Tetris s obrázkem "Motom vjetnamec.png" v blocích</p>
         
         <div class="game-container">
             <div class="game-board">
@@ -245,6 +254,11 @@
                         <p><span class="key">P</span> Pozastavit</p>
                     </div>
                 </div>
+                
+                <div class="panel-section image-notice">
+                    <h2>Poznámka k obrázku</h2>
+                    <p>Pro správnou funkci nahraďte v kódu cestu k obrázku "Motom vjetnamec.png"</p>
+                </div>
             </div>
         </div>
         
@@ -261,7 +275,7 @@
                 <li>Čím více řádků najednou, tím více bodů získáte</li>
                 <li>Rychlost hry se zvyšuje s každým levelem</li>
                 <li>Hra končí, když kousky dosáhnou vrcholu hrací plochy</li>
-                <li>Každý typ kousku má vlastní barvu a texturu</li>
+                <li>Každý typ kousku má vlastní barevný filtr přes společný obrázek</li>
             </ul>
         </div>
     </div>
@@ -278,55 +292,56 @@
         const BOARD_HEIGHT = 20;
         const BLOCK_SIZE = 30;
         
-        // Vytvoření textury bloku - simulace obrázku "Motom vjetnamec.png"
-        function createBlockTexture(color) {
+        // ZDE NAHRADTE CESTU K VAŠEMU OBRÁZKU
+        const BLOCK_IMAGE_URL = 'Motom vjetnamec.png'; // Nahraďte skutečnou cestou k obrázku
+        
+        // Načtení základního obrázku pro bloky
+        const baseBlockImage = new Image();
+        baseBlockImage.src = BLOCK_IMAGE_URL;
+        baseBlockImage.onload = function() {
+            console.log("Základní obrázek bloků byl načten");
+            if (gameRunning) {
+                drawBoard();
+                drawNextPiece();
+            }
+        };
+        baseBlockImage.onerror = function() {
+            console.error("Chyba při načítání obrázku bloků. Zkontrolujte cestu: " + BLOCK_IMAGE_URL);
+            // Vytvoření náhradního obrázku pokud se původní nenačte
+            createFallbackImage();
+        };
+        
+        // Funkce pro vytvoření náhradního obrázku pokud se původní nenačte
+        function createFallbackImage() {
             const canvas = document.createElement('canvas');
             canvas.width = BLOCK_SIZE;
             canvas.height = BLOCK_SIZE;
             const ctx = canvas.getContext('2d');
             
-            // Hlavní barva bloku
-            ctx.fillStyle = color;
+            // Vytvoření jednoduchého vzoru jako náhrada
+            ctx.fillStyle = '#333333';
             ctx.fillRect(0, 0, BLOCK_SIZE, BLOCK_SIZE);
             
-            // Stíny pro 3D efekt
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.fillRect(0, 0, BLOCK_SIZE, 2);
-            ctx.fillRect(0, 0, 2, BLOCK_SIZE);
+            ctx.strokeStyle = '#666666';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(2, 2, BLOCK_SIZE-4, BLOCK_SIZE-4);
             
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(0, BLOCK_SIZE - 2, BLOCK_SIZE, 2);
-            ctx.fillRect(BLOCK_SIZE - 2, 0, 2, BLOCK_SIZE);
+            ctx.fillStyle = '#555555';
+            ctx.fillRect(5, 5, BLOCK_SIZE-10, BLOCK_SIZE-10);
             
-            // Vzor/textura uvnitř bloku
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-            ctx.lineWidth = 1;
-            
-            // Vytvoření jednoduchého vzoru
-            for (let i = 5; i < BLOCK_SIZE; i += 8) {
-                ctx.beginPath();
-                ctx.moveTo(i, 5);
-                ctx.lineTo(i, BLOCK_SIZE - 5);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(5, i);
-                ctx.lineTo(BLOCK_SIZE - 5, i);
-                ctx.stroke();
-            }
-            
-            return canvas;
+            // Použití náhradního obrázku
+            baseBlockImage.src = canvas.toDataURL();
         }
         
-        // Barvy pro různé typy kousků
+        // Barvy pro různé typy kousků (použité jako filtry)
         const PIECE_COLORS = {
-            'I': '#00f0f0', // Cyan
-            'J': '#0000f0', // Modrá
-            'L': '#f0a000', // Oranžová
-            'O': '#f0f000', // Žlutá
-            'S': '#00f000', // Zelená
-            'T': '#a000f0', // Fialová
-            'Z': '#f00000'  // Červená
+            'I': 'rgba(0, 240, 240, 0.6)', // Cyan
+            'J': 'rgba(0, 0, 240, 0.6)',   // Modrá
+            'L': 'rgba(240, 160, 0, 0.6)', // Oranžová
+            'O': 'rgba(240, 240, 0, 0.6)', // Žlutá
+            'S': 'rgba(0, 240, 0, 0.6)',   // Zelená
+            'T': 'rgba(160, 0, 240, 0.6)', // Fialová
+            'Z': 'rgba(240, 0, 0, 0.6)'    // Červená
         };
         
         // Tvary kousků
@@ -383,9 +398,6 @@
             'I': 0, 'J': 0, 'L': 0, 'O': 0, 'S': 0, 'T': 0, 'Z': 0
         };
         
-        // Textury bloků
-        let blockTextures = {};
-        
         // Prvky UI
         const startButton = document.getElementById('startButton');
         const pauseButton = document.getElementById('pauseButton');
@@ -405,11 +417,6 @@
         
         // Funkce pro inicializaci hry
         function initGame() {
-            // Vytvoření textur pro všechny typy bloků
-            for (const piece in PIECE_COLORS) {
-                blockTextures[piece] = createBlockTexture(PIECE_COLORS[piece]);
-            }
-            
             // Inicializace prázdné hrací plochy
             board = Array(BOARD_HEIGHT).fill().map(() => Array(BOARD_WIDTH).fill(0));
             
@@ -575,6 +582,21 @@
             }
         }
         
+        // Funkce pro vykreslení bloku s obrázkem a barevným filtrem
+        function drawBlock(x, y, type) {
+            // Vykreslení základního obrázku
+            gameCtx.drawImage(baseBlockImage, x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            
+            // Přidání barevného filtru
+            gameCtx.fillStyle = PIECE_COLORS[type];
+            gameCtx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            
+            // Přidání 3D efektu
+            gameCtx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            gameCtx.lineWidth = 1;
+            gameCtx.strokeRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+        }
+        
         // Funkce pro vykreslení hrací plochy
         function drawBoard() {
             gameCtx.fillStyle = '#0f1c2e';
@@ -602,8 +624,7 @@
             for (let y = 0; y < BOARD_HEIGHT; y++) {
                 for (let x = 0; x < BOARD_WIDTH; x++) {
                     if (board[y][x]) {
-                        const type = board[y][x];
-                        gameCtx.drawImage(blockTextures[type], x * BLOCK_SIZE, y * BLOCK_SIZE);
+                        drawBlock(x, y, board[y][x]);
                     }
                 }
             }
@@ -613,11 +634,7 @@
                 for (let y = 0; y < currentPiece.shape.length; y++) {
                     for (let x = 0; x < currentPiece.shape[y].length; x++) {
                         if (currentPiece.shape[y][x]) {
-                            gameCtx.drawImage(
-                                blockTextures[currentPiece.type],
-                                (currentPiece.x + x) * BLOCK_SIZE,
-                                (currentPiece.y + y) * BLOCK_SIZE
-                            );
+                            drawBlock(currentPiece.x + x, currentPiece.y + y, currentPiece.type);
                         }
                     }
                 }
@@ -637,10 +654,22 @@
                 for (let y = 0; y < pieceSize; y++) {
                     for (let x = 0; x < pieceSize; x++) {
                         if (nextPiece.shape[y][x]) {
+                            // Vykreslení základního obrázku
                             nextPieceCtx.drawImage(
-                                blockTextures[nextPiece.type],
+                                baseBlockImage,
                                 offsetX + x * BLOCK_SIZE,
-                                offsetY + y * BLOCK_SIZE
+                                offsetY + y * BLOCK_SIZE,
+                                BLOCK_SIZE,
+                                BLOCK_SIZE
+                            );
+                            
+                            // Přidání barevného filtru
+                            nextPieceCtx.fillStyle = PIECE_COLORS[nextPiece.type];
+                            nextPieceCtx.fillRect(
+                                offsetX + x * BLOCK_SIZE,
+                                offsetY + y * BLOCK_SIZE,
+                                BLOCK_SIZE,
+                                BLOCK_SIZE
                             );
                         }
                     }
