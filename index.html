@@ -403,3 +403,603 @@
     </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Dash s Grappling Hookem</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #cccccc;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            margin-bottom: 20px;
+            border: 3px solid #ffcc00;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
+        }
+        
+        canvas {
+            display: block;
+            background-color: #0f3460;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background: #ffcc00;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #ffd633;
+            transform: scale(1.05);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .instructions h2 {
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .score {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .game-over h2 {
+            color: #ff3333;
+            margin-bottom: 15px;
+        }
+        
+        .level-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .customization {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .customization h2 {
+            margin-bottom: 15px;
+            color: #ffcc00;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"] {
+            padding: 8px 12px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ffcc00;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Geometry Dash s Grappling Hookem</h1>
+        <p class="subtitle">Použij grappling hook k pohybu a dosažení cíle!</p>
+        
+        <div class="customization">
+            <h2>Přizpůsobení hry</h2>
+            <div class="input-group">
+                <label for="backgroundImage">URL obrázku pro pozadí levelu:</label>
+                <input type="text" id="backgroundImage" placeholder="Vložte URL obrázku zde">
+                <button id="changeBackground">Změnit pozadí</button>
+            </div>
+            <!-- MÍSTO PRO VAŠE POZADÍ -->
+            <!-- Pokud chcete použít lokální obrázek, nahrajte jej do stejné složky jako tento soubor -->
+            <!-- a změňte src atribut v následujícím řádku: -->
+            <!-- <img id="customBg" src="vas-obrazek.jpg" style="display:none"> -->
+            <img id="customBg" src="" style="display:none">
+        </div>
+        
+        <div class="level-info">
+            <div>Level: <span id="level">1</span></div>
+            <div class="score">Skóre: <span id="score">0</span></div>
+            <div>Čas: <span id="time">0</span>s</div>
+        </div>
+        
+        <div class="game-container">
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
+            <div class="game-over" id="gameOver">
+                <h2>Game Over!</h2>
+                <p>Vaše skóre: <span id="finalScore">0</span></p>
+                <button id="restartButton">Hrát znovu</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="startButton">Start hry</button>
+            <button id="grappleButton">Grappling Hook (Klikni)</button>
+        </div>
+        
+        <div class="instructions">
+            <h2>Návod k hraní</h2>
+            <ul>
+                <li>Stiskněte tlačítko "Start hry" pro začátek</li>
+                <li>Klikněte myší nebo tlačítko "Grappling Hook" pro připojení k nejbližšímu bodu</li>
+                <li>Použijte gravitaci a pohyb pro dosažení cíle (zelený čtverec)</li>
+                <li>Vyhýbejte se červeným překážkám</li>
+                <li>Každý dokončený level vám přidá 100 bodů</li>
+                <li>Hra končí, když narazíte do překážky</li>
+                <li>Můžete změnit pozadí levelu pomocí URL obrázku</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Inicializace canvasu
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Proměnné hry
+        let gameRunning = false;
+        let score = 0;
+        let level = 1;
+        let gameTime = 0;
+        let timerInterval;
+        
+        let player = {
+            x: 50,
+            y: 250,
+            radius: 15,
+            velocityX: 0,
+            velocityY: 0,
+            gravity: 0.5,
+            color: '#ffcc00',
+            isGrappling: false,
+            grapplePoint: null,
+            grappleLength: 0,
+            swingPower: 0.02
+        };
+        
+        let grapplePoints = [];
+        let obstacles = [];
+        let goal = null;
+        
+        // Prvky UI
+        const startButton = document.getElementById('startButton');
+        const grappleButton = document.getElementById('grappleButton');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const timeElement = document.getElementById('time');
+        const gameOverScreen = document.getElementById('gameOver');
+        const finalScoreElement = document.getElementById('finalScore');
+        const restartButton = document.getElementById('restartButton');
+        const backgroundImageInput = document.getElementById('backgroundImage');
+        const changeBackgroundButton = document.getElementById('changeBackground');
+        const customBg = document.getElementById('customBg');
+        
+        // Funkce pro změnu pozadí
+        changeBackgroundButton.addEventListener('click', function() {
+            const imageUrl = backgroundImageInput.value.trim();
+            if (imageUrl) {
+                customBg.src = imageUrl;
+                // Po načtení obrázku ho použijeme jako pozadí
+                customBg.onload = function() {
+                    console.log("Pozadí bylo úspěšně změněno!");
+                };
+                customBg.onerror = function() {
+                    alert("Chyba při načítání obrázku. Zkontrolujte URL.");
+                };
+            } else {
+                alert("Zadejte platnou URL obrázku.");
+            }
+        });
+        
+        // Funkce pro generování levelu
+        function generateLevel(levelNum) {
+            grapplePoints = [];
+            obstacles = [];
+            
+            // Přidání základních bodů
+            for (let i = 0; i < 8 + levelNum; i++) {
+                grapplePoints.push({
+                    x: 100 + Math.random() * (canvas.width - 200),
+                    y: 50 + Math.random() * (canvas.height - 150),
+                    radius: 8,
+                    color: '#3498db'
+                });
+            }
+            
+            // Přidání překážek
+            for (let i = 0; i < 5 + levelNum; i++) {
+                const width = 30 + Math.random() * 70;
+                const height = 30 + Math.random() * 70;
+                obstacles.push({
+                    x: 150 + Math.random() * (canvas.width - 300),
+                    y: 80 + Math.random() * (canvas.height - 200),
+                    width: width,
+                    height: height,
+                    color: '#e74c3c'
+                });
+            }
+            
+            // Nastavení cíle
+            goal = {
+                x: canvas.width - 50,
+                y: canvas.height - 50,
+                width: 30,
+                height: 30,
+                color: '#2ecc71'
+            };
+            
+            // Resetování pozice hráče
+            player.x = 50;
+            player.y = 250;
+            player.velocityX = 0;
+            player.velocityY = 0;
+            player.isGrappling = false;
+        }
+        
+        // Funkce pro detekci kolize
+        function checkCollision(obj1, obj2) {
+            // Kolize mezi dvěma kruhy (hráč a bod)
+            if (obj1.radius && obj2.radius) {
+                const dx = obj1.x - obj2.x;
+                const dy = obj1.y - obj2.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < obj1.radius + obj2.radius;
+            }
+            
+            // Kolize mezi kruhem a obdélníkem (hráč a překážka/cíl)
+            if (obj1.radius && obj2.width) {
+                const closestX = Math.max(obj2.x, Math.min(obj1.x, obj2.x + obj2.width));
+                const closestY = Math.max(obj2.y, Math.min(obj1.y, obj2.y + obj2.height));
+                
+                const dx = obj1.x - closestX;
+                const dy = obj1.y - closestY;
+                
+                return (dx * dx + dy * dy) < (obj1.radius * obj1.radius);
+            }
+            
+            return false;
+        }
+        
+        // Funkce pro nalezení nejbližšího bodu
+        function findNearestGrapplePoint(x, y) {
+            let nearestPoint = null;
+            let minDistance = Infinity;
+            
+            for (const point of grapplePoints) {
+                const dx = point.x - x;
+                const dy = point.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestPoint = point;
+                }
+            }
+            
+            return { point: nearestPoint, distance: minDistance };
+        }
+        
+        // Funkce pro aktivaci grappling hooku
+        function activateGrapple() {
+            if (!gameRunning) return;
+            
+            if (player.isGrappling) {
+                // Uvolnění grappling hooku
+                player.isGrappling = false;
+                player.grapplePoint = null;
+            } else {
+                // Připojení k nejbližšímu bodu
+                const nearest = findNearestGrapplePoint(player.x, player.y);
+                
+                if (nearest.distance < 300) { // Maximální dosah grappling hooku
+                    player.isGrappling = true;
+                    player.grapplePoint = nearest.point;
+                    player.grappleLength = nearest.distance;
+                }
+            }
+        }
+        
+        // Posluchače událostí
+        canvas.addEventListener('click', function(event) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            
+            activateGrapple();
+        });
+        
+        grappleButton.addEventListener('click', activateGrapple);
+        
+        startButton.addEventListener('click', startGame);
+        restartButton.addEventListener('click', startGame);
+        
+        // Funkce pro start hry
+        function startGame() {
+            gameRunning = true;
+            score = 0;
+            level = 1;
+            gameTime = 0;
+            updateScore();
+            updateLevel();
+            updateTime();
+            generateLevel(level);
+            gameOverScreen.style.display = 'none';
+            
+            // Spuštění časomíry
+            clearInterval(timerInterval);
+            timerInterval = setInterval(function() {
+                if (gameRunning) {
+                    gameTime++;
+                    updateTime();
+                }
+            }, 1000);
+            
+            gameLoop();
+        }
+        
+        // Funkce pro aktualizaci skóre
+        function updateScore() {
+            scoreElement.textContent = score;
+        }
+        
+        // Funkce pro aktualizaci levelu
+        function updateLevel() {
+            levelElement.textContent = level;
+        }
+        
+        // Funkce pro aktualizaci času
+        function updateTime() {
+            timeElement.textContent = gameTime;
+        }
+        
+        // Hlavní herní smyčka
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            // Vyčištění canvasu
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Vykreslení pozadí
+            if (customBg.src) {
+                // Pokud je nastavené vlastní pozadí, použijeme ho
+                ctx.drawImage(customBg, 0, 0, canvas.width, canvas.height);
+            } else {
+                // Výchozí pozadí
+                ctx.fillStyle = '#0f3460';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Vykreslení "země"
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+            }
+            
+            // Aplikace gravitace
+            player.velocityY += player.gravity;
+            
+            // Pohyb hráče
+            player.x += player.velocityX;
+            player.y += player.velocityY;
+            
+            // Zpracování grappling hooku
+            if (player.isGrappling && player.grapplePoint) {
+                // Vykreslení lana
+                ctx.beginPath();
+                ctx.moveTo(player.x, player.y);
+                ctx.lineTo(player.grapplePoint.x, player.grapplePoint.y);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Fyzika kyvadla
+                const dx = player.x - player.grapplePoint.x;
+                const dy = player.y - player.grapplePoint.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Síla napětí lana
+                const tension = (distance - player.grappleLength) * 0.1;
+                
+                // Normalizovaný vektor
+                const nx = dx / distance;
+                const ny = dy / distance;
+                
+                // Aplikace síly napětí
+                player.velocityX -= nx * tension;
+                player.velocityY -= ny * tension;
+                
+                // Přidání síly kyvadla
+                player.velocityX += ny * player.swingPower;
+                player.velocityY -= nx * player.swingPower;
+            }
+            
+            // Omezení rychlosti hráče
+            const maxSpeed = 10;
+            player.velocityX = Math.max(Math.min(player.velocityX, maxSpeed), -maxSpeed);
+            player.velocityY = Math.max(Math.min(player.velocityY, maxSpeed), -maxSpeed);
+            
+            // Omezení pohybu hráče v hrací ploše
+            if (player.x - player.radius < 0) {
+                player.x = player.radius;
+                player.velocityX *= -0.5;
+            }
+            if (player.x + player.radius > canvas.width) {
+                player.x = canvas.width - player.radius;
+                player.velocityX *= -0.5;
+            }
+            if (player.y - player.radius < 0) {
+                player.y = player.radius;
+                player.velocityY *= -0.5;
+            }
+            if (player.y + player.radius > canvas.height) {
+                player.y = canvas.height - player.radius;
+                player.velocityY *= -0.5;
+            }
+            
+            // Vykreslení bodů pro grappling
+            for (const point of grapplePoints) {
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
+                ctx.fillStyle = point.color;
+                ctx.fill();
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+            
+            // Vykreslení překážek
+            for (const obstacle of obstacles) {
+                ctx.fillStyle = obstacle.color;
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                
+                // Detekce kolize s překážkou
+                if (checkCollision(player, obstacle)) {
+                    gameOver();
+                    return;
+                }
+            }
+            
+            // Vykreslení cíle
+            ctx.fillStyle = goal.color;
+            ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
+            
+            // Detekce dosažení cíle
+            if (checkCollision(player, goal)) {
+                score += 100;
+                level++;
+                updateScore();
+                updateLevel();
+                generateLevel(level);
+            }
+            
+            // Vykreslení hráče
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2);
+            ctx.fillStyle = player.color;
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Vykreslení ukazatele grappling hooku
+            if (!player.isGrappling) {
+                const nearest = findNearestGrapplePoint(player.x, player.y);
+                if (nearest.distance < 300) {
+                    ctx.beginPath();
+                    ctx.arc(nearest.point.x, nearest.point.y, nearest.point.radius + 3, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#ffcc00';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            }
+            
+            // Pokračování herní smyčky
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Funkce pro konec hry
+        function gameOver() {
+            gameRunning = false;
+            clearInterval(timerInterval);
+            finalScoreElement.textContent = score;
+            gameOverScreen.style.display = 'block';
+        }
+        
+        // Inicializace hry
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText("Stiskněte 'Start hry' pro začátek", canvas.width / 2, canvas.height / 2);
+    </script>
+</body>
+</html>
