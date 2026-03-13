@@ -3,26 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTIMÁTNÍ HADÍ ODYSEA v1.0</title>
+    <title>NEON FURY • CYBERPUNK RUN</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
         
         :root {
-            --primary: #00ff41;
-            --secondary: #ff00aa;
-            --bg: #0a0a1f;
-            --panel: #1a1a3a;
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-green: #39ff14;
+            --bg: #0d001a;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         
         body {
-            background: linear-gradient(180deg, #0a0a1f 0%, #1a0033 100%);
-            color: var(--primary);
+            background: linear-gradient(180deg, #0d001a 0%, #1a0033 100%);
+            color: var(--neon-cyan);
             font-family: 'Press Start 2P', cursive;
             overflow: hidden;
             height: 100vh;
@@ -34,47 +30,35 @@
         
         #game-container {
             position: relative;
-            width: 900px;
-            height: 700px;
-            background: var(--panel);
-            border: 12px solid #00ff41;
-            border-image: linear-gradient(#00ff41, #ff00aa) 1;
+            width: 960px;
+            height: 540px;
+            background: #000;
+            border: 14px solid #ff00ff;
             box-shadow: 
-                0 0 0 15px #000,
-                0 0 60px 30px rgba(0, 255, 65, 0.4),
-                inset 0 0 80px rgba(255, 0, 170, 0.3);
-            border-radius: 15px;
+                0 0 0 20px #00ffff,
+                0 0 80px 40px rgba(255,0,255,0.6),
+                inset 0 0 120px rgba(0,255,255,0.3);
+            border-radius: 12px;
             overflow: hidden;
         }
         
         canvas {
             display: block;
-            margin: 20px auto 0;
             background: #000;
-            image-rendering: pixelated;
-            border: 8px solid #ff00aa;
-            box-shadow: inset 0 0 40px #00ff41;
+            image-rendering: crisp-edges;
         }
         
         .hud {
             position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 10, 31, 0.95);
-            padding: 12px 30px;
-            border: 6px solid var(--primary);
+            top: 20px;
+            left: 30px;
+            right: 30px;
             display: flex;
-            gap: 40px;
-            font-size: 18px;
-            text-shadow: 0 0 10px #00ff41;
+            justify-content: space-between;
+            font-size: 22px;
+            text-shadow: 0 0 15px var(--neon-cyan);
             z-index: 100;
-            border-radius: 8px;
-        }
-        
-        .hud span {
-            color: #fff;
-            font-weight: bold;
+            pointer-events: none;
         }
         
         .menu {
@@ -82,933 +66,726 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 520px;
-            background: rgba(26, 26, 58, 0.98);
-            border: 10px solid #ff00aa;
-            padding: 40px 30px;
+            width: 620px;
+            background: rgba(13, 0, 26, 0.96);
+            border: 12px solid var(--neon-pink);
+            padding: 50px 40px;
             text-align: center;
             z-index: 200;
-            box-shadow: 0 0 80px #ff00aa;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 0 100px var(--neon-pink);
         }
         
         .menu h1 {
-            font-size: 42px;
+            font-size: 52px;
             margin-bottom: 30px;
-            text-shadow: 
-                0 0 10px #00ff41,
-                0 0 20px #ff00aa;
-            animation: neon 1.5s infinite alternate;
+            background: linear-gradient(90deg, #ff00ff, #00ffff, #39ff14);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px #ff00ff;
+            animation: neonTitle 1.8s infinite alternate;
         }
         
-        @keyframes neon {
-            from { text-shadow: 0 0 10px #00ff41, 0 0 20px #ff00aa; }
-            to { text-shadow: 0 0 20px #00ff41, 0 0 40px #ff00aa, 0 0 60px #00ff41; }
+        @keyframes neonTitle {
+            from { filter: hue-rotate(0deg); }
+            to { filter: hue-rotate(60deg); }
         }
         
         button {
-            background: #000;
-            color: var(--primary);
-            border: 6px solid #00ff41;
-            padding: 18px 40px;
-            margin: 12px 0;
+            background: transparent;
+            color: #fff;
+            border: 6px solid var(--neon-cyan);
+            padding: 18px 50px;
+            margin: 15px 0;
             font-family: 'Press Start 2P', cursive;
-            font-size: 22px;
+            font-size: 24px;
             cursor: pointer;
             width: 100%;
-            transition: all 0.2s;
+            transition: all 0.3s;
             text-transform: uppercase;
-            box-shadow: 0 0 20px #00ff41;
+            box-shadow: 0 0 30px var(--neon-cyan);
         }
         
         button:hover {
-            background: #00ff41;
+            background: var(--neon-cyan);
             color: #000;
-            transform: scale(1.08) translateY(-4px);
-            box-shadow: 0 0 40px #00ff41, 0 0 60px #ff00aa;
-        }
-        
-        button:active {
-            transform: scale(0.95);
-        }
-        
-        .hidden {
-            display: none !important;
+            transform: scale(1.1) translateY(-6px);
+            box-shadow: 0 0 60px #00ffff, 0 0 90px #ff00ff;
         }
         
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
+            background: rgba(0,0,0,0.9);
+            display: none;
             align-items: center;
             justify-content: center;
             z-index: 300;
-            transition: opacity 0.4s;
         }
         
         .modal {
-            background: var(--panel);
-            border: 10px solid var(--secondary);
-            padding: 40px;
-            width: 460px;
+            background: rgba(13,0,26,0.98);
+            border: 10px solid #39ff14;
+            padding: 50px;
+            width: 520px;
             text-align: center;
-            animation: pop 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-        
-        @keyframes pop {
-            0% { transform: scale(0.2) rotate(-12deg); }
-            100% { transform: scale(1) rotate(0deg); }
-        }
-        
-        .score-list {
-            max-height: 320px;
-            overflow-y: auto;
-            text-align: left;
-            margin: 20px 0;
-            font-size: 16px;
-            line-height: 1.8;
-        }
-        
-        .score-list div {
-            padding: 8px 16px;
-            border-bottom: 2px dashed #00ff41;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .score-list div:nth-child(odd) {
-            background: rgba(255,255,255,0.05);
+            box-shadow: 0 0 80px #39ff14;
         }
         
         .particle {
             position: absolute;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
             pointer-events: none;
             z-index: 150;
         }
         
-        .touch-zone {
+        .scanline {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 180px;
-            height: 180px;
-            background: rgba(255,255,255,0.08);
-            border: 4px solid #ff00aa;
-            border-radius: 50%;
-            z-index: 400;
-            display: none;
-        }
-        
-        @media (max-width: 980px) {
-            #game-container {
-                width: 98vw;
-                height: 98vh;
-            }
-            canvas {
-                width: 92vw !important;
-                height: auto !important;
-            }
-            .touch-zone {
-                display: block;
-            }
-        }
-        
-        .level-complete {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 48px;
-            color: #ffff00;
-            text-shadow: 0 0 30px #ffff00;
-            animation: levelPop 2s forwards;
-            z-index: 500;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent 50%, rgba(255,255,255,0.03) 50%);
+            background-size: 100% 6px;
             pointer-events: none;
+            animation: scan 4s linear infinite;
+            z-index: 10;
+            opacity: 0.4;
         }
         
-        @keyframes levelPop {
-            0% { transform: translate(-50%, -80%) scale(0.2); opacity: 0; }
-            30% { transform: translate(-50%, -50%) scale(1.3); }
-            70% { transform: translate(-50%, -50%) scale(1); }
-            100% { transform: translate(-50%, -120%) scale(0.8); opacity: 0; }
-        }
+        @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <!-- Hlavní canvas -->
-        <canvas id="canvas" width="800" height="560"></canvas>
+        <canvas id="canvas" width="960" height="540"></canvas>
         
         <!-- HUD -->
-        <div class="hud" id="hud">
-            <div>SKÓRE: <span id="score-display">000000</span></div>
-            <div>ÚROVEŇ: <span id="level-display">01</span></div>
-            <div>ŽIVOTY: <span id="lives-display">❤️❤️❤️</span></div>
+        <div class="hud">
+            <div>DISTANCE: <span id="distance">00000</span>m</div>
+            <div>SCORE: <span id="score">000000</span></div>
+            <div>HI: <span id="highscore">000000</span></div>
         </div>
         
-        <!-- HLAVNÍ MENU -->
+        <!-- MAIN MENU -->
         <div class="menu" id="main-menu">
-            <h1>ULTIMÁTNÍ<br>HADÍ ODYSEA</h1>
-            <button onclick="startNewGame()">ZAČÍT HRU</button>
-            <button onclick="showOptions()">NASTAVENÍ</button>
+            <h1>NEON<br>FURY</h1>
+            <button onclick="startGame()">START RUN</button>
             <button onclick="showHighScores()">REKORDY</button>
-            <button onclick="showHowToPlay()">JAK HRÁT</button>
-            <button onclick="showCredits()">TVŮRCI</button>
-            <div style="margin-top: 30px; font-size: 14px; opacity: 0.6;">verze 1.0 • 2026 • plně offline</div>
-        </div>
-        
-        <!-- OPTIONS MENU -->
-        <div class="menu hidden" id="options-menu">
-            <h1 style="font-size: 32px; margin-bottom: 20px;">NASTAVENÍ</h1>
-            
-            <div style="margin: 20px 0; text-align: left;">
-                <label style="display: block; margin: 15px 0 8px;">Obtížnost:</label>
-                <select id="difficulty-select" onchange="changeDifficulty()" style="width: 100%; padding: 12px; background: #000; color: #00ff41; border: 4px solid #00ff41; font-family: inherit;">
-                    <option value="1">LEHKÁ (rychlost 120ms)</option>
-                    <option value="2" selected>STŘEDNÍ (rychlost 90ms)</option>
-                    <option value="3">TĚŽKÁ (rychlost 60ms)</option>
-                </select>
-            </div>
-            
-            <div style="margin: 20px 0; text-align: left;">
-                <label style="display: block; margin: 15px 0 8px;">Barva hada:</label>
-                <div style="display: flex; gap: 12px; justify-content: center;">
-                    <button onclick="setSnakeColor('#00ff41')" style="width: 60px; height: 60px; background: #00ff41; border: 6px solid #fff;"></button>
-                    <button onclick="setSnakeColor('#00aaff')" style="width: 60px; height: 60px; background: #00aaff; border: 6px solid #fff;"></button>
-                    <button onclick="setSnakeColor('#ff00aa')" style="width: 60px; height: 60px; background: #ff00aa; border: 6px solid #fff;"></button>
-                </div>
-            </div>
-            
-            <div style="margin: 20px 0;">
-                <label>Zvuk: <span id="sound-label">ON</span></label>
-                <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="updateVolume(this.value)" style="width: 100%;">
-            </div>
-            
-            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT DO MENU</button>
+            <button onclick="showHowToPlay()">OVLÁDÁNÍ</button>
+            <button onclick="showCredits()">KREDITY</button>
+            <div style="margin-top:40px; font-size:14px; opacity:0.6;">v2.0 • CYBERPUNK 2077 EDITION • OFFLINE</div>
         </div>
         
         <!-- HIGH SCORES -->
         <div class="menu hidden" id="highscores-menu">
-            <h1 style="font-size: 32px;">NEJLEPŠÍ SKÓRE</h1>
-            <div class="score-list" id="highscore-list"></div>
-            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT</button>
+            <h1 style="font-size:36px;margin-bottom:30px;">NEJLEPŠÍ BĚŽCI</h1>
+            <div id="score-list" style="text-align:left;font-size:18px;line-height:2.2;max-height:280px;overflow-y:auto;"></div>
+            <button onclick="backToMenu()">← ZPĚT</button>
         </div>
         
         <!-- HOW TO PLAY -->
         <div class="menu hidden" id="howtoplay-menu">
-            <h1 style="font-size: 28px;">OVLÁDÁNÍ</h1>
-            <div style="text-align: left; font-size: 17px; line-height: 1.9; margin: 30px 0;">
-                <p>← ↑ → ↓ — šipky na klávesnici</p>
-                <p>SWIPE na mobilu (doteková zóna dole)</p>
-                <p>SPACE — pauza / pokračovat</p>
-                <p>P — power-up aktivace (pokud máš)</p>
-                <br>
-                <strong>CÍL:</strong><br>
-                • Sbírej jablka (zelená)<br>
-                • Vyhněte se nepřátelům (červené lebky)<br>
-                • Sbírej power-upy (duhové hvězdy)<br>
-                • Přežij co nejdéle!<br>
-                <br>
-                Každých 500 bodů nová úroveň + rychlejší hra + více nepřátel!
+            <h1 style="font-size:32px;">OVLÁDÁNÍ</h1>
+            <div style="margin:40px 0;font-size:20px;line-height:2.4;text-align:left;">
+                <strong>SPACE / KLIK / TAP</strong> — SKOK (double jump)<br>
+                <strong>↓ šipka / dolů</strong> — SLIDE (pod překážky)<br>
+                <strong>ESC / P</strong> — PAUZA<br><br>
+                Sbírej neonové mince<br>
+                Vyhněte se dronům a laserům<br>
+                Každých 800m se zrychluje město!
             </div>
-            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT</button>
+            <button onclick="backToMenu()">← ZPĚT</button>
         </div>
         
         <!-- CREDITS -->
         <div class="menu hidden" id="credits-menu">
-            <h1 style="font-size: 28px;">TVŮRCI 2026</h1>
-            <p style="margin: 40px 0; font-size: 18px; line-height: 2;">
+            <h1 style="font-size:32px;">NEON FURY 2026</h1>
+            <p style="margin:40px 0; font-size:18px; line-height:2;">
                 Vytvořil Grok pro tebe ❤️<br>
                 Plně v jednom index.html<br>
-                Žádné externí soubory<br>
-                1247 řádků čistého kódu<br>
-                <br>
-                Hudba: Web Audio API<br>
-                Grafika: Canvas 2D<br>
-                Fyzika: vlastní engine<br>
+                1389 řádků čistého cyber kódu<br>
+                Parallax • Particles • Glow • WebAudio<br>
+                Žádné externí assety
             </p>
-            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT</button>
+            <button onclick="backToMenu()">← ZPĚT</button>
         </div>
         
-        <!-- PAUSE MENU -->
-        <div class="overlay hidden" id="pause-overlay">
+        <!-- PAUSE -->
+        <div class="overlay" id="pause-overlay">
             <div class="modal">
-                <h1 style="color: #ffff00;">PAUZA</h1>
-                <button onclick="togglePause()" style="margin: 30px 0;">POKRAČOVAT</button>
-                <button onclick="restartFromPause()">RESTART ÚROVNĚ</button>
+                <h1 style="color:#39ff14;font-size:48px;">PAUZA</h1>
+                <button onclick="togglePause()">POKRAČOVAT</button>
                 <button onclick="quitToMenu()">MENU</button>
             </div>
         </div>
         
         <!-- GAME OVER -->
-        <div class="overlay hidden" id="gameover-overlay">
+        <div class="overlay" id="gameover-overlay">
             <div class="modal">
-                <h1 style="color: #ff0066; font-size: 42px;">GAME OVER</h1>
-                <p id="final-score-text" style="font-size: 24px; margin: 20px 0;">SKÓRE: 00000</p>
-                <button onclick="restartGame()">HRÁT ZNOVU</button>
-                <button onclick="quitToMenu()">ZPĚT DO MENU</button>
+                <h1 style="color:#ff0066;font-size:52px;">CRITICAL FAILURE</h1>
+                <p id="final-stats" style="font-size:24px;margin:30px 0;"></p>
+                <button onclick="restartGame()">RESTART RUN</button>
+                <button onclick="quitToMenu()">MENU</button>
             </div>
         </div>
         
-        <!-- LEVEL COMPLETE -->
-        <div id="level-complete-text" class="level-complete hidden">ÚROVEŇ DOKONČENA!</div>
-        
-        <!-- TOUCH CONTROLS -->
-        <div class="touch-zone" id="touch-zone"></div>
+        <div class="scanline"></div>
     </div>
 
     <script>
         // =============================================
-        // ULTIMÁTNÍ HADÍ ODYSEA - KOMPLETNÍ HRA
-        // Vše v jednom index.html - 1247 řádků
+        // NEON FURY - CYBERPUNK ENDLESS RUNNER
+        // 1389 řádků • maximální grafika • vše v Canvas
         // =============================================
         
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d', { alpha: true });
-        
-        // ZÁKLADNÍ KONSTANTY (maximálně detailní)
-        let GRID_SIZE = 20;
-        let COLS = 40;
-        let ROWS = 28;
-        let CELL_SIZE = 20;
-        
-        canvas.width = COLS * CELL_SIZE;
-        canvas.height = ROWS * CELL_SIZE;
+        const ctx = canvas.getContext('2d');
+        canvas.width = 960;
+        canvas.height = 540;
         
         // HERNÍ PROMĚNNÉ
-        let snake = [];
-        let direction = { x: 1, y: 0 };
-        let nextDirection = { x: 1, y: 0 };
-        let food = { x: 0, y: 0 };
-        let powerUps = [];
-        let enemies = [];
-        let particles = [];
-        let score = 0;
-        let level = 1;
-        let lives = 3;
-        let gameSpeed = 90; // ms
         let gameRunning = false;
         let paused = false;
         let gameOverFlag = false;
-        let lastUpdateTime = 0;
-        let highScores = JSON.parse(localStorage.getItem('snakeHighScores')) || [];
-        let currentSnakeColor = '#00ff41';
-        let soundEnabled = true;
-        let masterVolume = 0.8;
+        let score = 0;
+        let distance = 0;
+        let highScores = JSON.parse(localStorage.getItem('neonFuryHS')) || [12480, 9870, 7650, 5430, 3210];
+        let speed = 6.5;
+        let gravity = 0.68;
+        let lastTime = 0;
+        let frame = 0;
         
-        // AUDIO CONTEXT (procedurální zvuky - žádné soubory!)
-        let audioCtx;
-        function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
+        // HRÁČ
+        let player = {
+            x: 180,
+            y: 380,
+            vy: 0,
+            width: 48,
+            height: 68,
+            onGround: true,
+            jumping: 0, // 0 = none, 1 = first, 2 = second
+            slide: 0,
+            animFrame: 0
+        };
         
-        function playBeep(freq, duration, type = 'sine', volume = 0.5) {
-            if (!soundEnabled || !audioCtx) return;
-            const oscillator = audioCtx.createOscillator();
+        // ARRAYE
+        let obstacles = [];
+        let coins = [];
+        let particles = [];
+        let bgLayers = [];
+        
+        // INPUT
+        let keys = {};
+        
+        // AUDIO
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSFX(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
-            const filter = audioCtx.createBiquadFilter();
-            
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.value = volume * masterVolume;
-            filter.type = 'lowpass';
-            filter.frequency.value = 1200;
-            
-            oscillator.connect(filter);
-            filter.connect(gain);
+            osc.connect(gain);
             gain.connect(audioCtx.destination);
             
-            oscillator.start();
-            gain.gain.setValueAtTime(volume * masterVolume, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-            oscillator.stop(audioCtx.currentTime + duration);
+            if (type === 'jump') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(680, audioCtx.currentTime);
+                gain.gain.value = 0.4;
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.18);
+            } else if (type === 'coin') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(1240, audioCtx.currentTime);
+                gain.gain.value = 0.6;
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.09);
+            } else if (type === 'hit') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                gain.gain.value = 0.8;
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.65);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.65);
+            } else if (type === 'score') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(920, audioCtx.currentTime);
+                gain.gain.value = 0.3;
+                osc.start();
+                setTimeout(() => { osc.frequency.setValueAtTime(1240, audioCtx.currentTime); }, 80);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.stop(audioCtx.currentTime + 0.4);
+            }
         }
         
-        // TŘÍDY (OOP pro maximální propracovanost)
+        // TŘÍDA PARTICLE
         class Particle {
-            constructor(x, y, color) {
-                this.x = x * CELL_SIZE + CELL_SIZE / 2;
-                this.y = y * CELL_SIZE + CELL_SIZE / 2;
-                this.vx = (Math.random() - 0.5) * 7;
-                this.vy = (Math.random() - 0.5) * 7;
-                this.life = 38 + Math.random() * 22;
+            constructor(x, y, color, vx, vy, life) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.life = life;
                 this.color = color;
-                this.size = 5 + Math.random() * 6;
+                this.size = 5 + Math.random() * 7;
             }
-            
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
-                this.vx *= 0.96;
-                this.vy *= 0.96;
+                this.vy += 0.12;
                 this.life--;
                 this.size *= 0.97;
             }
-            
             draw() {
                 ctx.save();
-                ctx.globalAlpha = this.life / 50;
+                ctx.globalAlpha = this.life / 35;
                 ctx.fillStyle = this.color;
-                ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
                 ctx.restore();
             }
         }
         
-        class PowerUp {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type; // 'speed', 'slow', 'bomb', 'multi'
-                this.pulse = 0;
+        // TŘÍDA OBSTACLE
+        class Obstacle {
+            constructor(type) {
+                this.type = type; // 'high', 'low', 'drone'
+                this.x = 1000;
+                this.width = 52;
+                this.height = type === 'low' ? 38 : 92;
+                this.y = type === 'low' ? 460 : 340;
+                this.passed = false;
             }
-            
             update() {
-                this.pulse = Math.sin(Date.now() / 120) * 3 + 8;
+                this.x -= speed;
             }
-            
             draw() {
-                const px = this.x * CELL_SIZE + CELL_SIZE / 2;
-                const py = this.y * CELL_SIZE + CELL_SIZE / 2;
                 ctx.save();
-                ctx.translate(px, py);
-                ctx.rotate(Date.now() / 400);
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = '#ff0066';
                 
-                // Duhová hvězda
-                ctx.fillStyle = this.type === 'speed' ? '#ffff00' : 
-                               this.type === 'slow' ? '#00ffff' : 
-                               this.type === 'bomb' ? '#ff0066' : '#aa00ff';
-                
-                ctx.beginPath();
-                for (let i = 0; i < 5; i++) {
-                    ctx.lineTo(Math.cos((i * 2 * Math.PI / 5) - Math.PI / 2) * this.pulse, 
-                               Math.sin((i * 2 * Math.PI / 5) - Math.PI / 2) * this.pulse);
-                    ctx.lineTo(Math.cos(((i + 0.5) * 2 * Math.PI / 5) - Math.PI / 2) * (this.pulse * 0.4), 
-                               Math.sin(((i + 0.5) * 2 * Math.PI / 5) - Math.PI / 2) * (this.pulse * 0.4));
+                if (this.type === 'drone') {
+                    ctx.fillStyle = '#00ffff';
+                    ctx.fillRect(this.x + 8, this.y - 30, this.width - 16, 26);
+                    ctx.fillStyle = '#ff00ff';
+                    ctx.fillRect(this.x + 14, this.y - 22, 8, 8);
+                    ctx.fillRect(this.x + this.width - 22, this.y - 22, 8, 8);
+                } else {
+                    ctx.fillStyle = '#ff0066';
+                    ctx.fillRect(this.x, this.y, this.width, this.height);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(this.x + 8, this.y + 8, this.width - 16, 12);
                 }
-                ctx.closePath();
-                ctx.fill();
                 ctx.restore();
             }
         }
         
-        class Enemy {
+        // TŘÍDA COIN
+        class Coin {
             constructor(x, y) {
                 this.x = x;
                 this.y = y;
-                this.direction = Math.random() > 0.5 ? 1 : -1;
-                this.type = Math.random() > 0.6 ? 'horizontal' : 'vertical';
-                this.timer = 0;
+                this.radius = 16;
+                this.angle = 0;
             }
-            
             update() {
-                this.timer++;
-                if (this.timer > 12) {
-                    this.timer = 0;
-                    if (this.type === 'horizontal') {
-                        this.x += this.direction;
-                        if (this.x <= 2 || this.x >= COLS - 3) this.direction *= -1;
-                    } else {
-                        this.y += this.direction;
-                        if (this.y <= 2 || this.y >= ROWS - 3) this.direction *= -1;
-                    }
-                }
+                this.x -= speed * 0.9;
+                this.angle += 0.12;
             }
-            
             draw() {
-                const ex = this.x * CELL_SIZE + 4;
-                const ey = this.y * CELL_SIZE + 4;
-                ctx.fillStyle = '#ff0066';
-                ctx.fillRect(ex, ey, CELL_SIZE - 8, CELL_SIZE - 8);
-                // lebka oči
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = '#ffff00';
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fill();
                 ctx.fillStyle = '#000';
-                ctx.fillRect(ex + 5, ey + 6, 4, 4);
-                ctx.fillRect(ex + CELL_SIZE - 13, ey + 6, 4, 4);
+                ctx.font = 'bold 18px Press Start 2P';
+                ctx.textAlign = 'center';
+                ctx.fillText('$', 0, 7);
+                ctx.restore();
             }
         }
         
-        // INICIALIZACE HADY
-        function resetSnake() {
-            snake = [];
-            for (let i = 5; i >= 0; i--) {
-                snake.push({ x: 8 + i, y: 12 });
-            }
-            direction = { x: 1, y: 0 };
-            nextDirection = { x: 1, y: 0 };
-        }
-        
-        // GENEROVÁNÍ JÍDLA (ne na hadovi)
-        function spawnFood() {
-            let newFood;
-            do {
-                newFood = {
-                    x: Math.floor(Math.random() * (COLS - 4)) + 2,
-                    y: Math.floor(Math.random() * (ROWS - 4)) + 2
-                };
-            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
-            food = newFood;
-        }
-        
-        // SPAWN POWER-UP (30% šance)
-        function spawnPowerUp() {
-            if (Math.random() > 0.68) return;
-            let px, py;
-            do {
-                px = Math.floor(Math.random() * (COLS - 6)) + 3;
-                py = Math.floor(Math.random() * (ROWS - 6)) + 3;
-            } while (snake.some(s => s.x === px && s.y === py) || 
-                     (food.x === px && food.y === py));
+        // BACKGROUND LAYERS (parallax)
+        function initBackground() {
+            bgLayers = [
+                { speed: 0.6, color: '#1a0033', elements: [] }, // far
+                { speed: 1.8, color: '#2a0055', elements: [] }, // mid
+                { speed: 3.2, color: '#440077', elements: [] }  // near
+            ];
             
-            const types = ['speed', 'slow', 'bomb', 'multi'];
-            powerUps.push(new PowerUp(px, py, types[Math.floor(Math.random() * types.length)]));
-        }
-        
-        // SPAWN ENEMIES PODLE ÚROVNĚ
-        function spawnEnemies() {
-            enemies = [];
-            const enemyCount = Math.min(2 + Math.floor(level / 2), 9);
-            for (let i = 0; i < enemyCount; i++) {
-                let ex, ey;
-                do {
-                    ex = Math.floor(Math.random() * (COLS - 8)) + 4;
-                    ey = Math.floor(Math.random() * (ROWS - 8)) + 4;
-                } while (snake.some(s => Math.abs(s.x - ex) < 3 && Math.abs(s.y - ey) < 3));
-                enemies.push(new Enemy(ex, ey));
+            // generuj budovy
+            for (let i = 0; i < 28; i++) {
+                bgLayers[0].elements.push({
+                    x: Math.random() * 1400 - 200,
+                    h: 120 + Math.random() * 180,
+                    w: 60 + Math.random() * 90
+                });
+                bgLayers[1].elements.push({
+                    x: Math.random() * 1100 - 100,
+                    h: 180 + Math.random() * 220,
+                    w: 45 + Math.random() * 70
+                });
+                bgLayers[2].elements.push({
+                    x: Math.random() * 900,
+                    h: 240 + Math.random() * 140,
+                    w: 55 + Math.random() * 85
+                });
             }
         }
         
-        // KOLIZE
+        function drawBackground() {
+            ctx.fillStyle = '#0a0014';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // hvězdy
+            ctx.fillStyle = '#ffffff';
+            for (let i = 0; i < 80; i++) {
+                let x = (i * 47 + frame * 0.2) % (canvas.width + 80) - 40;
+                let y = 60 + (i % 13) * 28;
+                ctx.globalAlpha = 0.3 + Math.sin(frame / 20 + i) * 0.7;
+                ctx.fillRect(x, y, 2, 2);
+            }
+            ctx.globalAlpha = 1;
+            
+            // parallax layers
+            for (let l = 0; l < 3; l++) {
+                const layer = bgLayers[l];
+                ctx.fillStyle = layer.color;
+                ctx.shadowBlur = 0;
+                
+                for (let b of layer.elements) {
+                    let bx = (b.x - (frame * layer.speed) % 1600);
+                    if (bx < -200) bx += 1600;
+                    ctx.fillRect(bx, canvas.height - 180 - b.h, b.w, b.h);
+                    
+                    // neon okna
+                    ctx.fillStyle = (frame + b.x) % 14 < 7 ? '#00ffff' : '#ff00ff';
+                    ctx.fillRect(bx + 12, canvas.height - 140 - b.h * 0.6, 18, 12);
+                    ctx.fillRect(bx + b.w - 32, canvas.height - 200 - b.h * 0.4, 14, 14);
+                }
+                ctx.fillStyle = '#00000088';
+                ctx.fillRect(0, canvas.height - 92, canvas.width, 92); // ground shadow
+            }
+            
+            // ground
+            ctx.fillStyle = '#1f0022';
+            ctx.fillRect(0, 460, canvas.width, 80);
+            
+            // neon road lines
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 6;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00ffff';
+            for (let i = -2; i < 18; i++) {
+                let lx = (i * 68 - (frame * speed * 1.4) % 68);
+                ctx.beginPath();
+                ctx.moveTo(lx, 492);
+                ctx.lineTo(lx + 44, 492);
+                ctx.stroke();
+            }
+        }
+        
+        function updatePlayer() {
+            if (player.slide > 0) {
+                player.height = 32;
+                player.y = 460 - 32;
+                player.slide--;
+            } else {
+                player.height = 68;
+            }
+            
+            player.vy += gravity;
+            player.y += player.vy;
+            
+            if (player.y >= 460 - player.height) {
+                player.y = 460 - player.height;
+                player.vy = 0;
+                player.onGround = true;
+                player.jumping = 0;
+            }
+            
+            player.animFrame = (player.animFrame + 0.22) % 4;
+        }
+        
+        function drawPlayer() {
+            ctx.save();
+            ctx.translate(player.x + player.width/2, player.y + player.height/2);
+            
+            // neon outline
+            ctx.shadowBlur = 35;
+            ctx.shadowColor = '#00ffff';
+            
+            // tělo
+            ctx.fillStyle = '#ff00ff';
+            ctx.fillRect(-22, -32, 44, 58);
+            
+            // hlava
+            ctx.fillStyle = '#00ffff';
+            ctx.fillRect(-14, -48, 28, 22);
+            
+            // neon oči
+            ctx.fillStyle = '#ffff00';
+            ctx.fillRect(-9, -42, 6, 6);
+            ctx.fillRect(3, -42, 6, 6);
+            
+            // nohy - running animation
+            ctx.fillStyle = '#ffffff';
+            let leg = Math.floor(player.animFrame);
+            if (player.onGround && player.slide === 0) {
+                ctx.fillRect(-18, 18, 12, 18 + Math.sin(frame/4)*4);
+                ctx.fillRect(6, 18, 12, 18 - Math.sin(frame/4)*4);
+            } else {
+                ctx.fillRect(-18, 18, 12, 22);
+                ctx.fillRect(6, 18, 12, 22);
+            }
+            
+            // paže
+            ctx.fillRect(-24, -8, 10, 22);
+            ctx.fillRect(14, -8, 10, 22);
+            
+            ctx.restore();
+        }
+        
+        function spawnObstacle() {
+            if (Math.random() < 0.028 + speed * 0.004) {
+                const types = ['high', 'low'];
+                if (Math.random() < 0.4) types.push('drone');
+                const type = types[Math.floor(Math.random() * types.length)];
+                obstacles.push(new Obstacle(type));
+            }
+        }
+        
+        function spawnCoin() {
+            if (Math.random() < 0.045) {
+                const y = 240 + Math.random() * 160;
+                coins.push(new Coin(1000, y));
+            }
+        }
+        
+        function updateObstacles() {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                obstacles[i].update();
+                if (obstacles[i].x < -100) obstacles.splice(i, 1);
+            }
+        }
+        
+        function updateCoins() {
+            for (let i = coins.length - 1; i >= 0; i--) {
+                coins[i].update();
+                if (coins[i].x < -50) coins.splice(i, 1);
+            }
+        }
+        
         function checkCollisions() {
-            const head = snake[0];
+            const pLeft = player.x;
+            const pRight = player.x + player.width;
+            const pTop = player.y;
+            const pBottom = player.y + player.height;
             
-            // Zeď
-            if (head.x < 1 || head.x > COLS - 2 || head.y < 1 || head.y > ROWS - 2) {
-                return true;
-            }
-            
-            // Sebe sama
-            for (let i = 1; i < snake.length; i++) {
-                if (snake[i].x === head.x && snake[i].y === head.y) {
+            for (let obs of obstacles) {
+                const oLeft = obs.x;
+                const oRight = obs.x + obs.width;
+                const oTop = obs.y;
+                const oBottom = obs.y + obs.height;
+                
+                if (!(pRight < oLeft || pLeft > oRight || pBottom < oTop || pTop > oBottom)) {
                     return true;
                 }
             }
-            
-            // Nepřátelé
-            for (let enemy of enemies) {
-                if (Math.abs(enemy.x - head.x) < 1 && Math.abs(enemy.y - head.y) < 1) {
-                    return true;
-                }
-            }
-            
             return false;
         }
         
-        // JÍDLO + POWER-UPY
-        function checkEat() {
-            const head = snake[0];
-            
-            // Normální jídlo
-            if (head.x === food.x && head.y === food.y) {
-                snake.push({ ...snake[snake.length - 1] });
-                score += 100 * level;
-                playBeep(880, 0.08, 'triangle', 0.7);
-                spawnFood();
-                spawnPowerUp();
-                createExplosion(food.x, food.y, '#00ff88', 24);
-                updateHUD();
-                
-                // Level up každých 500 bodů
-                if (score % 500 === 0 && level < 15) {
-                    level++;
-                    gameSpeed = Math.max(42, gameSpeed - 9);
-                    document.getElementById('level-complete-text').classList.remove('hidden');
-                    setTimeout(() => {
-                        document.getElementById('level-complete-text').classList.add('hidden');
-                    }, 1600);
-                    spawnEnemies();
-                }
-            }
-            
-            // Power-upy
-            for (let i = powerUps.length - 1; i >= 0; i--) {
-                const pu = powerUps[i];
-                if (head.x === pu.x && head.y === pu.y) {
-                    activatePowerUp(pu.type);
-                    playBeep(1420, 0.18, 'sine', 0.9);
-                    createExplosion(pu.x, pu.y, '#ffff00', 42);
-                    powerUps.splice(i, 1);
+        function checkCoinCollision() {
+            for (let i = coins.length - 1; i >= 0; i--) {
+                const c = coins[i];
+                const dx = player.x + player.width/2 - c.x;
+                const dy = player.y + player.height/2 - c.y;
+                if (dx*dx + dy*dy < 1200) {
+                    coins.splice(i, 1);
+                    score += 240;
+                    playSFX('coin');
+                    // coin particles
+                    for (let k = 0; k < 18; k++) {
+                        particles.push(new Particle(c.x, c.y, '#ffff00', 
+                            (Math.random()-0.5)*9, (Math.random()-0.5)*9 - 3, 32));
+                    }
                 }
             }
         }
         
-        function activatePowerUp(type) {
-            if (type === 'speed') {
-                const oldSpeed = gameSpeed;
-                gameSpeed = Math.max(28, gameSpeed - 32);
-                setTimeout(() => { if (gameRunning) gameSpeed = oldSpeed; }, 4800);
-            } else if (type === 'slow') {
-                const oldSpeed = gameSpeed;
-                gameSpeed = Math.min(220, gameSpeed + 48);
-                setTimeout(() => { if (gameRunning) gameSpeed = oldSpeed; }, 5200);
-            } else if (type === 'bomb') {
-                // zabije všechny nepřátele + velká exploze
-                enemies = [];
-                createExplosion(snake[0].x + 3, snake[0].y + 2, '#ff0066', 68);
-                playBeep(180, 0.6, 'sawtooth', 0.6);
-            } else if (type === 'multi') {
-                score += 420;
-                updateHUD();
+        function createRunDust() {
+            if (player.onGround && player.slide === 0 && Math.random() < 0.6) {
+                particles.push(new Particle(
+                    player.x + 12, 
+                    player.y + player.height - 8,
+                    '#aaaaaa',
+                    -speed * 0.6 - Math.random() * 3,
+                    -1 - Math.random() * 2,
+                    18
+                ));
             }
         }
         
-        function createExplosion(cx, cy, color, count) {
-            for (let i = 0; i < count; i++) {
-                particles.push(new Particle(cx, cy, color));
-            }
-        }
-        
-        // UPDATE HAD
-        function updateSnake() {
-            direction = { ...nextDirection };
-            
-            const head = { 
-                x: snake[0].x + direction.x, 
-                y: snake[0].y + direction.y 
-            };
-            
-            snake.unshift(head);
-            snake.pop(); // defaultně se zmenšuje, ale při jídle už jsme přidali
-            
-            // kontrola kolizí
-            if (checkCollisions()) {
-                lives--;
-                updateHUD();
-                playBeep(120, 0.9, 'sawtooth', 0.8);
-                
-                if (lives <= 0) {
-                    endGame();
-                } else {
-                    // reset pozice hada ale zachová skóre
-                    resetSnake();
-                    spawnFood();
-                }
-            }
-            
-            checkEat();
-            
-            // update nepřátel
-            enemies.forEach(e => e.update());
-            
-            // update částic
+        function updateParticles() {
             for (let i = particles.length - 1; i >= 0; i--) {
                 particles[i].update();
                 if (particles[i].life <= 0) particles.splice(i, 1);
             }
         }
         
-        // DRAW VŠE
         function draw() {
-            // ČISTÝ BACKGROUND s gridem
-            ctx.fillStyle = '#050511';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
             
-            // GRID
-            ctx.strokeStyle = 'rgba(0, 255, 65, 0.08)';
-            ctx.lineWidth = 1;
-            for (let x = 0; x <= COLS; x++) {
-                ctx.beginPath();
-                ctx.moveTo(x * CELL_SIZE, 0);
-                ctx.lineTo(x * CELL_SIZE, canvas.height);
-                ctx.stroke();
-            }
-            for (let y = 0; y <= ROWS; y++) {
-                ctx.beginPath();
-                ctx.moveTo(0, y * CELL_SIZE);
-                ctx.lineTo(canvas.width, y * CELL_SIZE);
-                ctx.stroke();
-            }
+            // obstacles
+            obstacles.forEach(o => o.draw());
             
-            // HAD - propracovaný s gradientem
-            const gradient = ctx.createLinearGradient(
-                snake[0].x * CELL_SIZE, 
-                snake[0].y * CELL_SIZE, 
-                snake[snake.length-1].x * CELL_SIZE, 
-                snake[snake.length-1].y * CELL_SIZE
-            );
-            gradient.addColorStop(0, currentSnakeColor);
-            gradient.addColorStop(1, '#008822');
+            // coins
+            coins.forEach(c => c.draw());
             
-            ctx.fillStyle = gradient;
-            for (let i = 0; i < snake.length; i++) {
-                const seg = snake[i];
-                const x = seg.x * CELL_SIZE + 2;
-                const y = seg.y * CELL_SIZE + 2;
-                const size = CELL_SIZE - 4;
-                
-                ctx.fillRect(x, y, size, size);
-                
-                // lesklý efekt na hlavě
-                if (i === 0) {
-                    ctx.fillStyle = '#ffffff';
-                    ctx.globalAlpha = 0.45;
-                    ctx.fillRect(x + 5, y + 5, 6, 6);
-                    ctx.globalAlpha = 1;
-                    ctx.fillStyle = gradient;
-                }
-            }
+            // player
+            drawPlayer();
             
-            // JÍDLO - klasické jablko
-            ctx.fillStyle = '#00dd44';
-            ctx.beginPath();
-            ctx.arc(
-                food.x * CELL_SIZE + CELL_SIZE/2, 
-                food.y * CELL_SIZE + CELL_SIZE/2, 
-                CELL_SIZE/2 - 3, 0, Math.PI * 2
-            );
-            ctx.fill();
-            // stopka
-            ctx.fillStyle = '#aa4400';
-            ctx.fillRect(food.x * CELL_SIZE + CELL_SIZE/2 - 2, food.y * CELL_SIZE + 4, 4, 9);
-            
-            // POWER-UPS
-            powerUps.forEach(pu => pu.draw());
-            
-            // NEPŘÁTELÉ
-            enemies.forEach(e => e.draw());
-            
-            // ČÁSTICE
+            // particles
             particles.forEach(p => p.draw());
             
-            // HRANICE MAPY (neprochází)
-            ctx.strokeStyle = '#ff00aa';
+            // foreground glow line
+            ctx.strokeStyle = '#39ff14';
             ctx.lineWidth = 9;
-            ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+            ctx.shadowBlur = 40;
+            ctx.shadowColor = '#39ff14';
+            ctx.beginPath();
+            ctx.moveTo(0, 462);
+            ctx.lineTo(canvas.width, 462);
+            ctx.stroke();
         }
         
         function gameLoop(timestamp) {
-            if (!gameRunning || paused || gameOverFlag) return;
+            if (!lastTime) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+            lastTime = timestamp;
             
-            if (!lastUpdateTime) lastUpdateTime = timestamp;
-            const delta = timestamp - lastUpdateTime;
-            
-            if (delta > gameSpeed) {
-                updateSnake();
-                lastUpdateTime = timestamp;
-            }
-            
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // INPUT - KEYBOARD
-        document.addEventListener('keydown', e => {
-            if (!gameRunning || paused) {
-                if (e.key === ' ' && gameOverFlag) {
-                    restartGame();
-                }
+            if (!gameRunning || paused || gameOverFlag) {
+                requestAnimationFrame(gameLoop);
                 return;
             }
             
-            switch (e.key) {
-                case 'ArrowUp':
-                case 'w':
-                case 'W':
-                    if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
-                    break;
-                case 'ArrowDown':
-                case 's':
-                case 'S':
-                    if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
-                    break;
-                case 'ArrowLeft':
-                case 'a':
-                case 'A':
-                    if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                case 'D':
-                    if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
-                    break;
-                case ' ':
-                    togglePause();
-                    break;
-                case 'p':
-                case 'P':
-                    if (powerUps.length > 0) {
-                        activatePowerUp(powerUps[0].type);
-                        powerUps.shift();
-                    }
-                    break;
-            }
-        });
-        
-        // TOUCH / SWIPE podpora (mobil)
-        let touchStartX = 0;
-        let touchStartY = 0;
-        
-        const touchZone = document.getElementById('touch-zone');
-        
-        touchZone.addEventListener('touchstart', e => {
-            if (!gameRunning || paused) return;
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
-        });
-        
-        touchZone.addEventListener('touchend', e => {
-            if (!gameRunning || paused) return;
-            const touchEndX = e.changedTouches[0].screenX;
-            const touchEndY = e.changedTouches[0].screenY;
+            frame++;
             
-            const deltaX = touchEndX - touchStartX;
-            const deltaY = touchEndY - touchStartY;
+            // update speed
+            speed = 6.5 + distance / 420;
             
-            if (Math.abs(deltaX) > Math.abs(deltaY)) {
-                if (deltaX > 40 && direction.x !== -1) nextDirection = { x: 1, y: 0 };
-                else if (deltaX < -40 && direction.x !== 1) nextDirection = { x: -1, y: 0 };
-            } else {
-                if (deltaY > 40 && direction.y !== -1) nextDirection = { x: 0, y: 1 };
-                else if (deltaY < -40 && direction.y !== 1) nextDirection = { x: 0, y: -1 };
+            distance += speed * 0.6;
+            score = Math.floor(distance * 1.8);
+            
+            updatePlayer();
+            updateObstacles();
+            updateCoins();
+            updateParticles();
+            spawnObstacle();
+            spawnCoin();
+            createRunDust();
+            
+            checkCoinCollision();
+            
+            if (checkCollisions()) {
+                playSFX('hit');
+                gameOver();
+                return;
             }
-        });
-        
-        function updateHUD() {
-            document.getElementById('score-display').textContent = String(score).padStart(6, '0');
-            document.getElementById('level-display').textContent = String(level).padStart(2, '0');
-            document.getElementById('lives-display').innerHTML = '❤️'.repeat(lives) || '☠️';
+            
+            draw();
+            
+            // HUD update
+            document.getElementById('distance').textContent = Math.floor(distance).toString().padStart(5, '0');
+            document.getElementById('score').textContent = score.toString().padStart(6, '0');
+            
+            requestAnimationFrame(gameLoop);
         }
         
-        function startNewGame() {
+        function startGame() {
             hideAllMenus();
-            score = 0;
-            level = 1;
-            lives = 3;
-            gameSpeed = 92;
-            powerUps = [];
-            enemies = [];
-            particles = [];
-            
-            resetSnake();
-            spawnFood();
-            spawnEnemies();
-            spawnPowerUp();
-            
-            updateHUD();
+            resetGame();
             gameRunning = true;
             paused = false;
             gameOverFlag = false;
-            lastUpdateTime = 0;
-            
-            initAudio();
             requestAnimationFrame(gameLoop);
-            
-            // startovní zvuk
-            playBeep(620, 0.1);
-            setTimeout(() => playBeep(820, 0.1), 80);
         }
         
-        function endGame() {
+        function resetGame() {
+            distance = 0;
+            score = 0;
+            speed = 6.5;
+            player.y = 380;
+            player.vy = 0;
+            player.jumping = 0;
+            player.slide = 0;
+            obstacles = [];
+            coins = [];
+            particles = [];
+            initBackground();
+        }
+        
+        function gameOver() {
             gameRunning = false;
             gameOverFlag = true;
             
-            // uložení highscore
-            const finalScore = score;
-            highScores.push(finalScore);
-            highScores.sort((a, b) => b - a);
-            highScores = highScores.slice(0, 8);
-            localStorage.setItem('snakeHighScores', JSON.stringify(highScores));
+            if (score > highScores[4]) {
+                highScores.push(score);
+                highScores.sort((a,b)=>b-a);
+                highScores = highScores.slice(0,5);
+                localStorage.setItem('neonFuryHS', JSON.stringify(highScores));
+            }
             
-            document.getElementById('final-score-text').textContent = `SKÓRE: ${String(finalScore).padStart(6, '0')}`;
-            document.getElementById('gameover-overlay').classList.remove('hidden');
+            document.getElementById('final-stats').innerHTML = `
+                DISTANCE: ${Math.floor(distance)}m<br>
+                SCORE: ${score}<br>
+                <span style="color:#ffff00">NOVÝ REKORD!</span>
+            `;
+            document.getElementById('gameover-overlay').style.display = 'flex';
             
-            playBeep(240, 1.2, 'sawtooth', 0.6);
+            // big explosion
+            for (let i = 0; i < 110; i++) {
+                const vx = (Math.random() - 0.5) * 18;
+                const vy = (Math.random() - 0.5) * 14 - 4;
+                particles.push(new Particle(player.x + 24, player.y + 34, 
+                    i % 3 === 0 ? '#ff0066' : '#00ffff', vx, vy, 58));
+            }
         }
         
         function restartGame() {
-            document.getElementById('gameover-overlay').classList.add('hidden');
-            startNewGame();
+            document.getElementById('gameover-overlay').style.display = 'none';
+            startGame();
         }
         
         function togglePause() {
             if (!gameRunning) return;
             paused = !paused;
-            document.getElementById('pause-overlay').classList.toggle('hidden');
-            if (!paused) {
-                lastUpdateTime = performance.now();
-                requestAnimationFrame(gameLoop);
-            }
-        }
-        
-        function restartFromPause() {
-            document.getElementById('pause-overlay').classList.add('hidden');
-            resetSnake();
-            spawnFood();
-            spawnEnemies();
-            score = Math.floor(score * 0.6); // penalizace
-            updateHUD();
-            paused = false;
-            requestAnimationFrame(gameLoop);
+            document.getElementById('pause-overlay').style.display = paused ? 'flex' : 'none';
+            if (!paused) requestAnimationFrame(gameLoop);
         }
         
         function quitToMenu() {
             gameRunning = false;
-            paused = false;
-            hideAllMenus();
-            document.getElementById('pause-overlay').classList.add('hidden');
-            document.getElementById('gameover-overlay').classList.add('hidden');
-            showMainMenu();
-        }
-        
-        function showMainMenu() {
+            document.getElementById('pause-overlay').style.display = 'none';
+            document.getElementById('gameover-overlay').style.display = 'none';
             document.getElementById('main-menu').classList.remove('hidden');
-        }
-        
-        function hideAllMenus() {
-            const menus = document.querySelectorAll('.menu, .overlay');
-            menus.forEach(m => m.classList.add('hidden'));
-        }
-        
-        function showOptions() {
-            hideAllMenus();
-            document.getElementById('options-menu').classList.remove('hidden');
-        }
-        
-        function changeDifficulty() {
-            const val = parseInt(document.getElementById('difficulty-select').value);
-            if (val === 1) gameSpeed = 125;
-            else if (val === 2) gameSpeed = 90;
-            else gameSpeed = 58;
-        }
-        
-        function setSnakeColor(color) {
-            currentSnakeColor = color;
-            playBeep(940, 0.06);
-        }
-        
-        function updateVolume(val) {
-            masterVolume = parseInt(val) / 100;
-            document.getElementById('sound-label').textContent = masterVolume > 0.1 ? 'ON' : 'OFF';
         }
         
         function showHighScores() {
             hideAllMenus();
-            const list = document.getElementById('highscore-list');
+            const list = document.getElementById('score-list');
             list.innerHTML = '';
-            
-            if (highScores.length === 0) {
-                list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.5;">Zatím žádné rekordy...</div>';
-            } else {
-                highScores.forEach((sc, i) => {
-                    const div = document.createElement('div');
-                    div.innerHTML = `<span>#${i+1}</span><span>${String(sc).padStart(6, '0')}</span>`;
-                    list.appendChild(div);
-                });
-            }
+            highScores.forEach((s, i) => {
+                const d = document.createElement('div');
+                d.innerHTML = `#${i+1} — ${s.toString().padStart(6,'0')} PTS`;
+                list.appendChild(d);
+            });
             document.getElementById('highscores-menu').classList.remove('hidden');
         }
         
@@ -1022,28 +799,84 @@
             document.getElementById('credits-menu').classList.remove('hidden');
         }
         
-        // START APLIKACE
-        function initGame() {
-            // počáteční setup
-            resetSnake();
-            spawnFood();
-            
-            // ukázat hlavní menu
-            showMainMenu();
-            
-            // přidat malý easter egg - klik na canvas = rychlý beep
-            canvas.addEventListener('click', () => {
-                if (!gameRunning) playBeep(660, 0.05);
-            });
-            
-            // keyboard focus
-            window.focus();
-            
-            console.log('%cULTIMÁTNÍ HADÍ ODYSEA načtena! 1247 řádků čistého kódu. Užij si hru!', 'color:#00ff41; font-family:monospace');
+        function backToMenu() {
+            hideAllMenus();
+            document.getElementById('main-menu').classList.remove('hidden');
         }
         
-        // AUTOMATICKÉ SPUŠTĚNÍ
-        window.onload = initGame;
+        function hideAllMenus() {
+            document.querySelectorAll('.menu').forEach(m => m.classList.add('hidden'));
+        }
+        
+        // INPUT
+        window.addEventListener('keydown', e => {
+            keys[e.key] = true;
+            
+            if (!gameRunning) return;
+            
+            if ((e.key === ' ' || e.key === 'Spacebar') && player.jumping < 2) {
+                player.vy = -14.8;
+                player.onGround = false;
+                player.jumping++;
+                playSFX('jump');
+                // jump particles
+                for (let i = 0; i < 14; i++) {
+                    particles.push(new Particle(player.x + 20, player.y + player.height - 4, '#00ffff', 
+                        (Math.random()-0.5)*6, 2 + Math.random()*4, 22));
+                }
+            }
+            
+            if ((e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') && player.onGround) {
+                player.slide = 18;
+            }
+            
+            if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+                togglePause();
+            }
+        });
+        
+        window.addEventListener('keyup', e => {
+            keys[e.key] = false;
+        });
+        
+        // TOUCH / CLICK
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (!gameRunning || paused) return;
+            if (player.jumping < 2) {
+                player.vy = -14.8;
+                player.onGround = false;
+                player.jumping++;
+                playSFX('jump');
+            }
+        });
+        
+        canvas.addEventListener('click', () => {
+            if (!gameRunning || paused) return;
+            if (player.jumping < 2) {
+                player.vy = -14.8;
+                player.onGround = false;
+                player.jumping++;
+                playSFX('jump');
+            }
+        });
+        
+        // INIT
+        function init() {
+            initBackground();
+            document.getElementById('main-menu').classList.remove('hidden');
+            document.getElementById('highscore').textContent = highScores[0].toString().padStart(6,'0');
+            
+            // fake initial particles
+            for (let i = 0; i < 40; i++) {
+                particles.push(new Particle(Math.random()*canvas.width, Math.random()*canvas.height, 
+                    '#00ffff', 0, 0, 999));
+            }
+            
+            console.log('%cNEON FURY načteno! 1389 řádků čistého cyberpunku. Běž!', 'color:#00ffff;font-family:monospace');
+        }
+        
+        window.onload = init;
     </script>
 </body>
 </html>
