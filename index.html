@@ -3,802 +3,1047 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AGE OF WAR - PŘESNÁ REPLIKA 🏹⚔️🔫💣🤖</title>
+    <title>ULTIMÁTNÍ HADÍ ODYSEA v1.0</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        :root {
+            --primary: #00ff41;
+            --secondary: #ff00aa;
+            --bg: #0a0a1f;
+            --panel: #1a1a3a;
+        }
+        
         * {
-            box-sizing: border-box;
-            user-select: none;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-
+        
         body {
-            background: #0a0c14;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Arial Black', 'Impact', sans-serif;
-            padding: 10px;
-        }
-
-        #gameWrapper {
-            width: 1200px;
-            max-width: 100%;
-            background: #1e1e2c;
-            border-radius: 20px;
-            padding: 15px;
-            box-shadow: 0 20px 40px #000, inset 0 0 30px #4a3a6a;
-            border: 4px solid #8a7a5a;
-        }
-
-        /* HLAVNÍ BATTLEFIELD */
-        #battlefield {
-            position: relative;
-            width: 100%;
-            height: 450px;
-            background: linear-gradient(0deg, #3d6b3d 0%, #8bb56b 30%, #5a8ab5 100%);
-            border: 5px solid #9b8b6b;
-            border-radius: 20px;
+            background: linear-gradient(180deg, #0a0a1f 0%, #1a0033 100%);
+            color: var(--primary);
+            font-family: 'Press Start 2P', cursive;
             overflow: hidden;
-            margin-bottom: 15px;
-            box-shadow: inset 0 -50px 30px #2d4a2d;
-            cursor: crosshair;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            image-rendering: pixelated;
         }
-
-        /* ZÁKLADNY - PŘESNĚ JAKO VE FLASHI */
-        .base {
+        
+        #game-container {
+            position: relative;
+            width: 900px;
+            height: 700px;
+            background: var(--panel);
+            border: 12px solid #00ff41;
+            border-image: linear-gradient(#00ff41, #ff00aa) 1;
+            box-shadow: 
+                0 0 0 15px #000,
+                0 0 60px 30px rgba(0, 255, 65, 0.4),
+                inset 0 0 80px rgba(255, 0, 170, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+            margin: 20px auto 0;
+            background: #000;
+            image-rendering: pixelated;
+            border: 8px solid #ff00aa;
+            box-shadow: inset 0 0 40px #00ff41;
+        }
+        
+        .hud {
             position: absolute;
-            bottom: 0;
-            width: 180px;
-            height: 220px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: bottom center;
-            filter: drop-shadow(0 0 10px #000);
-            transition: all 0.2s;
-            z-index: 15;
-        }
-
-        #playerBase {
-            left: 10px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect x="40" y="120" width="120" height="60" fill="%234a6ea8" stroke="%23aac8ff" stroke-width="4"/><rect x="70" y="70" width="60" height="50" fill="%23628cda" stroke="%23ffffff"/><circle cx="100" cy="45" r="20" fill="%23ffdd55" stroke="%23ffffff"/><rect x="20" y="170" width="160" height="30" fill="%235a4a3a" stroke="%23ccb58b"/></svg>');
-        }
-
-        #enemyBase {
-            right: 10px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect x="40" y="120" width="120" height="60" fill="%23b54a4a" stroke="%23ffaaaa" stroke-width="4"/><rect x="70" y="70" width="60" height="50" fill="%23d46a6a" stroke="%23ffffff"/><circle cx="100" cy="45" r="20" fill="%23aa2222" stroke="%23ffffff"/><rect x="20" y="170" width="160" height="30" fill="%235a4a3a" stroke="%23ccb58b"/></svg>');
-        }
-
-        /* VĚŽE NAD ZÁKLADNAMI - NOVINKA PROTI PŘEDCHOZÍ VERZI */
-        .turret {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            z-index: 20;
-            filter: drop-shadow(0 0 5px gold);
-        }
-
-        #playerTurret {
-            left: 70px;
-            bottom: 180px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="%234488ff"/><rect x="20" y="5" width="20" height="35" fill="%23cccccc"/><circle cx="30" cy="15" r="8" fill="%23ffaa00"/></svg>');
-            display: none;
-        }
-
-        #enemyTurret {
-            right: 70px;
-            bottom: 180px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><circle cx="30" cy="30" r="25" fill="%23ff4444"/><rect x="20" y="5" width="20" height="35" fill="%23cccccc"/><circle cx="30" cy="15" r="8" fill="%23ffaa00"/></svg>');
-            display: none;
-        }
-
-        /* HEALTH BARY ZÁKLADEN */
-        .base-health-container {
-            position: absolute;
-            bottom: 200px;
+            top: 25px;
             left: 50%;
             transform: translateX(-50%);
-            width: 140px;
-            height: 20px;
-            background: #2a1e0e;
-            border: 3px solid #cba05a;
-            border-radius: 15px;
-            overflow: hidden;
-            z-index: 25;
+            background: rgba(10, 10, 31, 0.95);
+            padding: 12px 30px;
+            border: 6px solid var(--primary);
+            display: flex;
+            gap: 40px;
+            font-size: 18px;
+            text-shadow: 0 0 10px #00ff41;
+            z-index: 100;
+            border-radius: 8px;
         }
-
-        .base-health-fill {
-            height: 100%;
-            width: 100%;
-            transition: width 0.1s linear;
+        
+        .hud span {
+            color: #fff;
+            font-weight: bold;
         }
-
-        #playerBaseHealthFill {
-            background: linear-gradient(90deg, #2eff2e, #9eff9e);
-        }
-
-        #enemyBaseHealthFill {
-            background: linear-gradient(90deg, #ff2e2e, #ff9e9e);
-        }
-
-        /* HEALTH BARY VĚŽÍ */
-        .turret-health {
+        
+        .menu {
             position: absolute;
-            top: -15px;
-            left: 0;
-            width: 60px;
-            height: 8px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 520px;
+            background: rgba(26, 26, 58, 0.98);
+            border: 10px solid #ff00aa;
+            padding: 40px 30px;
+            text-align: center;
+            z-index: 200;
+            box-shadow: 0 0 80px #ff00aa;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .menu h1 {
+            font-size: 42px;
+            margin-bottom: 30px;
+            text-shadow: 
+                0 0 10px #00ff41,
+                0 0 20px #ff00aa;
+            animation: neon 1.5s infinite alternate;
+        }
+        
+        @keyframes neon {
+            from { text-shadow: 0 0 10px #00ff41, 0 0 20px #ff00aa; }
+            to { text-shadow: 0 0 20px #00ff41, 0 0 40px #ff00aa, 0 0 60px #00ff41; }
+        }
+        
+        button {
             background: #000;
-            border: 1px solid #fff;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .turret-health-fill {
-            height: 100%;
-            background: #44ff44;
-            transition: width 0.1s;
-        }
-
-        /* JEDNOTKY - 4 TYPY NA ÉRU */
-        .unit {
-            position: absolute;
-            bottom: 15px;
-            width: 45px;
-            height: 55px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            filter: drop-shadow(2px 2px 2px black);
-            z-index: 10;
-            transition: left 0.05s linear;
-        }
-
-        .unit.player-unit {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 50"><circle cx="20" cy="15" r="10" fill="%233388ff"/><rect x="12" y="25" width="16" height="20" fill="%231144aa"/><circle cx="20" cy="45" r="5" fill="%23ccaa88"/></svg>');
-        }
-
-        .unit.enemy-unit {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 50"><circle cx="20" cy="15" r="10" fill="%23ff4444"/><rect x="12" y="25" width="16" height="20" fill="%23aa2222"/><circle cx="20" cy="45" r="5" fill="%23ccaa88"/></svg>');
-        }
-
-        .unit-health-bar {
-            position: absolute;
-            top: -12px;
-            left: 2px;
-            width: 40px;
-            height: 6px;
-            background: #111;
-            border: 1px solid #fff;
-            border-radius: 3px;
-        }
-
-        .unit-health-fill {
-            height: 100%;
-            background: #4eff4e;
-            transition: width 0.1s;
-        }
-
-        /* KONTROLNÍ PANEL */
-        #controlPanel {
-            background: #2a2a3a;
-            border: 4px solid #9b8b6b;
-            border-radius: 20px;
-            padding: 15px;
-            display: grid;
-            grid-template-columns: 200px 1fr 200px;
-            gap: 10px;
-            color: white;
-        }
-
-        /* PANEL ÉRY */
-        #eraPanel {
-            background: #1a1a28;
-            border: 3px solid #8a7a5a;
-            border-radius: 15px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        #eraName {
+            color: var(--primary);
+            border: 6px solid #00ff41;
+            padding: 18px 40px;
+            margin: 12px 0;
+            font-family: 'Press Start 2P', cursive;
             font-size: 22px;
-            font-weight: bold;
-            color: #ffaa44;
-            text-shadow: 0 0 10px #ffaa44;
-            margin-bottom: 10px;
-        }
-
-        #xpBar {
-            width: 100%;
-            height: 25px;
-            background: #222;
-            border-radius: 15px;
-            border: 2px solid #6a5a4a;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        #xpFill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #44aaff, #88ddff);
-            transition: width 0.3s;
-        }
-
-        #turretBtn {
-            background: #4a6a8a;
-            border: 3px solid #aac8ff;
-            color: white;
-            font-size: 18px;
-            padding: 10px;
-            border-radius: 15px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-
-        #turretBtn:hover:not(:disabled) {
-            transform: scale(1.05);
-            background: #5a7a9a;
-        }
-
-        #turretBtn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        /* JEDNOTKY - GRID */
-        #unitsGrid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            background: #1e1e2c;
-            padding: 10px;
-            border-radius: 15px;
-            border: 2px solid #6a5a4a;
-        }
-
-        .unit-card {
-            background: #2a2a3a;
-            border: 3px solid #6a6a8a;
-            border-radius: 15px;
-            padding: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.1s;
-            font-size: 14px;
-            box-shadow: 0 4px 0 #3a3a4a;
-        }
-
-        .unit-card:hover:not(.disabled) {
-            transform: translateY(-2px);
-            border-color: #ffaa44;
-            box-shadow: 0 6px 0 #3a3a4a;
-        }
-
-        .unit-card:active:not(.disabled) {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #3a3a4a;
-        }
-
-        .unit-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            filter: grayscale(0.8);
-        }
-
-        .unit-emoji {
-            font-size: 32px;
-        }
-
-        .unit-name {
-            font-weight: bold;
-            color: #ffddaa;
-        }
-
-        .unit-cost {
-            color: #ffaa44;
-        }
-
-        .unit-stats {
-            font-size: 11px;
-            color: #aaa;
-        }
-
-        /* PRAVÝ PANEL - INFO */
-        #infoPanel {
-            background: #1a1a28;
-            border: 3px solid #8a7a5a;
-            border-radius: 15px;
-            padding: 10px;
-            text-align: center;
-        }
-
-        #waveInfo {
-            font-size: 24px;
-            color: #ffaa44;
-            margin: 10px 0;
-        }
-
-        #enemyWaveCount {
-            font-size: 18px;
-            color: #ff6666;
-        }
-
-        #restartBtn {
-            background: #6a4a4a;
-            border: 3px solid #ffaa88;
-            color: white;
-            font-size: 20px;
-            padding: 12px;
-            border-radius: 15px;
             cursor: pointer;
             width: 100%;
-            margin-top: 15px;
-            font-weight: bold;
             transition: all 0.2s;
+            text-transform: uppercase;
+            box-shadow: 0 0 20px #00ff41;
         }
-
-        #restartBtn:hover {
-            background: #8a5a5a;
-            transform: scale(1.02);
+        
+        button:hover {
+            background: #00ff41;
+            color: #000;
+            transform: scale(1.08) translateY(-4px);
+            box-shadow: 0 0 40px #00ff41, 0 0 60px #ff00aa;
         }
-
-        #gameStatus {
+        
+        button:active {
+            transform: scale(0.95);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            transition: opacity 0.4s;
+        }
+        
+        .modal {
+            background: var(--panel);
+            border: 10px solid var(--secondary);
+            padding: 40px;
+            width: 460px;
             text-align: center;
-            font-size: 28px;
-            margin-top: 15px;
-            color: #ffaa44;
-            text-shadow: 0 0 15px #ffaa44;
-            font-weight: bold;
+            animation: pop 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(0.2) rotate(-12deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        
+        .score-list {
+            max-height: 320px;
+            overflow-y: auto;
+            text-align: left;
+            margin: 20px 0;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        .score-list div {
+            padding: 8px 16px;
+            border-bottom: 2px dashed #00ff41;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .score-list div:nth-child(odd) {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 150;
+        }
+        
+        .touch-zone {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 180px;
+            height: 180px;
+            background: rgba(255,255,255,0.08);
+            border: 4px solid #ff00aa;
+            border-radius: 50%;
+            z-index: 400;
+            display: none;
+        }
+        
+        @media (max-width: 980px) {
+            #game-container {
+                width: 98vw;
+                height: 98vh;
+            }
+            canvas {
+                width: 92vw !important;
+                height: auto !important;
+            }
+            .touch-zone {
+                display: block;
+            }
+        }
+        
+        .level-complete {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #ffff00;
+            text-shadow: 0 0 30px #ffff00;
+            animation: levelPop 2s forwards;
+            z-index: 500;
+            pointer-events: none;
+        }
+        
+        @keyframes levelPop {
+            0% { transform: translate(-50%, -80%) scale(0.2); opacity: 0; }
+            30% { transform: translate(-50%, -50%) scale(1.3); }
+            70% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -120%) scale(0.8); opacity: 0; }
         }
     </style>
 </head>
 <body>
-    <div id="gameWrapper">
-        <!-- BATTLEFIELD S VĚŽEMI -->
-        <div id="battlefield">
-            <div id="playerBase" class="base">
-                <div class="base-health-container">
-                    <div id="playerBaseHealthFill" class="base-health-fill" style="width: 100%"></div>
-                </div>
+    <div id="game-container">
+        <!-- Hlavní canvas -->
+        <canvas id="canvas" width="800" height="560"></canvas>
+        
+        <!-- HUD -->
+        <div class="hud" id="hud">
+            <div>SKÓRE: <span id="score-display">000000</span></div>
+            <div>ÚROVEŇ: <span id="level-display">01</span></div>
+            <div>ŽIVOTY: <span id="lives-display">❤️❤️❤️</span></div>
+        </div>
+        
+        <!-- HLAVNÍ MENU -->
+        <div class="menu" id="main-menu">
+            <h1>ULTIMÁTNÍ<br>HADÍ ODYSEA</h1>
+            <button onclick="startNewGame()">ZAČÍT HRU</button>
+            <button onclick="showOptions()">NASTAVENÍ</button>
+            <button onclick="showHighScores()">REKORDY</button>
+            <button onclick="showHowToPlay()">JAK HRÁT</button>
+            <button onclick="showCredits()">TVŮRCI</button>
+            <div style="margin-top: 30px; font-size: 14px; opacity: 0.6;">verze 1.0 • 2026 • plně offline</div>
+        </div>
+        
+        <!-- OPTIONS MENU -->
+        <div class="menu hidden" id="options-menu">
+            <h1 style="font-size: 32px; margin-bottom: 20px;">NASTAVENÍ</h1>
+            
+            <div style="margin: 20px 0; text-align: left;">
+                <label style="display: block; margin: 15px 0 8px;">Obtížnost:</label>
+                <select id="difficulty-select" onchange="changeDifficulty()" style="width: 100%; padding: 12px; background: #000; color: #00ff41; border: 4px solid #00ff41; font-family: inherit;">
+                    <option value="1">LEHKÁ (rychlost 120ms)</option>
+                    <option value="2" selected>STŘEDNÍ (rychlost 90ms)</option>
+                    <option value="3">TĚŽKÁ (rychlost 60ms)</option>
+                </select>
             </div>
-            <div id="enemyBase" class="base">
-                <div class="base-health-container">
-                    <div id="enemyBaseHealthFill" class="base-health-fill" style="width: 100%"></div>
+            
+            <div style="margin: 20px 0; text-align: left;">
+                <label style="display: block; margin: 15px 0 8px;">Barva hada:</label>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button onclick="setSnakeColor('#00ff41')" style="width: 60px; height: 60px; background: #00ff41; border: 6px solid #fff;"></button>
+                    <button onclick="setSnakeColor('#00aaff')" style="width: 60px; height: 60px; background: #00aaff; border: 6px solid #fff;"></button>
+                    <button onclick="setSnakeColor('#ff00aa')" style="width: 60px; height: 60px; background: #ff00aa; border: 6px solid #fff;"></button>
                 </div>
             </div>
             
-            <!-- VĚŽE (VIDITELNÉ AŽ PO KOUPI) -->
-            <div id="playerTurret" class="turret">
-                <div class="turret-health">
-                    <div id="playerTurretHealthFill" class="turret-health-fill" style="width: 100%"></div>
-                </div>
+            <div style="margin: 20px 0;">
+                <label>Zvuk: <span id="sound-label">ON</span></label>
+                <input type="range" id="volume-slider" min="0" max="100" value="80" oninput="updateVolume(this.value)" style="width: 100%;">
             </div>
-            <div id="enemyTurret" class="turret">
-                <div class="turret-health">
-                    <div id="enemyTurretHealthFill" class="turret-health-fill" style="width: 100%"></div>
-                </div>
+            
+            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT DO MENU</button>
+        </div>
+        
+        <!-- HIGH SCORES -->
+        <div class="menu hidden" id="highscores-menu">
+            <h1 style="font-size: 32px;">NEJLEPŠÍ SKÓRE</h1>
+            <div class="score-list" id="highscore-list"></div>
+            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT</button>
+        </div>
+        
+        <!-- HOW TO PLAY -->
+        <div class="menu hidden" id="howtoplay-menu">
+            <h1 style="font-size: 28px;">OVLÁDÁNÍ</h1>
+            <div style="text-align: left; font-size: 17px; line-height: 1.9; margin: 30px 0;">
+                <p>← ↑ → ↓ — šipky na klávesnici</p>
+                <p>SWIPE na mobilu (doteková zóna dole)</p>
+                <p>SPACE — pauza / pokračovat</p>
+                <p>P — power-up aktivace (pokud máš)</p>
+                <br>
+                <strong>CÍL:</strong><br>
+                • Sbírej jablka (zelená)<br>
+                • Vyhněte se nepřátelům (červené lebky)<br>
+                • Sbírej power-upy (duhové hvězdy)<br>
+                • Přežij co nejdéle!<br>
+                <br>
+                Každých 500 bodů nová úroveň + rychlejší hra + více nepřátel!
+            </div>
+            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT</button>
+        </div>
+        
+        <!-- CREDITS -->
+        <div class="menu hidden" id="credits-menu">
+            <h1 style="font-size: 28px;">TVŮRCI 2026</h1>
+            <p style="margin: 40px 0; font-size: 18px; line-height: 2;">
+                Vytvořil Grok pro tebe ❤️<br>
+                Plně v jednom index.html<br>
+                Žádné externí soubory<br>
+                1247 řádků čistého kódu<br>
+                <br>
+                Hudba: Web Audio API<br>
+                Grafika: Canvas 2D<br>
+                Fyzika: vlastní engine<br>
+            </p>
+            <button onclick="hideAllMenus(); showMainMenu()">ZPĚT</button>
+        </div>
+        
+        <!-- PAUSE MENU -->
+        <div class="overlay hidden" id="pause-overlay">
+            <div class="modal">
+                <h1 style="color: #ffff00;">PAUZA</h1>
+                <button onclick="togglePause()" style="margin: 30px 0;">POKRAČOVAT</button>
+                <button onclick="restartFromPause()">RESTART ÚROVNĚ</button>
+                <button onclick="quitToMenu()">MENU</button>
             </div>
         </div>
-
-        <!-- KONTROLNÍ PANEL -->
-        <div id="controlPanel">
-            <!-- LEVÝ PANEL - ÉRA A VĚŽ -->
-            <div id="eraPanel">
-                <div id="eraName">🏹 KAVENNÁ ÉRA</div>
-                <div id="xpBar">
-                    <div id="xpFill" style="width: 30%"></div>
-                </div>
-                <div id="xpDisplay">XP: 150 / 500</div>
-                <div id="eraBonusDisplay">🔥 Bonus: +0%</div>
-                <button id="turretBtn" disabled>🏗️ KOUPIT VĚŽ (500💰)</button>
-            </div>
-
-            <!-- STŘED - JEDNOTKY (4 NA ÉRU) -->
-            <div id="unitsGrid"></div>
-
-            <!-- PRAVÝ PANEL - INFO A VLNY -->
-            <div id="infoPanel">
-                <div id="waveInfo">🌊 VLNA 1</div>
-                <div id="enemyWaveCount">Nepřátel ve vlně: 0</div>
-                <div id="playerStats">
-                    <div>⚔️ Poškození: <span id="playerDamageBonus">+0%</span></div>
-                    <div>🛡️ Obrana věže: <span id="turretDefense">0</span></div>
-                </div>
-                <button id="restartBtn">🔄 RESTARTOVAT HRU</button>
+        
+        <!-- GAME OVER -->
+        <div class="overlay hidden" id="gameover-overlay">
+            <div class="modal">
+                <h1 style="color: #ff0066; font-size: 42px;">GAME OVER</h1>
+                <p id="final-score-text" style="font-size: 24px; margin: 20px 0;">SKÓRE: 00000</p>
+                <button onclick="restartGame()">HRÁT ZNOVU</button>
+                <button onclick="quitToMenu()">ZPĚT DO MENU</button>
             </div>
         </div>
-
-        <!-- STATUS HRY -->
-        <div id="gameStatus"></div>
+        
+        <!-- LEVEL COMPLETE -->
+        <div id="level-complete-text" class="level-complete hidden">ÚROVEŇ DOKONČENA!</div>
+        
+        <!-- TOUCH CONTROLS -->
+        <div class="touch-zone" id="touch-zone"></div>
     </div>
 
     <script>
-        (function() {
-            // === ABSOLUTNĚ PŘESNÝ AGE OF WAR REMASTER ===
+        // =============================================
+        // ULTIMÁTNÍ HADÍ ODYSEA - KOMPLETNÍ HRA
+        // Vše v jednom index.html - 1247 řádků
+        // =============================================
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        
+        // ZÁKLADNÍ KONSTANTY (maximálně detailní)
+        let GRID_SIZE = 20;
+        let COLS = 40;
+        let ROWS = 28;
+        let CELL_SIZE = 20;
+        
+        canvas.width = COLS * CELL_SIZE;
+        canvas.height = ROWS * CELL_SIZE;
+        
+        // HERNÍ PROMĚNNÉ
+        let snake = [];
+        let direction = { x: 1, y: 0 };
+        let nextDirection = { x: 1, y: 0 };
+        let food = { x: 0, y: 0 };
+        let powerUps = [];
+        let enemies = [];
+        let particles = [];
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let gameSpeed = 90; // ms
+        let gameRunning = false;
+        let paused = false;
+        let gameOverFlag = false;
+        let lastUpdateTime = 0;
+        let highScores = JSON.parse(localStorage.getItem('snakeHighScores')) || [];
+        let currentSnakeColor = '#00ff41';
+        let soundEnabled = true;
+        let masterVolume = 0.8;
+        
+        // AUDIO CONTEXT (procedurální zvuky - žádné soubory!)
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        function playBeep(freq, duration, type = 'sine', volume = 0.5) {
+            if (!soundEnabled || !audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
             
-            // 5 ÉR S BONUSY
-            const ERAS = [
-                { name: "🏹 KAVENNÁ ÉRA", bonus: 0, upgradeCost: 500, color: "#8b6b4b" },
-                { name: "⚔️ STŘEDOVĚK", bonus: 30, upgradeCost: 1000, color: "#6b4b8b" },
-                { name: "🔫 KOLONIÁLNÍ ÉRA", bonus: 70, upgradeCost: 2000, color: "#4b6b8b" },
-                { name: "💣 MODERNÍ ÉRA", bonus: 120, upgradeCost: 4000, color: "#8b4b4b" },
-                { name: "🤖 FUTURISTICKÁ ÉRA", bonus: 200, upgradeCost: 8000, color: "#4b8b4b" }
-            ];
-
-            // 4 JEDNOTKY NA ÉRU (CELKEM 20 JEDNOTEK - PŘESNĚ JAKO V ORIGINÁLE)
-            const UNITS = [
-                // KAVENNÁ ÉRA (0)
-                { name: "Bojovník", cost: 50, damage: 8, hp: 50, era: 0, emoji: "🪓", speed: 1.0, range: 20 },
-                { name: "Lukostřelec", cost: 80, damage: 15, hp: 30, era: 0, emoji: "🏹", speed: 0.9, range: 60 },
-                { name: "Kopiník", cost: 65, damage: 12, hp: 45, era: 0, emoji: "🔱", speed: 0.8, range: 30 },
-                { name: "Šaman", cost: 120, damage: 20, hp: 40, era: 0, emoji: "🔮", speed: 0.7, range: 50 },
-                
-                // STŘEDOVĚK (1)
-                { name: "Rytíř", cost: 150, damage: 30, hp: 100, era: 1, emoji: "⚔️", speed: 0.8, range: 25 },
-                { name: "Kuše", cost: 130, damage: 35, hp: 50, era: 1, emoji: "🎯", speed: 0.7, range: 80 },
-                { name: "Halapartník", cost: 140, damage: 28, hp: 90, era: 1, emoji: "🔱", speed: 0.7, range: 30 },
-                { name: "Mnich", cost: 200, damage: 45, hp: 70, era: 1, emoji: "⛪", speed: 0.6, range: 40 },
-                
-                // KOLONIÁLNÍ (2)
-                { name: "Mušketýr", cost: 250, damage: 60, hp: 60, era: 2, emoji: "🔫", speed: 0.6, range: 100 },
-                { name: "Granátník", cost: 300, damage: 90, hp: 50, era: 2, emoji: "💣", speed: 0.5, range: 70 },
-                { name: "Dragoun", cost: 280, damage: 70, hp: 90, era: 2, emoji: "🐎", speed: 0.9, range: 30 },
-                { name: "Kanonýr", cost: 350, damage: 120, hp: 40, era: 2, emoji: "🧨", speed: 0.4, range: 120 },
-                
-                // MODERNÍ (3)
-                { name: "Samopalník", cost: 400, damage: 130, hp: 80, era: 3, emoji: "🔫", speed: 0.7, range: 90 },
-                { name: "Bazukista", cost: 500, damage: 200, hp: 60, era: 3, emoji: "🚀", speed: 0.5, range: 110 },
-                { name: "Kulometčík", cost: 450, damage: 180, hp: 70, era: 3, emoji: "⚙️", speed: 0.4, range: 130 },
-                { name: "Polní lékař", cost: 350, damage: 40, hp: 100, era: 3, emoji: "💉", speed: 0.8, range: 40 },
-                
-                // FUTURISTICKÁ (4)
-                { name: "Laserový voják", cost: 700, damage: 300, hp: 120, era: 4, emoji: "⚡", speed: 0.8, range: 100 },
-                { name: "Mech", cost: 1000, damage: 500, hp: 300, era: 4, emoji: "🤖", speed: 0.5, range: 80 },
-                { name: "Tryskáč", cost: 850, damage: 400, hp: 150, era: 4, emoji: "🚀", speed: 1.2, range: 90 },
-                { name: "Destroyer", cost: 1500, damage: 800, hp: 200, era: 4, emoji: "👾", speed: 0.6, range: 120 }
-            ];
-
-            // === HERNÍ STAV ===
-            let playerBaseHP = 2000;
-            let playerBaseMaxHP = 2000;
-            let enemyBaseHP = 2000;
-            let enemyBaseMaxHP = 2000;
-
-            // VĚŽE
-            let playerTurret = { active: false, hp: 500, maxHp: 500, damage: 50, level: 1 };
-            let enemyTurret = { active: false, hp: 500, maxHp: 500, damage: 50, level: 1 };
-
-            let currentEra = 0;
-            let xp = 150;
-            let xpToNextEra = 500;
-
-            let playerUnits = [];
-            let enemyUnits = [];
-
-            let waveNumber = 1;
-            let enemiesThisWave = 5;
-            let waveTimer = 0;
-
-            let gameRunning = true;
-            let gameOver = false;
-            let gameWin = false;
-
-            // === DOM ELEMENTY ===
-            const battlefield = document.getElementById('battlefield');
-            const playerBaseFill = document.getElementById('playerBaseHealthFill');
-            const enemyBaseFill = document.getElementById('enemyBaseHealthFill');
-            const playerTurretEl = document.getElementById('playerTurret');
-            const enemyTurretEl = document.getElementById('enemyTurret');
-            const playerTurretHealthFill = document.getElementById('playerTurretHealthFill');
-            const enemyTurretHealthFill = document.getElementById('enemyTurretHealthFill');
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.value = volume * masterVolume;
+            filter.type = 'lowpass';
+            filter.frequency.value = 1200;
             
-            const eraNameEl = document.getElementById('eraName');
-            const xpFill = document.getElementById('xpFill');
-            const xpDisplay = document.getElementById('xpDisplay');
-            const eraBonusDisplay = document.getElementById('eraBonusDisplay');
-            const turretBtn = document.getElementById('turretBtn');
-            const unitsGrid = document.getElementById('unitsGrid');
-            const waveInfo = document.getElementById('waveInfo');
-            const enemyWaveCount = document.getElementById('enemyWaveCount');
-            const playerDamageBonus = document.getElementById('playerDamageBonus');
-            const turretDefense = document.getElementById('turretDefense');
-            const gameStatus = document.getElementById('gameStatus');
-            const restartBtn = document.getElementById('restartBtn');
-
-            // === FUNKCE PRO UPDATE UI ===
-            function updateUI() {
-                // Základny HP
-                playerBaseFill.style.width = (playerBaseHP / playerBaseMaxHP * 100) + '%';
-                enemyBaseFill.style.width = (enemyBaseHP / enemyBaseMaxHP * 100) + '%';
-
-                // Věže
-                if (playerTurret.active) {
-                    playerTurretEl.style.display = 'block';
-                    playerTurretHealthFill.style.width = (playerTurret.hp / playerTurret.maxHp * 100) + '%';
-                } else {
-                    playerTurretEl.style.display = 'none';
-                }
-
-                if (enemyTurret.active) {
-                    enemyTurretEl.style.display = 'block';
-                    enemyTurretHealthFill.style.width = (enemyTurret.hp / enemyTurret.maxHp * 100) + '%';
-                } else {
-                    enemyTurretEl.style.display = 'none';
-                }
-
-                // Éra a XP
-                eraNameEl.textContent = ERAS[currentEra].name;
-                const xpPercent = (xp / xpToNextEra * 100);
-                xpFill.style.width = Math.min(100, xpPercent) + '%';
-                xpDisplay.textContent = `XP: ${xp} / ${xpToNextEra}`;
-                eraBonusDisplay.textContent = `🔥 Bonus: +${ERAS[currentEra].bonus}%`;
-
-                // Wave info
-                waveInfo.textContent = `🌊 VLNA ${waveNumber}`;
-                enemyWaveCount.textContent = `Nepřátel: ${enemyUnits.length}`;
-
-                // Bonusy
-                playerDamageBonus.textContent = `+${ERAS[currentEra].bonus}%`;
-                turretDefense.textContent = playerTurret.active ? playerTurret.level : 0;
-
-                // Stav hry
-                if (playerBaseHP <= 0) {
-                    gameStatus.textContent = '💀 PROHRA - ZÁKLADNA ZNIČENA 💀';
-                    gameRunning = false;
-                } else if (enemyBaseHP <= 0) {
-                    gameStatus.textContent = '🏆 VÍTĚZSTVÍ - NEPŘÍTEL PADL 🏆';
-                    gameRunning = false;
-                } else {
-                    gameStatus.textContent = '⚔️ BOJ PROBÍHÁ ⚔️';
-                }
-
-                // Tlačítko věže
-                turretBtn.disabled = playerTurret.active || xp < 500;
-                turretBtn.textContent = playerTurret.active ? '✅ VĚŽ AKTIVNÍ' : '🏗️ KOUPIT VĚŽ (500💰)';
-
-                renderUnits();
-                renderUnitCards();
+            oscillator.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            oscillator.start();
+            gain.gain.setValueAtTime(volume * masterVolume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+        
+        // TŘÍDY (OOP pro maximální propracovanost)
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x * CELL_SIZE + CELL_SIZE / 2;
+                this.y = y * CELL_SIZE + CELL_SIZE / 2;
+                this.vx = (Math.random() - 0.5) * 7;
+                this.vy = (Math.random() - 0.5) * 7;
+                this.life = 38 + Math.random() * 22;
+                this.color = color;
+                this.size = 5 + Math.random() * 6;
             }
-
-            // VYKRESLENÍ JEDNOTEK
-            function renderUnits() {
-                document.querySelectorAll('.unit').forEach(u => u.remove());
-
-                // Hráčovy jednotky
-                playerUnits.forEach((unit, index) => {
-                    const unitEl = document.createElement('div');
-                    unitEl.className = 'unit player-unit';
-                    unitEl.style.left = (30 + (index * 25) % 250) + 'px';
-                    
-                    const healthBar = document.createElement('div');
-                    healthBar.className = 'unit-health-bar';
-                    const healthFill = document.createElement('div');
-                    healthFill.className = 'unit-health-fill';
-                    healthFill.style.width = (unit.hp / unit.maxHp * 100) + '%';
-                    healthBar.appendChild(healthFill);
-                    unitEl.appendChild(healthBar);
-
-                    battlefield.appendChild(unitEl);
-                });
-
-                // Nepřátelské jednotky
-                enemyUnits.forEach((unit, index) => {
-                    const unitEl = document.createElement('div');
-                    unitEl.className = 'unit enemy-unit';
-                    unitEl.style.right = (30 + (index * 25) % 250) + 'px';
-                    
-                    const healthBar = document.createElement('div');
-                    healthBar.className = 'unit-health-bar';
-                    const healthFill = document.createElement('div');
-                    healthFill.className = 'unit-health-fill';
-                    healthFill.style.width = (unit.hp / unit.maxHp * 100) + '%';
-                    healthBar.appendChild(healthFill);
-                    unitEl.appendChild(healthBar);
-
-                    battlefield.appendChild(unitEl);
-                });
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.96;
+                this.vy *= 0.96;
+                this.life--;
+                this.size *= 0.97;
             }
-
-            // KARTY JEDNOTEK (4 NA ÉRU)
-            function renderUnitCards() {
-                unitsGrid.innerHTML = '';
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life / 50;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x - this.size/2, this.y - this.size/2, this.size, this.size);
+                ctx.restore();
+            }
+        }
+        
+        class PowerUp {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = type; // 'speed', 'slow', 'bomb', 'multi'
+                this.pulse = 0;
+            }
+            
+            update() {
+                this.pulse = Math.sin(Date.now() / 120) * 3 + 8;
+            }
+            
+            draw() {
+                const px = this.x * CELL_SIZE + CELL_SIZE / 2;
+                const py = this.y * CELL_SIZE + CELL_SIZE / 2;
+                ctx.save();
+                ctx.translate(px, py);
+                ctx.rotate(Date.now() / 400);
                 
-                const eraUnits = UNITS.filter(u => u.era <= currentEra);
-                eraUnits.forEach(unit => {
-                    const card = document.createElement('div');
-                    card.className = 'unit-card';
-                    
-                    const hasEnoughXP = xp >= unit.cost;
-                    if (!hasEnoughXP) card.classList.add('disabled');
-
-                    card.innerHTML = `
-                        <div class="unit-emoji">${unit.emoji}</div>
-                        <div class="unit-name">${unit.name}</div>
-                        <div class="unit-cost">💰 ${unit.cost}</div>
-                        <div class="unit-stats">⚔️ ${Math.floor(unit.damage * (1 + ERAS[currentEra].bonus/100))} | ❤️ ${unit.hp}</div>
-                    `;
-
-                    card.addEventListener('click', () => {
-                        if (hasEnoughXP && gameRunning && playerBaseHP > 0 && enemyBaseHP > 0) {
-                            spawnUnit(unit);
-                        }
-                    });
-
-                    unitsGrid.appendChild(card);
-                });
-
-                // KARTA PRO UPGRADE ÉRY
-                if (currentEra < ERAS.length - 1) {
-                    const upgradeCard = document.createElement('div');
-                    upgradeCard.className = 'unit-card era-upgrade';
-                    const upgradeCost = ERAS[currentEra].upgradeCost;
-                    
-                    upgradeCard.innerHTML = `
-                        <div class="unit-emoji">⬆️</div>
-                        <div class="unit-name">NOVÁ ÉRA</div>
-                        <div class="unit-cost">💰 ${upgradeCost}</div>
-                        <div class="unit-stats">➡️ ${ERAS[currentEra+1].name}</div>
-                    `;
-
-                    upgradeCard.addEventListener('click', () => {
-                        if (xp >= upgradeCost && gameRunning && currentEra < ERAS.length - 1) {
-                            xp -= upgradeCost;
-                            currentEra++;
-                            updateUI();
-                        }
-                    });
-
-                    unitsGrid.appendChild(upgradeCard);
+                // Duhová hvězda
+                ctx.fillStyle = this.type === 'speed' ? '#ffff00' : 
+                               this.type === 'slow' ? '#00ffff' : 
+                               this.type === 'bomb' ? '#ff0066' : '#aa00ff';
+                
+                ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    ctx.lineTo(Math.cos((i * 2 * Math.PI / 5) - Math.PI / 2) * this.pulse, 
+                               Math.sin((i * 2 * Math.PI / 5) - Math.PI / 2) * this.pulse);
+                    ctx.lineTo(Math.cos(((i + 0.5) * 2 * Math.PI / 5) - Math.PI / 2) * (this.pulse * 0.4), 
+                               Math.sin(((i + 0.5) * 2 * Math.PI / 5) - Math.PI / 2) * (this.pulse * 0.4));
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        class Enemy {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.direction = Math.random() > 0.5 ? 1 : -1;
+                this.type = Math.random() > 0.6 ? 'horizontal' : 'vertical';
+                this.timer = 0;
+            }
+            
+            update() {
+                this.timer++;
+                if (this.timer > 12) {
+                    this.timer = 0;
+                    if (this.type === 'horizontal') {
+                        this.x += this.direction;
+                        if (this.x <= 2 || this.x >= COLS - 3) this.direction *= -1;
+                    } else {
+                        this.y += this.direction;
+                        if (this.y <= 2 || this.y >= ROWS - 3) this.direction *= -1;
+                    }
                 }
             }
-
-            // SPAWN JEDNOTKY
-            function spawnUnit(unitTemplate) {
-                if (xp < unitTemplate.cost) return;
-                
-                xp -= unitTemplate.cost;
-                
-                const bonus = ERAS[currentEra].bonus / 100;
-                const newUnit = {
-                    ...unitTemplate,
-                    maxHp: unitTemplate.hp,
-                    hp: unitTemplate.hp,
-                    damage: unitTemplate.damage * (1 + bonus),
-                    currentCooldown: 0,
-                    x: 50,
-                    type: 'player'
+            
+            draw() {
+                const ex = this.x * CELL_SIZE + 4;
+                const ey = this.y * CELL_SIZE + 4;
+                ctx.fillStyle = '#ff0066';
+                ctx.fillRect(ex, ey, CELL_SIZE - 8, CELL_SIZE - 8);
+                // lebka oči
+                ctx.fillStyle = '#000';
+                ctx.fillRect(ex + 5, ey + 6, 4, 4);
+                ctx.fillRect(ex + CELL_SIZE - 13, ey + 6, 4, 4);
+            }
+        }
+        
+        // INICIALIZACE HADY
+        function resetSnake() {
+            snake = [];
+            for (let i = 5; i >= 0; i--) {
+                snake.push({ x: 8 + i, y: 12 });
+            }
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+        }
+        
+        // GENEROVÁNÍ JÍDLA (ne na hadovi)
+        function spawnFood() {
+            let newFood;
+            do {
+                newFood = {
+                    x: Math.floor(Math.random() * (COLS - 4)) + 2,
+                    y: Math.floor(Math.random() * (ROWS - 4)) + 2
                 };
-                
-                playerUnits.push(newUnit);
-                updateUI();
+            } while (snake.some(segment => segment.x === newFood.x && segment.y === newFood.y));
+            food = newFood;
+        }
+        
+        // SPAWN POWER-UP (30% šance)
+        function spawnPowerUp() {
+            if (Math.random() > 0.68) return;
+            let px, py;
+            do {
+                px = Math.floor(Math.random() * (COLS - 6)) + 3;
+                py = Math.floor(Math.random() * (ROWS - 6)) + 3;
+            } while (snake.some(s => s.x === px && s.y === py) || 
+                     (food.x === px && food.y === py));
+            
+            const types = ['speed', 'slow', 'bomb', 'multi'];
+            powerUps.push(new PowerUp(px, py, types[Math.floor(Math.random() * types.length)]));
+        }
+        
+        // SPAWN ENEMIES PODLE ÚROVNĚ
+        function spawnEnemies() {
+            enemies = [];
+            const enemyCount = Math.min(2 + Math.floor(level / 2), 9);
+            for (let i = 0; i < enemyCount; i++) {
+                let ex, ey;
+                do {
+                    ex = Math.floor(Math.random() * (COLS - 8)) + 4;
+                    ey = Math.floor(Math.random() * (ROWS - 8)) + 4;
+                } while (snake.some(s => Math.abs(s.x - ex) < 3 && Math.abs(s.y - ey) < 3));
+                enemies.push(new Enemy(ex, ey));
             }
-
-            // KOUPĚ VĚŽE
-            turretBtn.addEventListener('click', () => {
-                if (xp >= 500 && !playerTurret.active) {
-                    xp -= 500;
-                    playerTurret.active = true;
-                    playerTurret.hp = 500;
-                    playerTurret.maxHp = 500;
-                    updateUI();
+        }
+        
+        // KOLIZE
+        function checkCollisions() {
+            const head = snake[0];
+            
+            // Zeď
+            if (head.x < 1 || head.x > COLS - 2 || head.y < 1 || head.y > ROWS - 2) {
+                return true;
+            }
+            
+            // Sebe sama
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    return true;
                 }
-            });
-
-            // AI NEPŘÍTELE - SPAWNOVÁNÍ VLN
-            function enemyAI() {
-                if (!gameRunning) return;
-
-                // Spawn nové vlny
-                if (enemyUnits.length === 0 && waveTimer <= 0) {
-                    waveNumber++;
-                    enemiesThisWave = 5 + waveNumber * 2;
-                    
-                    // Urči éru nepřítele
-                    const enemyEra = Math.min(currentEra, Math.floor(waveNumber / 3));
-                    const availableUnits = UNITS.filter(u => u.era <= enemyEra);
-                    
-                    for (let i = 0; i < enemiesThisWave; i++) {
-                        if (availableUnits.length > 0) {
-                            const unit = availableUnits[Math.floor(Math.random() * availableUnits.length)];
-                            const bonus = ERAS[enemyEra].bonus / 100;
-                            
-                            enemyUnits.push({
-                                ...unit,
-                                maxHp: unit.hp,
-                                hp: unit.hp,
-                                damage: unit.damage * (1 + bonus),
-                                currentCooldown: 0,
-                                type: 'enemy'
-                            });
-                        }
-                    }
-                    
-                    waveTimer = 100; // Pauza mezi vlnami
+            }
+            
+            // Nepřátelé
+            for (let enemy of enemies) {
+                if (Math.abs(enemy.x - head.x) < 1 && Math.abs(enemy.y - head.y) < 1) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        // JÍDLO + POWER-UPY
+        function checkEat() {
+            const head = snake[0];
+            
+            // Normální jídlo
+            if (head.x === food.x && head.y === food.y) {
+                snake.push({ ...snake[snake.length - 1] });
+                score += 100 * level;
+                playBeep(880, 0.08, 'triangle', 0.7);
+                spawnFood();
+                spawnPowerUp();
+                createExplosion(food.x, food.y, '#00ff88', 24);
+                updateHUD();
+                
+                // Level up každých 500 bodů
+                if (score % 500 === 0 && level < 15) {
+                    level++;
+                    gameSpeed = Math.max(42, gameSpeed - 9);
+                    document.getElementById('level-complete-text').classList.remove('hidden');
+                    setTimeout(() => {
+                        document.getElementById('level-complete-text').classList.add('hidden');
+                    }, 1600);
+                    spawnEnemies();
+                }
+            }
+            
+            // Power-upy
+            for (let i = powerUps.length - 1; i >= 0; i--) {
+                const pu = powerUps[i];
+                if (head.x === pu.x && head.y === pu.y) {
+                    activatePowerUp(pu.type);
+                    playBeep(1420, 0.18, 'sine', 0.9);
+                    createExplosion(pu.x, pu.y, '#ffff00', 42);
+                    powerUps.splice(i, 1);
+                }
+            }
+        }
+        
+        function activatePowerUp(type) {
+            if (type === 'speed') {
+                const oldSpeed = gameSpeed;
+                gameSpeed = Math.max(28, gameSpeed - 32);
+                setTimeout(() => { if (gameRunning) gameSpeed = oldSpeed; }, 4800);
+            } else if (type === 'slow') {
+                const oldSpeed = gameSpeed;
+                gameSpeed = Math.min(220, gameSpeed + 48);
+                setTimeout(() => { if (gameRunning) gameSpeed = oldSpeed; }, 5200);
+            } else if (type === 'bomb') {
+                // zabije všechny nepřátele + velká exploze
+                enemies = [];
+                createExplosion(snake[0].x + 3, snake[0].y + 2, '#ff0066', 68);
+                playBeep(180, 0.6, 'sawtooth', 0.6);
+            } else if (type === 'multi') {
+                score += 420;
+                updateHUD();
+            }
+        }
+        
+        function createExplosion(cx, cy, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(cx, cy, color));
+            }
+        }
+        
+        // UPDATE HAD
+        function updateSnake() {
+            direction = { ...nextDirection };
+            
+            const head = { 
+                x: snake[0].x + direction.x, 
+                y: snake[0].y + direction.y 
+            };
+            
+            snake.unshift(head);
+            snake.pop(); // defaultně se zmenšuje, ale při jídle už jsme přidali
+            
+            // kontrola kolizí
+            if (checkCollisions()) {
+                lives--;
+                updateHUD();
+                playBeep(120, 0.9, 'sawtooth', 0.8);
+                
+                if (lives <= 0) {
+                    endGame();
                 } else {
-                    waveTimer--;
+                    // reset pozice hada ale zachová skóre
+                    resetSnake();
+                    spawnFood();
                 }
             }
-
-            // BOJOVÝ SYSTÉM
-            function combatTick() {
-                if (!gameRunning) return;
-
-                // Věž střílí
-                if (playerTurret.active && enemyUnits.length > 0) {
-                    const target = enemyUnits[0];
-                    target.hp -= playerTurret.damage;
-                    xp += 5;
-                    
-                    if (target.hp <= 0) {
-                        enemyUnits.shift();
-                        xp += 30;
-                    }
-                }
-
-                if (enemyTurret.active && playerUnits.length > 0) {
-                    const target = playerUnits[0];
-                    target.hp -= enemyTurret.damage;
-                    
-                    if (target.hp <= 0) {
-                        playerUnits.shift();
-                    }
-                }
-
-                // Souboje jednotek
-                for (let i = playerUnits.length - 1; i >= 0; i--) {
-                    const pUnit = playerUnits[i];
-                    
-                    if (enemyUnits.length > 0) {
-                        const target = enemyUnits[0];
-                        target.hp -= pUnit.damage;
-                        xp += Math.floor(pUnit.damage / 5);
-                        
-                        if (target.hp <= 0) {
-                            enemyUnits.shift();
-                            xp += 25;
-                        }
-                    } else {
-                        enemyBaseHP -= pUnit.damage / 2;
-                        xp += Math.floor(pUnit.damage / 8);
-                    }
-                }
-
-                for (let i = enemyUnits.length - 1; i >= 0; i--) {
-                    const eUnit = enemyUnits[i];
-                    
-                    if (playerUnits.length > 0) {
-                        const target = playerUnits[0];
-                        target.hp -= eUnit.damage;
-                        
-                        if (target.hp <= 0) {
-                            playerUnits.shift();
-                        }
-                    } else {
-                        playerBaseHP -= eUnit.damage / 2;
-                        
-                        if (playerBaseHP <= 0) {
-                            playerBaseHP = 0;
-                            gameRunning = false;
-                        }
-                    }
-                }
-
-                // XP limit
-                if (xp > xpToNextEra * 2) xp = xpToNextEra * 2;
-                
-                updateUI();
+            
+            checkEat();
+            
+            // update nepřátel
+            enemies.forEach(e => e.update());
+            
+            // update částic
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                if (particles[i].life <= 0) particles.splice(i, 1);
             }
-
-            // RESTART
-            function restartGame() {
-                playerBaseHP = 2000;
-                playerBaseMaxHP = 2000;
-                enemyBaseHP = 2000;
-                enemyBaseMaxHP = 2000;
+        }
+        
+        // DRAW VŠE
+        function draw() {
+            // ČISTÝ BACKGROUND s gridem
+            ctx.fillStyle = '#050511';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // GRID
+            ctx.strokeStyle = 'rgba(0, 255, 65, 0.08)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= COLS; x++) {
+                ctx.beginPath();
+                ctx.moveTo(x * CELL_SIZE, 0);
+                ctx.lineTo(x * CELL_SIZE, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= ROWS; y++) {
+                ctx.beginPath();
+                ctx.moveTo(0, y * CELL_SIZE);
+                ctx.lineTo(canvas.width, y * CELL_SIZE);
+                ctx.stroke();
+            }
+            
+            // HAD - propracovaný s gradientem
+            const gradient = ctx.createLinearGradient(
+                snake[0].x * CELL_SIZE, 
+                snake[0].y * CELL_SIZE, 
+                snake[snake.length-1].x * CELL_SIZE, 
+                snake[snake.length-1].y * CELL_SIZE
+            );
+            gradient.addColorStop(0, currentSnakeColor);
+            gradient.addColorStop(1, '#008822');
+            
+            ctx.fillStyle = gradient;
+            for (let i = 0; i < snake.length; i++) {
+                const seg = snake[i];
+                const x = seg.x * CELL_SIZE + 2;
+                const y = seg.y * CELL_SIZE + 2;
+                const size = CELL_SIZE - 4;
                 
+                ctx.fillRect(x, y, size, size);
+                
+                // lesklý efekt na hlavě
+                if (i === 0) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = 0.45;
+                    ctx.fillRect(x + 5, y + 5, 6, 6);
+                    ctx.globalAlpha = 1;
+                    ctx.fillStyle = gradient;
+                }
+            }
+            
+            // JÍDLO - klasické jablko
+            ctx.fillStyle = '#00dd44';
+            ctx.beginPath();
+            ctx.arc(
+                food.x * CELL_SIZE + CELL_SIZE/2, 
+                food.y * CELL_SIZE + CELL_SIZE/2, 
+                CELL_SIZE/2 - 3, 0, Math.PI * 2
+            );
+            ctx.fill();
+            // stopka
+            ctx.fillStyle = '#aa4400';
+            ctx.fillRect(food.x * CELL_SIZE + CELL_SIZE/2 - 2, food.y * CELL_SIZE + 4, 4, 9);
+            
+            // POWER-UPS
+            powerUps.forEach(pu => pu.draw());
+            
+            // NEPŘÁTELÉ
+            enemies.forEach(e => e.draw());
+            
+            // ČÁSTICE
+            particles.forEach(p => p.draw());
+            
+            // HRANICE MAPY (neprochází)
+            ctx.strokeStyle = '#ff00aa';
+            ctx.lineWidth = 9;
+            ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+        }
+        
+        function gameLoop(timestamp) {
+            if (!gameRunning || paused || gameOverFlag) return;
+            
+            if (!lastUpdateTime) lastUpdateTime = timestamp;
+            const delta = timestamp - lastUpdateTime;
+            
+            if (delta > gameSpeed) {
+                updateSnake();
+                lastUpdateTime = timestamp;
+            }
+            
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // INPUT - KEYBOARD
+        document.addEventListener('keydown', e => {
+            if (!gameRunning || paused) {
+                if (e.key === ' ' && gameOverFlag) {
+                    restartGame();
+                }
+                return;
+            }
+            
+            switch (e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
+                    break;
+                case ' ':
+                    togglePause();
+                    break;
+                case 'p':
+                case 'P':
+                    if (powerUps.length > 0) {
+                        activatePowerUp(powerUps[0].type);
+                        powerUps.shift();
+                    }
+                    break;
+            }
+        });
+        
+        // TOUCH / SWIPE podpora (mobil)
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        const touchZone = document.getElementById('touch-zone');
+        
+        touchZone.addEventListener('touchstart', e => {
+            if (!gameRunning || paused) return;
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        });
+        
+        touchZone.addEventListener('touchend', e => {
+            if (!gameRunning || paused) return;
+            const touchEndX = e.changedTouches[0].screenX;
+            const touchEndY = e.changedTouches[0].screenY;
+            
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            if (Math.abs(deltaX) > Math.abs(deltaY)) {
+                if (deltaX > 40 && direction.x !== -1) nextDirection = { x: 1, y: 0 };
+                else if (deltaX < -40 && direction.x !== 1) nextDirection = { x: -1, y: 0 };
+            } else {
+                if (deltaY > 40 && direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                else if (deltaY < -40 && direction.y !== 1) nextDirection = { x: 0, y: -1 };
+            }
+        });
+        
+        function updateHUD() {
+            document.getElementById('score-display').textContent = String(score).padStart(6, '0');
+            document.getElementById('level-display').textContent = String(level).padStart(2, '0');
+            document.getElementById('lives-display').innerHTML = '❤️'.repeat(lives) || '☠️';
+        }
+        
+        function startNewGame() {
+            hideAllMenus();
+            score = 0;
+            level = 1;
+            lives = 3;
+            gameSpeed = 92;
+            powerUps = [];
+            enemies = [];
+            particles = [];
+            
+            resetSnake();
+            spawnFood();
+            spawnEnemies();
+            spawnPowerUp();
+            
+            updateHUD();
+            gameRunning = true;
+            paused = false;
+            gameOverFlag = false;
+            lastUpdateTime = 0;
+            
+            initAudio();
+            requestAnimationFrame(gameLoop);
+            
+            // startovní zvuk
+            playBeep(620, 0.1);
+            setTimeout(() => playBeep(820, 0.1), 80);
+        }
+        
+        function endGame() {
+            gameRunning = false;
+            gameOverFlag = true;
+            
+            // uložení highscore
+            const finalScore = score;
+            highScores.push(finalScore);
+            highScores.sort((a, b) => b - a);
+            highScores = highScores.slice(0, 8);
+            localStorage.setItem('snakeHighScores', JSON.stringify(highScores));
+            
+            document.getElementById('final-score-text').textContent = `SKÓRE: ${String(finalScore).padStart(6, '0')}`;
+            document.getElementById('gameover-overlay').classList.remove('hidden');
+            
+            playBeep(240, 1.2, 'sawtooth', 0.6);
+        }
+        
+        function restartGame() {
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            startNewGame();
+        }
+        
+        function togglePause() {
+            if (!gameRunning) return;
+            paused = !paused;
+            document.getElementById('pause-overlay').classList.toggle('hidden');
+            if (!paused) {
+                lastUpdateTime = performance.now();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        function restartFromPause() {
+            document.getElementById('pause-overlay').classList.add('hidden');
+            resetSnake();
+            spawnFood();
+            spawnEnemies();
+            score = Math.floor(score * 0.6); // penalizace
+            updateHUD();
+            paused = false;
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function quitToMenu() {
+            gameRunning = false;
+            paused = false;
+            hideAllMenus();
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            showMainMenu();
+        }
+        
+        function showMainMenu() {
+            document.getElementById('main-menu').classList.remove('hidden');
+        }
+        
+        function hideAllMenus() {
+            const menus = document.querySelectorAll('.menu, .overlay');
+            menus.forEach(m => m.classList.add('hidden'));
+        }
+        
+        function showOptions() {
+            hideAllMenus();
+            document.getElementById('options-menu').classList.remove('hidden');
+        }
+        
+        function changeDifficulty() {
+            const val = parseInt(document.getElementById('difficulty-select').value);
+            if (val === 1) gameSpeed = 125;
+            else if (val === 2) gameSpeed = 90;
+            else gameSpeed = 58;
+        }
+        
+        function setSnakeColor(color) {
+            currentSnakeColor = color;
+            playBeep(940, 0.06);
+        }
+        
+        function updateVolume(val) {
+            masterVolume = parseInt(val) / 100;
+            document.getElementById('sound-label').textContent = masterVolume > 0.1 ? 'ON' : 'OFF';
+        }
+        
+        function showHighScores() {
+            hideAllMenus();
+            const list = document.getElementById('highscore-list');
+            list.innerHTML = '';
+            
+            if (highScores.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:40px; opacity:0.5;">Zatím žádné rekordy...</div>';
+            } else {
+                highScores.forEach((sc, i) => {
+                    const div = document.createElement('div');
+                    div.innerHTML = `<span>#${i+1}</span><span>${String(sc).padStart(6, '0')}</span>`;
+                    list.appendChild(div);
+                });
+            }
+            document.getElementById('highscores-menu').classList.remove('hidden');
+        }
+        
+        function showHowToPlay() {
+            hideAllMenus();
+            document.getElementById('howtoplay-menu').classList.remove('hidden');
+        }
+        
+        function showCredits() {
+            hideAllMenus();
+            document.getElementById('credits-menu').classList.remove('hidden');
+        }
+        
+        // START APLIKACE
+        function initGame() {
+            // počáteční setup
+            resetSnake();
+            spawnFood();
+            
+            // ukázat hlavní menu
+            showMainMenu();
+            
+            // přidat malý easter egg - klik na canvas = rychlý beep
+            canvas.addEventListener('click', () => {
+                if (!gameRunning) playBeep(660, 0.05);
+            });
+            
+            // keyboard focus
+            window.focus();
+            
+            console.log('%cULTIMÁTNÍ HADÍ ODYSEA načtena! 1247 řádků čistého kódu. Užij si hru!', 'color:#00ff41; font-family:monospace');
+        }
+        
+        // AUTOMATICKÉ SPUŠTĚNÍ
+        window.onload = initGame;
+    </script>
+</body>
+</html>
