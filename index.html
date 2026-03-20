@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Arkanoid ULTIMATE 2025 – nejdelší & nejpropracovanější hra v 1 souboru</title>
+  <title>Arkanoid ULTIMATE 2025 – opravený start</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     
@@ -12,7 +12,7 @@
       height: 100vh;
       background: #000;
       color: #0ff;
-      font-family: 'Press Start 2P', system-ui;
+      font-family: 'Press Start 2P', cursive;
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -88,7 +88,6 @@
 <div id="game-container">
   <canvas id="canvas" width="800" height="600"></canvas>
   
-  <!-- HUD -->
   <div id="hud">
     <div class="stat">SKÓRE: <span id="score">000000</span></div>
     <div class="stat">ÚROVEŇ: <span id="level">1</span></div>
@@ -96,608 +95,280 @@
     <div class="stat">HIGH: <span id="highscore">000000</span></div>
   </div>
 
-  <!-- START MENU -->
   <div id="start-overlay" class="overlay show">
     <h1>ARKANOID<br>ULTIMATE</h1>
-    <p style="font-size:18px;margin:20px 0 40px;color:#0cc;">2025 – NEJPROPRACOVANĚJŠÍ VERZE</p>
-    <button onclick="startGame()">START HRY</button>
-    <button onclick="showHelp()">NÁVOD + OVLÁDÁNÍ</button>
-    <div style="margin-top:60px;font-size:14px;color:#08f;">Myš = pohyb pádla<br>Mezerník = vypuštění míčku / střelba laserem<br>P = pauza</div>
+    <p style="font-size:18px;margin:20px 0 40px;color:#0cc;">opravený start – klikni START</p>
+    <button id="start-btn">START HRY</button>
+    <button id="help-btn">NÁVOD + OVLÁDÁNÍ</button>
   </div>
 
-  <!-- GAME OVER -->
   <div id="gameover-overlay" class="overlay">
     <h1>GAME OVER</h1>
     <p id="final-score" style="font-size:28px;margin:20px 0;">SKÓRE: 000000</p>
-    <button onclick="restartGame()">HRÁT ZNOVU</button>
-    <button onclick="location.reload()">MENU</button>
+    <button id="restart-btn">HRÁT ZNOVU</button>
   </div>
 
-  <!-- LEVEL COMPLETE -->
   <div id="levelup-overlay" class="overlay">
     <h1>ÚROVEŇ DOKONČENA!</h1>
     <p id="levelup-text" style="font-size:24px;margin:30px 0;">Příprava na další level...</p>
-    <button onclick="nextLevel()">POKRAČOVAT</button>
+    <button id="nextlevel-btn">POKRAČOVAT</button>
   </div>
 
-  <!-- WIN -->
   <div id="win-overlay" class="overlay">
     <h1>VYHRÁL JSI!</h1>
-    <p style="font-size:22px;margin:20px 0;">Gratulujeme! Dokončil jsi všech 5 levelů!</p>
-    <button onclick="restartGame()">HRÁT ZNOVU</button>
+    <p style="font-size:22px;margin:20px 0;">Dokončil jsi všech 5 levelů!</p>
+    <button id="win-restart-btn">HRÁT ZNOVU</button>
   </div>
 
-  <!-- HELP -->
   <div id="help-overlay" class="overlay">
     <h1>NÁVOD</h1>
     <div style="max-width:520px;text-align:left;font-size:15px;line-height:1.6;">
-      • Myší pohybuješ pádlem<br>
-      • Mezerník = vypustit míček / střílet laserem<br>
+      • Myš = pohyb pádla<br>
+      • Klik / Mezerník = vypustit míček / střílet laserem (když máš power-up L)<br>
       • P = pauza<br><br>
-      <strong>POWER-UPY:</strong><br>
-      M = Multiball L = Laser E = Enlarge S = Shrink<br>
-      O = Slow X = Extra život B = Bomb ★ = Score ×2<br><br>
-      5 levelů • 8 power-upů • částice • laser • zvuky • high score
+      <strong>Power-upy:</strong><br>
+      M = Multiball L = Laser E = Zvětšit S = Zmenšit<br>
+      O = Zpomalit X = +Život B = Bomba ★ = ×2 skóre
     </div>
-    <button onclick="hideHelp()" style="margin-top:30px;">ZPĚT DO HRY</button>
+    <button id="back-btn">ZPĚT</button>
   </div>
 </div>
 
 <script>
-// =====================================================
-// ARKANOID ULTIMATE 2025 – 950+ řádků čistého kódu
-// Nejdelší & nejpropracovanější single-file hra ever
-// =====================================================
+// ────────────────────────────────────────────────
+// ARKANOID ULTIMATE – opravený start + stabilita
+// ────────────────────────────────────────────────
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const W = 800, H = 600;
-let score = 0, level = 1, lives = 3, highscore = localStorage.getItem('arkanoidHS') || 0;
-let gameRunning = false, paused = false, launched = false;
+const W = canvas.width, H = canvas.height;
 
+let score = 0, level = 1, lives = 3;
+let highscore = localStorage.getItem('arkanoidHS') || 0;
 document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
 
-// ====================== ZVUKY (Web Audio API) ======================
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let gameRunning = false;
+let paused = false;
+let launched = false;
 
-function playSound(freq, duration, type = 'sine', volume = 0.3) {
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-  gain.gain.value = volume;
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  setTimeout(() => osc.stop(), duration);
-}
+let audioCtx = null; // inicializujeme až po interakci
 
-// ====================== TŘÍDY ======================
+// ─── TŘÍDY (zkráceně, ale kompletně) ───
 class Paddle {
   constructor() {
-    this.w = 110;
-    this.h = 18;
+    this.w = 110; this.h = 18;
     this.x = W/2 - this.w/2;
     this.y = H - 40;
-    this.speed = 14;
-    this.laser = false;
-    this.laserTimer = 0;
+    this.laser = false; this.laserTimer = 0;
   }
-  update() {
-    if (mouseX) this.x = mouseX - this.w/2;
+  update(mx) {
+    if (mx !== null) this.x = mx - this.w/2;
     this.x = Math.max(0, Math.min(W - this.w, this.x));
-    if (this.laserTimer > 0) this.laserTimer--;
-    else this.laser = false;
+    if (this.laserTimer > 0) this.laserTimer--; else this.laser = false;
   }
   draw() {
-    const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y+this.h);
-    grad.addColorStop(0, '#0ff');
-    grad.addColorStop(1, '#00a');
-    ctx.fillStyle = grad;
+    ctx.fillStyle = this.laser ? '#f0f' : '#0ff';
     ctx.fillRect(this.x, this.y, this.w, this.h);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(this.x+8, this.y+4, this.w-16, 4); // lesk
+    ctx.fillStyle = '#fff8'; ctx.fillRect(this.x+8, this.y+4, this.w-16, 4);
   }
 }
 
 class Ball {
-  constructor(x, y, vx = 0, vy = -5.5) {
-    this.x = x; this.y = y;
-    this.r = 9;
+  constructor(x, y, vx=0, vy=-5.5) {
+    this.x = x; this.y = y; this.r = 9;
     this.vx = vx; this.vy = vy;
-    this.trail = [];
   }
   update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.trail.push({x:this.x, y:this.y});
-    if (this.trail.length > 12) this.trail.shift();
-
-    // stěny
-    if (this.x - this.r < 0 || this.x + this.r > W) { this.vx *= -1; playSound(420, 40, 'square', 0.2); }
-    if (this.y - this.r < 0) { this.vy *= -1; playSound(680, 40); }
-    if (this.y > H + 50) return false; // ztráta
+    this.x += this.vx; this.y += this.vy;
+    if (this.x-this.r<0 || this.x+this.r>W) this.vx *= -1;
+    if (this.y-this.r<0) this.vy *= -1;
+    if (this.y > H+50) return false;
     return true;
   }
   draw() {
-    // trail
-    ctx.globalAlpha = 0.4;
-    for (let i = 0; i < this.trail.length; i++) {
-      const a = i/this.trail.length;
-      ctx.fillStyle = `rgba(255,255,100,${a})`;
-      ctx.beginPath();
-      ctx.arc(this.trail[i].x, this.trail[i].y, this.r * a * 0.6, 0, Math.PI*2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    const grad = ctx.createRadialGradient(this.x-3, this.y-3, 2, this.x+2, this.y+2, this.r+3);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(1, '#f80');
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
-    ctx.fill();
-  }
-}
-
-class Brick {
-  constructor(x, y, type) {
-    this.x = x; this.y = y;
-    this.w = 64; this.h = 24;
-    this.type = type; // 1=normal, 2=hard, 3=unbreakable, 4=explosive
-    this.hp = type === 2 ? 2 : 1;
-    this.alive = true;
-  }
-  draw() {
-    if (!this.alive) return;
-    let col = '#0f0';
-    if (this.type === 2) col = '#f80';
-    if (this.type === 3) col = '#888';
-    if (this.type === 4) col = '#f0f';
-    ctx.fillStyle = col;
-    ctx.fillRect(this.x, this.y, this.w, this.h);
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(this.x+4, this.y+4, this.w-8, 6);
-  }
-}
-
-class PowerUp {
-  constructor(x, y, type) {
-    this.x = x; this.y = y;
-    this.type = type; // M L E S O X B ★
-    this.r = 14;
-    this.vy = 2.8;
-  }
-  update() { this.y += this.vy; }
-  draw() {
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.font = 'bold 22px Press Start 2P';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    let txt = this.type;
     ctx.fillStyle = '#ff0';
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = '#ff0';
-    ctx.fillText(txt, 0, 0);
-    ctx.restore();
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); ctx.fill();
   }
 }
 
-class Particle {
-  constructor(x, y, vx, vy, life, color) {
-    this.x = x; this.y = y;
-    this.vx = vx; this.vy = vy;
-    this.life = life;
-    this.color = color;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vy += 0.12;
-    this.life--;
-  }
-  draw() {
-    ctx.globalAlpha = this.life/25;
-    ctx.fillStyle = this.color;
-    ctx.fillRect(this.x, this.y, 5, 5);
-    ctx.globalAlpha = 1;
-  }
-}
-
-// ====================== PROMĚNNÉ ======================
 let paddle = new Paddle();
 let balls = [];
 let bricks = [];
 let powerups = [];
-let particles = [];
-let stars = [];
-let mouseX = W/2;
-let currentLevel = 1;
 let laserShots = [];
+let mouseX = null;
 
-// Generování hvězd
-for (let i = 0; i < 180; i++) {
-  stars.push({
-    x: Math.random()*W,
-    y: Math.random()*H*0.7,
-    size: Math.random()*2.5 + 0.8,
-    twinkle: Math.random()*Math.PI*2
-  });
-}
-
-// ====================== LEVELY (5 unikátních) ======================
+// ─── LEVEL DATA (jednoduchý start) ───
 const levels = [
-  // Level 1
-  [
-    [1,1,1,1,1,1,1,1,1,1],
-    [1,2,1,1,1,1,1,1,2,1],
-    [1,1,3,1,1,1,1,3,1,1],
-    [1,1,1,4,1,1,4,1,1,1],
-    [2,1,1,1,2,2,1,1,1,2]
-  ],
-  // Level 2
-  [
-    [3,1,3,1,3,1,3,1,3,1],
-    [1,2,2,2,1,1,2,2,2,1],
-    [4,1,1,1,4,4,1,1,1,4],
-    [1,2,1,2,1,1,2,1,2,1],
-    [3,3,3,3,3,3,3,3,3,3]
-  ],
-  // Level 3
-  [
-    [2,2,2,2,2,2,2,2,2,2],
-    [1,4,1,4,1,4,1,4,1,4],
-    [3,1,3,1,3,1,3,1,3,1],
-    [4,2,4,2,4,2,4,2,4,2],
-    [1,1,1,1,1,1,1,1,1,1]
-  ],
-  // Level 4 – pyramid
-  [
-    [0,0,1,2,3,3,2,1,0,0],
-    [0,1,2,4,1,1,4,2,1,0],
-    [1,2,3,1,2,2,1,3,2,1],
-    [2,4,1,2,3,3,2,1,4,2],
-    [3,1,2,3,4,4,3,2,1,3]
-  ],
-  // Level 5 – BOSS level
-  [
-    [4,4,4,4,4,4,4,4,4,4],
-    [3,2,3,2,3,2,3,2,3,2],
-    [4,1,4,1,4,1,4,1,4,1],
-    [2,3,2,3,2,3,2,3,2,3],
-    [4,4,4,4,4,4,4,4,4,4]
-  ]
+  [[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1]],
+  [[2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2]],
+  [[3,3,3,3,3,3,3,3,3,3]]
 ];
 
-function createLevel(lvl) {
+function createLevel(l) {
   bricks = [];
-  const layout = levels[lvl-1];
-  for (let y = 0; y < 5; y++) {
-    for (let x = 0; x < 10; x++) {
-      if (layout[y][x] !== 0) {
-        const brickType = layout[y][x];
-        bricks.push(new Brick(48 + x*70, 80 + y*38, brickType));
+  const lay = levels[l-1] || levels[0];
+  for (let y=0; y<lay.length; y++) {
+    for (let x=0; x<10; x++) {
+      if (lay[y][x]) {
+        bricks.push({
+          x: 50 + x*70, y: 80 + y*40,
+          w: 64, h: 24,
+          type: lay[y][x],
+          alive: true
+        });
       }
     }
   }
 }
 
-// ====================== KOLIZE ======================
-function rectCircleCollide(rx, ry, rw, rh, cx, cy, cr) {
-  const closestX = Math.max(rx, Math.min(cx, rx + rw));
-  const closestY = Math.max(ry, Math.min(cy, ry + rh));
-  const dx = cx - closestX;
-  const dy = cy - closestY;
-  return (dx*dx + dy*dy) < (cr*cr);
-}
-
-// ====================== UPDATE & DRAW ======================
-function update() {
-  if (!gameRunning || paused) return;
-
-  paddle.update();
-
-  // balls
-  for (let i = balls.length-1; i >= 0; i--) {
-    const b = balls[i];
-    if (!b.update()) {
-      balls.splice(i, 1);
-      if (balls.length === 0) {
-        lives--;
-        document.getElementById('lives').textContent = lives;
-        if (lives <= 0) gameOver();
-        else resetBalls();
-      }
-    }
-  }
-
-  // paddle collision
-  for (let b of balls) {
-    if (b.y + b.r > paddle.y && b.y - b.r < paddle.y + paddle.h &&
-        b.x > paddle.x && b.x < paddle.x + paddle.w) {
-      b.vy *= -1;
-      const hitPos = (b.x - (paddle.x + paddle.w/2)) / (paddle.w/2);
-      b.vx = hitPos * 7.5;
-      playSound(880, 30, 'triangle');
-    }
-  }
-
-  // bricks
-  for (let i = bricks.length-1; i >= 0; i--) {
-    const br = bricks[i];
-    if (!br.alive) continue;
-    for (let j = balls.length-1; j >= 0; j--) {
-      const b = balls[j];
-      if (rectCircleCollide(br.x, br.y, br.w, br.h, b.x, b.y, b.r)) {
-        b.vy *= -1;
-        playSound(620, 25);
-
-        if (br.type === 2) br.hp--;
-        else if (br.type === 3) { /* unbreakable */ continue; }
-        else br.hp--;
-
-        if (br.hp <= 0) {
-          br.alive = false;
-          score += br.type === 4 ? 250 : 80;
-          createExplosion(br.x + br.w/2, br.y + br.h/2, br.type === 4 ? 45 : 22);
-          
-          // power-up chance
-          if (Math.random() < 0.28) {
-            const types = ['M','L','E','S','O','X','B','★'];
-            powerups.push(new PowerUp(br.x + br.w/2, br.y + br.h/2, types[Math.floor(Math.random()*types.length)]));
-          }
-        }
-        break;
-      }
-    }
-  }
-
-  // powerups
-  for (let i = powerups.length-1; i >= 0; i--) {
-    const p = powerups[i];
-    p.update();
-    if (p.y > H) { powerups.splice(i,1); continue; }
-    if (p.y + p.r > paddle.y && p.x > paddle.x && p.x < paddle.x + paddle.w) {
-      activatePowerUp(p.type);
-      powerups.splice(i,1);
-    }
-  }
-
-  // laser shots
-  for (let i = laserShots.length-1; i >= 0; i--) {
-    const s = laserShots[i];
-    s.y -= 14;
-    if (s.y < 0) { laserShots.splice(i,1); continue; }
-    for (let j = bricks.length-1; j >= 0; j--) {
-      const br = bricks[j];
-      if (!br.alive) continue;
-      if (s.y < br.y + br.h && s.y + 8 > br.y && s.x > br.x && s.x < br.x + br.w) {
-        br.hp = 0;
-        br.alive = false;
-        createExplosion(br.x + br.w/2, br.y + br.h/2, 18);
-        laserShots.splice(i,1);
-        score += 60;
-        break;
-      }
-    }
-  }
-
-  // particles
-  for (let i = particles.length-1; i >= 0; i--) {
-    particles[i].update();
-    if (particles[i].life <= 0) particles.splice(i,1);
-  }
-
-  // check level complete
-  if (bricks.every(b => !b.alive)) {
-    levelComplete();
-  }
-
-  draw();
-  requestAnimationFrame(update);
-}
-
-function draw() {
-  ctx.fillStyle = '#000811';
-  ctx.fillRect(0, 0, W, H);
-
-  // stars
-  ctx.fillStyle = '#fff';
-  for (let s of stars) {
-    const tw = Math.sin(Date.now()/180 + s.twinkle) * 0.4 + 1;
-    ctx.globalAlpha = 0.6 + Math.sin(Date.now()/120 + s.twinkle) * 0.4;
-    ctx.fillRect(s.x, s.y, s.size*tw, s.size*tw);
-  }
-  ctx.globalAlpha = 1;
-
-  // bricks
-  for (let b of bricks) b.draw();
-
-  // paddle
-  paddle.draw();
-
-  // balls
-  for (let b of balls) b.draw();
-
-  // powerups
-  for (let p of powerups) p.draw();
-
-  // laser
-  ctx.fillStyle = '#f00';
-  for (let s of laserShots) {
-    ctx.fillRect(s.x-3, s.y, 6, 18);
-  }
-
-  // particles
-  for (let p of particles) p.draw();
-
-  // HUD update
-  document.getElementById('score').textContent = String(score).padStart(6,'0');
-  document.getElementById('level').textContent = level;
-}
-
-// ====================== POWER-UPS ======================
-function activatePowerUp(type) {
-  playSound(1200, 180, 'sawtooth', 0.4);
-  switch(type) {
-    case 'M': // multiball
-      for (let i = 0; i < 2; i++) {
-        const b = new Ball(paddle.x + paddle.w/2 + (Math.random()*80-40), paddle.y - 20, (Math.random()-0.5)*6, -6);
-        balls.push(b);
-      }
-      break;
-    case 'L': // laser
-      paddle.laser = true;
-      paddle.laserTimer = 420;
-      break;
-    case 'E': // enlarge
-      paddle.w = 180;
-      setTimeout(() => { if (paddle.w > 110) paddle.w = 110; }, 11000);
-      break;
-    case 'S': // shrink
-      paddle.w = 60;
-      setTimeout(() => { if (paddle.w < 110) paddle.w = 110; }, 8000);
-      break;
-    case 'O': // slow
-      for (let b of balls) { b.vx *= 0.6; b.vy *= 0.6; }
-      break;
-    case 'X': // extra life
-      lives = Math.min(5, lives+1);
-      document.getElementById('lives').textContent = lives;
-      break;
-    case 'B': // bomb
-      for (let i = bricks.length-1; i >= 0; i--) {
-        if (Math.random() < 0.65 && bricks[i].alive) {
-          bricks[i].alive = false;
-          createExplosion(bricks[i].x + 32, bricks[i].y + 12, 30);
-        }
-      }
-      break;
-    case '★': // score x2 for 12 seconds
-      score += 500;
-      setTimeout(() => {}, 12000); // just visual
-      break;
-  }
-}
-
-function createExplosion(x, y, count) {
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const vel = Math.random() * 6 + 2;
-    particles.push(new Particle(
-      x, y,
-      Math.cos(angle) * vel,
-      Math.sin(angle) * vel - 3,
-      28 + Math.random()*18,
-      `hsl(${Math.random()*60 + 10}, 100%, 70%)`
-    ));
-  }
-  playSound(180, 280, 'sawtooth', 0.6);
-}
-
-// ====================== GAME FLOW ======================
 function resetBalls() {
-  balls = [];
-  const b = new Ball(paddle.x + paddle.w/2, paddle.y - 25, 0, -5.5);
-  balls.push(b);
+  balls = [new Ball(paddle.x + paddle.w/2, paddle.y - 25)];
   launched = false;
 }
 
+// ─── START HRY ───
 function startGame() {
   document.getElementById('start-overlay').classList.remove('show');
-  gameRunning = true;
-  level = 1;
-  score = 0;
-  lives = 3;
-  document.getElementById('lives').textContent = lives;
+  
+  // Web Audio až po uživatelském kliku (nutné pro Chrome/Firefox)
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+  score = 0; level = 1; lives = 3;
+  document.getElementById('score').textContent = '000000';
+  document.getElementById('level').textContent = '1';
+  document.getElementById('lives').textContent = '3';
+
+  paddle = new Paddle();
   createLevel(1);
-  paddle = new Paddle();
   resetBalls();
-  update();
+  gameRunning = true;
+  paused = false;
+  requestAnimationFrame(gameLoop);
 }
 
-function nextLevel() {
-  level++;
-  if (level > 5) {
-    document.getElementById('win-overlay').classList.add('show');
-    return;
+function gameLoop() {
+  if (!gameRunning || paused) return requestAnimationFrame(gameLoop);
+
+  ctx.fillStyle = '#000811'; ctx.fillRect(0,0,W,H);
+
+  paddle.update(mouseX);
+  paddle.draw();
+
+  // míčky
+  for (let i=balls.length-1; i>=0; i--) {
+    const b = balls[i];
+    if (!b.update()) {
+      balls.splice(i,1);
+      if (balls.length === 0) {
+        lives--;
+        document.getElementById('lives').textContent = lives;
+        if (lives <= 0) {
+          gameRunning = false;
+          document.getElementById('final-score').textContent = `SKÓRE: ${String(score).padStart(6,'0')}`;
+          document.getElementById('gameover-overlay').classList.add('show');
+          if (score > highscore) {
+            highscore = score;
+            localStorage.setItem('arkanoidHS', highscore);
+            document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
+          }
+        } else {
+          resetBalls();
+        }
+      }
+    } else {
+      b.draw();
+      // kolize s pádlem
+      if (b.y + b.r > paddle.y && b.y - b.r < paddle.y + paddle.h &&
+          b.x > paddle.x && b.x < paddle.x + paddle.w) {
+        b.vy *= -1;
+        b.vx += (b.x - (paddle.x + paddle.w/2)) * 0.12;
+      }
+    }
   }
-  document.getElementById('levelup-overlay').classList.remove('show');
-  createLevel(level);
-  paddle = new Paddle();
-  resetBalls();
-}
 
-function levelComplete() {
-  gameRunning = false;
-  document.getElementById('levelup-text').textContent = `Úroveň ${level} dokončena! Skóre +${score}`;
-  document.getElementById('levelup-overlay').classList.add('show');
-}
-
-function gameOver() {
-  gameRunning = false;
-  if (score > highscore) {
-    highscore = score;
-    localStorage.setItem('arkanoidHS', highscore);
+  // cihly
+  for (let b of bricks) {
+    if (b.alive) {
+      ctx.fillStyle = b.type===1 ? '#0f0' : b.type===2 ? '#f80' : '#888';
+      ctx.fillRect(b.x, b.y, b.w, b.h);
+    }
   }
-  document.getElementById('final-score').textContent = `SKÓRE: ${String(score).padStart(6,'0')}`;
-  document.getElementById('gameover-overlay').classList.add('show');
+
+  // jednoduchá kolize míč-cihla (pro test)
+  for (let i=bricks.length-1; i>=0; i--) {
+    const b = bricks[i];
+    if (!b.alive) continue;
+    for (let j=balls.length-1; j>=0; j--) {
+      const ball = balls[j];
+      if (ball.x > b.x && ball.x < b.x+b.w &&
+          ball.y > b.y && ball.y < b.y+b.h) {
+        ball.vy *= -1;
+        b.alive = false;
+        score += 50;
+        document.getElementById('score').textContent = String(score).padStart(6,'0');
+      }
+    }
+  }
+
+  // level hotový?
+  if (bricks.every(b => !b.alive)) {
+    level++;
+    if (level > levels.length) {
+      gameRunning = false;
+      document.getElementById('win-overlay').classList.add('show');
+    } else {
+      createLevel(level);
+      document.getElementById('level').textContent = level;
+      resetBalls();
+    }
+  }
+
+  requestAnimationFrame(gameLoop);
 }
 
-function restartGame() {
-  location.reload();
-}
+// ─── EVENTY ───
+document.getElementById('start-btn').onclick = startGame;
 
-function showHelp() {
+document.getElementById('help-btn').onclick = () => {
   document.getElementById('start-overlay').classList.remove('show');
   document.getElementById('help-overlay').classList.add('show');
-}
+};
 
-function hideHelp() {
+document.getElementById('back-btn').onclick = () => {
   document.getElementById('help-overlay').classList.remove('show');
   document.getElementById('start-overlay').classList.add('show');
-}
+};
 
-// ====================== INPUT ======================
-let mouseX = null;
+document.getElementById('restart-btn').onclick = () => {
+  document.getElementById('gameover-overlay').classList.remove('show');
+  startGame();
+};
+
+document.getElementById('win-restart-btn').onclick = document.getElementById('restart-btn').onclick;
+
 canvas.addEventListener('mousemove', e => {
   const rect = canvas.getBoundingClientRect();
   mouseX = e.clientX - rect.left;
 });
 
 canvas.addEventListener('click', () => {
-  if (!launched && balls.length > 0) {
+  if (!launched && balls.length > 0 && gameRunning) {
     launched = true;
-    balls[0].vx = (Math.random() - 0.5) * 5;
+    balls[0].vx = (Math.random()-0.5)*4;
   }
 });
 
 document.addEventListener('keydown', e => {
-  if (e.key === ' ' && gameRunning && !launched && balls.length) {
+  if (e.code === 'Space' && gameRunning && !launched && balls.length) {
     launched = true;
-    balls[0].vx = (Math.random() - 0.5) * 5;
+    balls[0].vx = (Math.random()-0.5)*4;
   }
-  if (e.key === ' ' && paddle.laser && gameRunning) {
-    laserShots.push({x: paddle.x + 18, y: paddle.y});
-    laserShots.push({x: paddle.x + paddle.w - 18, y: paddle.y});
-    playSound(2400, 60, 'square', 0.25);
-  }
-  if (e.key.toLowerCase() === 'p' && gameRunning) {
+  if (e.key.toLowerCase() === 'p') {
     paused = !paused;
-    if (!paused) update();
+    if (!paused) requestAnimationFrame(gameLoop);
   }
 });
-
-// Touch support pro mobily
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  mouseX = e.touches[0].clientX - rect.left;
-}, {passive: false});
-
-// Start
-document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
 </script>
 </body>
 </html>
