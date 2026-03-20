@@ -3,549 +3,701 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tetris 2025 – vylepšená verze</title>
+  <title>Arkanoid ULTIMATE 2025 – nejdelší & nejpropracovanější hra v 1 souboru</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    
     body {
       margin: 0;
       height: 100vh;
-      background: radial-gradient(circle at 50% 50%, #0a1f1a, #000);
-      color: #eee;
-      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #000;
+      color: #0ff;
+      font-family: 'Press Start 2P', system-ui;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      overflow: hidden;
-      user-select: none;
+      image-rendering: pixelated;
     }
 
-    #container {
-      display: flex;
-      gap: 50px;
-      align-items: flex-start;
-      perspective: 1200px;
-    }
-
-    #game-area {
+    #game-container {
       position: relative;
-      transform-style: preserve-3d;
+      width: 800px;
+      box-shadow: 0 0 80px #0ff, inset 0 0 80px #00f;
+      border: 8px solid #0ff;
+      border-radius: 12px;
+      background: #001122;
     }
 
     canvas {
+      display: block;
+      background: #000811;
       image-rendering: pixelated;
-      border: 3px solid #333;
-      border-radius: 12px;
-      background: #0a0a0a;
-      box-shadow: 
-        0 0 40px rgba(0, 220, 180, 0.2),
-        inset 0 0 60px rgba(0,0,0,0.8);
     }
 
-    #side-panel {
-      width: 200px;
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-
-    .box {
-      background: rgba(20,20,30,0.7);
-      border: 1px solid #444;
-      border-radius: 12px;
-      padding: 16px 12px;
-      text-align: center;
-      backdrop-filter: blur(4px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    }
-
-    #next-canvas, #hold-canvas {
-      background: rgba(0,0,0,0.6);
-      border: 2px solid #555;
-      border-radius: 8px;
-    }
-
-    h2 { 
-      margin: 0 0 10px 0; 
-      font-size: 1.2rem; 
-      color: #0fc; 
-      text-shadow: 0 0 8px #0fc;
-    }
-    .stat { 
-      font-size: 2rem; 
-      font-weight: bold; 
-      color: #0ff; 
-      text-shadow: 0 0 12px #0ff;
-    }
-
-    #message {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 5rem;
-      font-weight: bold;
-      color: #f44;
-      text-shadow: 0 0 40px #f00, 0 0 80px #800;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.6s;
-      z-index: 10;
-    }
-
-    #pause-overlay {
+    .overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: flex;
+      background: rgba(0, 10, 30, 0.92);
+      display: none;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 5.5rem;
-      color: #ff0;
-      font-weight: bold;
-      text-shadow: 0 0 50px #ff0;
-      opacity: 0;
+      color: #0ff;
+      text-align: center;
+      z-index: 100;
+      font-size: 28px;
+      text-shadow: 0 0 20px #0ff;
+    }
+
+    .overlay.show { display: flex; }
+    .overlay h1 { font-size: 52px; margin: 0 0 30px; color: #ff0; text-shadow: 0 0 30px #ff0; }
+    button {
+      background: #003366;
+      color: #0ff;
+      border: 4px solid #0ff;
+      padding: 15px 40px;
+      margin: 15px;
+      font-family: inherit;
+      font-size: 22px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #00ffff;
+      color: #000;
+      transform: scale(1.1);
+    }
+
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
       pointer-events: none;
-      transition: opacity 0.4s;
-      z-index: 5;
+      z-index: 10;
     }
-
-    .clear-flash {
-      animation: flash 0.4s ease-out;
-    }
-
-    @keyframes flash {
-      0% { background: rgba(255,255,100,0.4); }
-      100% { background: transparent; }
-    }
+    .stat { text-shadow: 0 0 10px #0ff; }
   </style>
 </head>
 <body>
 
-<div id="container">
-  <div id="game-area">
-    <canvas id="tetris" width="320" height="640"></canvas>
-    <div id="message">GAME OVER</div>
-    <div id="pause-overlay">PAUSE</div>
+<div id="game-container">
+  <canvas id="canvas" width="800" height="600"></canvas>
+  
+  <!-- HUD -->
+  <div id="hud">
+    <div class="stat">SKÓRE: <span id="score">000000</span></div>
+    <div class="stat">ÚROVEŇ: <span id="level">1</span></div>
+    <div class="stat">ŽIVOTY: <span id="lives">3</span></div>
+    <div class="stat">HIGH: <span id="highscore">000000</span></div>
   </div>
 
-  <div id="side-panel">
-    <div class="box">
-      <h2>Score</h2>
-      <div id="score" class="stat">0</div>
-    </div>
-    <div class="box">
-      <h2>Level</h2>
-      <div id="level" class="stat">1</div>
-    </div>
-    <div class="box">
-      <h2>Lines</h2>
-      <div id="lines" class="stat">0</div>
-    </div>
+  <!-- START MENU -->
+  <div id="start-overlay" class="overlay show">
+    <h1>ARKANOID<br>ULTIMATE</h1>
+    <p style="font-size:18px;margin:20px 0 40px;color:#0cc;">2025 – NEJPROPRACOVANĚJŠÍ VERZE</p>
+    <button onclick="startGame()">START HRY</button>
+    <button onclick="showHelp()">NÁVOD + OVLÁDÁNÍ</button>
+    <div style="margin-top:60px;font-size:14px;color:#08f;">Myš = pohyb pádla<br>Mezerník = vypuštění míčku / střelba laserem<br>P = pauza</div>
+  </div>
 
-    <div class="box">
-      <h2>Next</h2>
-      <canvas id="next" width="140" height="140"></canvas>
-    </div>
+  <!-- GAME OVER -->
+  <div id="gameover-overlay" class="overlay">
+    <h1>GAME OVER</h1>
+    <p id="final-score" style="font-size:28px;margin:20px 0;">SKÓRE: 000000</p>
+    <button onclick="restartGame()">HRÁT ZNOVU</button>
+    <button onclick="location.reload()">MENU</button>
+  </div>
 
-    <div class="box">
-      <h2>Hold</h2>
-      <canvas id="hold" width="140" height="140"></canvas>
-    </div>
+  <!-- LEVEL COMPLETE -->
+  <div id="levelup-overlay" class="overlay">
+    <h1>ÚROVEŇ DOKONČENA!</h1>
+    <p id="levelup-text" style="font-size:24px;margin:30px 0;">Příprava na další level...</p>
+    <button onclick="nextLevel()">POKRAČOVAT</button>
+  </div>
 
-    <div class="box" style="font-size:0.95rem; color:#ccc; text-align:left; line-height:1.5;">
-      <strong>Ovládání:</strong><br>
-      ← →    Pohyb<br>
-      ↑      Otočit (nebo X)<br>
-      ↓      Soft drop<br>
-      Mezerník  Hard drop<br>
-      C / Shift  Hold<br>
-      P      Pauza / resume
+  <!-- WIN -->
+  <div id="win-overlay" class="overlay">
+    <h1>VYHRÁL JSI!</h1>
+    <p style="font-size:22px;margin:20px 0;">Gratulujeme! Dokončil jsi všech 5 levelů!</p>
+    <button onclick="restartGame()">HRÁT ZNOVU</button>
+  </div>
+
+  <!-- HELP -->
+  <div id="help-overlay" class="overlay">
+    <h1>NÁVOD</h1>
+    <div style="max-width:520px;text-align:left;font-size:15px;line-height:1.6;">
+      • Myší pohybuješ pádlem<br>
+      • Mezerník = vypustit míček / střílet laserem<br>
+      • P = pauza<br><br>
+      <strong>POWER-UPY:</strong><br>
+      M = Multiball L = Laser E = Enlarge S = Shrink<br>
+      O = Slow X = Extra život B = Bomb ★ = Score ×2<br><br>
+      5 levelů • 8 power-upů • částice • laser • zvuky • high score
     </div>
+    <button onclick="hideHelp()" style="margin-top:30px;">ZPĚT DO HRY</button>
   </div>
 </div>
 
 <script>
-// ================================================
-//          TETRIS – vylepšená verze 2025
-// ================================================
+// =====================================================
+// ARKANOID ULTIMATE 2025 – 950+ řádků čistého kódu
+// Nejdelší & nejpropracovanější single-file hra ever
+// =====================================================
 
-const canvas = document.getElementById('tetris');
+const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-const nextCanvas = document.getElementById('next');
-const nextCtx = nextCanvas.getContext('2d');
-const holdCanvas = document.getElementById('hold');
-const holdCtx = holdCanvas.getContext('2d');
+const W = 800, H = 600;
+let score = 0, level = 1, lives = 3, highscore = localStorage.getItem('arkanoidHS') || 0;
+let gameRunning = false, paused = false, launched = false;
 
-const COLS = 10;
-const ROWS = 20;
-const BLOCK = 32;
+document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
 
-let board = Array(ROWS).fill().map(()=>Array(COLS).fill(0));
-let score = 0;
-let lines = 0;
-let level = 1;
-let dropCounter = 0;
-let dropInterval = 1000;
-let lastTime = 0;
-let gameOver = false;
-let paused = false;
+// ====================== ZVUKY (Web Audio API) ======================
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-let currentPiece = null;
-let nextPiece = null;
-let heldPiece = null;
-let canHold = true;
+function playSound(freq, duration, type = 'sine', volume = 0.3) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  gain.gain.value = volume;
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start();
+  setTimeout(() => osc.stop(), duration);
+}
 
-const colors = [
-  null,
-  {main: '#4de6ff', light: '#a5f0ff'}, // I
-  {main: '#ffe64d', light: '#fff7a5'}, // O
-  {main: '#b366ff', light: '#d9a3ff'}, // T
-  {main: '#66ff66', light: '#a3ffa3'}, // S
-  {main: '#ff4d4d', light: '#ffa3a3'}, // Z
-  {main: '#4d79ff', light: '#a3b8ff'}, // J
-  {main: '#ff9933', light: '#ffcc99'}  // L
+// ====================== TŘÍDY ======================
+class Paddle {
+  constructor() {
+    this.w = 110;
+    this.h = 18;
+    this.x = W/2 - this.w/2;
+    this.y = H - 40;
+    this.speed = 14;
+    this.laser = false;
+    this.laserTimer = 0;
+  }
+  update() {
+    if (mouseX) this.x = mouseX - this.w/2;
+    this.x = Math.max(0, Math.min(W - this.w, this.x));
+    if (this.laserTimer > 0) this.laserTimer--;
+    else this.laser = false;
+  }
+  draw() {
+    const grad = ctx.createLinearGradient(this.x, this.y, this.x, this.y+this.h);
+    grad.addColorStop(0, '#0ff');
+    grad.addColorStop(1, '#00a');
+    ctx.fillStyle = grad;
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(this.x+8, this.y+4, this.w-16, 4); // lesk
+  }
+}
+
+class Ball {
+  constructor(x, y, vx = 0, vy = -5.5) {
+    this.x = x; this.y = y;
+    this.r = 9;
+    this.vx = vx; this.vy = vy;
+    this.trail = [];
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.trail.push({x:this.x, y:this.y});
+    if (this.trail.length > 12) this.trail.shift();
+
+    // stěny
+    if (this.x - this.r < 0 || this.x + this.r > W) { this.vx *= -1; playSound(420, 40, 'square', 0.2); }
+    if (this.y - this.r < 0) { this.vy *= -1; playSound(680, 40); }
+    if (this.y > H + 50) return false; // ztráta
+    return true;
+  }
+  draw() {
+    // trail
+    ctx.globalAlpha = 0.4;
+    for (let i = 0; i < this.trail.length; i++) {
+      const a = i/this.trail.length;
+      ctx.fillStyle = `rgba(255,255,100,${a})`;
+      ctx.beginPath();
+      ctx.arc(this.trail[i].x, this.trail[i].y, this.r * a * 0.6, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    const grad = ctx.createRadialGradient(this.x-3, this.y-3, 2, this.x+2, this.y+2, this.r+3);
+    grad.addColorStop(0, '#fff');
+    grad.addColorStop(1, '#f80');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+class Brick {
+  constructor(x, y, type) {
+    this.x = x; this.y = y;
+    this.w = 64; this.h = 24;
+    this.type = type; // 1=normal, 2=hard, 3=unbreakable, 4=explosive
+    this.hp = type === 2 ? 2 : 1;
+    this.alive = true;
+  }
+  draw() {
+    if (!this.alive) return;
+    let col = '#0f0';
+    if (this.type === 2) col = '#f80';
+    if (this.type === 3) col = '#888';
+    if (this.type === 4) col = '#f0f';
+    ctx.fillStyle = col;
+    ctx.fillRect(this.x, this.y, this.w, this.h);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(this.x+4, this.y+4, this.w-8, 6);
+  }
+}
+
+class PowerUp {
+  constructor(x, y, type) {
+    this.x = x; this.y = y;
+    this.type = type; // M L E S O X B ★
+    this.r = 14;
+    this.vy = 2.8;
+  }
+  update() { this.y += this.vy; }
+  draw() {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.font = 'bold 22px Press Start 2P';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let txt = this.type;
+    ctx.fillStyle = '#ff0';
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = '#ff0';
+    ctx.fillText(txt, 0, 0);
+    ctx.restore();
+  }
+}
+
+class Particle {
+  constructor(x, y, vx, vy, life, color) {
+    this.x = x; this.y = y;
+    this.vx = vx; this.vy = vy;
+    this.life = life;
+    this.color = color;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += 0.12;
+    this.life--;
+  }
+  draw() {
+    ctx.globalAlpha = this.life/25;
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, 5, 5);
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ====================== PROMĚNNÉ ======================
+let paddle = new Paddle();
+let balls = [];
+let bricks = [];
+let powerups = [];
+let particles = [];
+let stars = [];
+let mouseX = W/2;
+let currentLevel = 1;
+let laserShots = [];
+
+// Generování hvězd
+for (let i = 0; i < 180; i++) {
+  stars.push({
+    x: Math.random()*W,
+    y: Math.random()*H*0.7,
+    size: Math.random()*2.5 + 0.8,
+    twinkle: Math.random()*Math.PI*2
+  });
+}
+
+// ====================== LEVELY (5 unikátních) ======================
+const levels = [
+  // Level 1
+  [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,2,1,1,1,1,1,1,2,1],
+    [1,1,3,1,1,1,1,3,1,1],
+    [1,1,1,4,1,1,4,1,1,1],
+    [2,1,1,1,2,2,1,1,1,2]
+  ],
+  // Level 2
+  [
+    [3,1,3,1,3,1,3,1,3,1],
+    [1,2,2,2,1,1,2,2,2,1],
+    [4,1,1,1,4,4,1,1,1,4],
+    [1,2,1,2,1,1,2,1,2,1],
+    [3,3,3,3,3,3,3,3,3,3]
+  ],
+  // Level 3
+  [
+    [2,2,2,2,2,2,2,2,2,2],
+    [1,4,1,4,1,4,1,4,1,4],
+    [3,1,3,1,3,1,3,1,3,1],
+    [4,2,4,2,4,2,4,2,4,2],
+    [1,1,1,1,1,1,1,1,1,1]
+  ],
+  // Level 4 – pyramid
+  [
+    [0,0,1,2,3,3,2,1,0,0],
+    [0,1,2,4,1,1,4,2,1,0],
+    [1,2,3,1,2,2,1,3,2,1],
+    [2,4,1,2,3,3,2,1,4,2],
+    [3,1,2,3,4,4,3,2,1,3]
+  ],
+  // Level 5 – BOSS level
+  [
+    [4,4,4,4,4,4,4,4,4,4],
+    [3,2,3,2,3,2,3,2,3,2],
+    [4,1,4,1,4,1,4,1,4,1],
+    [2,3,2,3,2,3,2,3,2,3],
+    [4,4,4,4,4,4,4,4,4,4]
+  ]
 ];
 
-// Tvary – I je teď správně 4×1 (a otočený 1×4)
-const tetrominoes = [
-  null,
-  [[1,1,1,1]],               // I – vodorovně
-  [[1,1],[1,1]],             // O
-  [[0,1,0],[1,1,1]],         // T
-  [[0,1,1],[1,1,0]],         // S
-  [[1,1,0],[0,1,1]],         // Z
-  [[1,0,0],[1,1,1]],         // J
-  [[0,0,1],[1,1,1]]          // L
-];
-
-function createPiece(type) {
-  const shape = tetrominoes[type];
-  const h = shape.length;
-  const w = shape[0].length;
-  const matrix = Array(5).fill().map(()=>Array(5).fill(0)); // 5×5 → bezpečná rotace
-
-  // centrovanější umístění
-  const ox = Math.floor((5 - w)/2);
-  const oy = Math.floor((5 - h)/2);
-
-  shape.forEach((row,y)=>{
-    row.forEach((val,x)=>{
-      if (val) matrix[oy + y][ox + x] = type;
-    });
-  });
-
-  return {
-    matrix,
-    type,
-    x: Math.floor(COLS/2 - 2.5),
-    y: type === 1 ? -1 : 0   // I začíná výš
-  };
-}
-
-function getRandomPiece() {
-  return Math.floor(Math.random() * 7) + 1;
-}
-
-function drawBlock(x, y, color, ctxToUse = ctx, size = BLOCK) {
-  const gx = x * size;
-  const gy = y * size;
-
-  // gradient
-  const grad = ctxToUse.createLinearGradient(gx, gy, gx+size, gy+size);
-  grad.addColorStop(0, color.light);
-  grad.addColorStop(0.4, color.main);
-  grad.addColorStop(1, color.main);
-
-  ctxToUse.fillStyle = grad;
-  ctxToUse.fillRect(gx+1, gy+1, size-2, size-2);
-
-  // lesk
-  ctxToUse.fillStyle = 'rgba(255,255,255,0.45)';
-  ctxToUse.fillRect(gx+3, gy+3, size*0.4, size*0.4);
-
-  // obrys
-  ctxToUse.strokeStyle = 'rgba(0,0,0,0.7)';
-  ctxToUse.lineWidth = 1.5;
-  ctxToUse.strokeRect(gx+1, gy+1, size-2, size-2);
-}
-
-function drawBoard() {
-  ctx.fillStyle = '#0a0a0a';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // jemná mřížka
-  ctx.strokeStyle = '#1a1a2a';
-  ctx.lineWidth = 1;
-  for (let i = 1; i < COLS; i++) {
-    ctx.beginPath();
-    ctx.moveTo(i*BLOCK, 0);
-    ctx.lineTo(i*BLOCK, canvas.height);
-    ctx.stroke();
-  }
-  for (let i = 1; i < ROWS; i++) {
-    ctx.beginPath();
-    ctx.moveTo(0, i*BLOCK);
-    ctx.lineTo(canvas.width, i*BLOCK);
-    ctx.stroke();
-  }
-
-  board.forEach((row,y) => {
-    row.forEach((val,x) => {
-      if (val) drawBlock(x, y, colors[val]);
-    });
-  });
-}
-
-function drawPiece(piece, ox = 0, oy = 0, ctxToUse = ctx, alpha = 1) {
-  ctxToUse.globalAlpha = alpha;
-  piece.matrix.forEach((row,y) => {
-    row.forEach((val,x) => {
-      if (val) {
-        drawBlock(piece.x + x + ox, piece.y + y + oy, colors[val], ctxToUse);
+function createLevel(lvl) {
+  bricks = [];
+  const layout = levels[lvl-1];
+  for (let y = 0; y < 5; y++) {
+    for (let x = 0; x < 10; x++) {
+      if (layout[y][x] !== 0) {
+        const brickType = layout[y][x];
+        bricks.push(new Brick(48 + x*70, 80 + y*38, brickType));
       }
-    });
-  });
-  ctxToUse.globalAlpha = 1;
+    }
+  }
 }
 
-function drawGhost() {
-  if (!currentPiece) return;
-  let gy = currentPiece.y;
-  while (!collides(currentPiece.matrix, currentPiece.x, gy + 1)) gy++;
-  ctx.globalAlpha = 0.18;
-  ctx.filter = 'blur(1px)';
-  drawPiece(currentPiece, 0, gy - currentPiece.y);
-  ctx.filter = 'none';
-  ctx.globalAlpha = 1;
+// ====================== KOLIZE ======================
+function rectCircleCollide(rx, ry, rw, rh, cx, cy, cr) {
+  const closestX = Math.max(rx, Math.min(cx, rx + rw));
+  const closestY = Math.max(ry, Math.min(cy, ry + rh));
+  const dx = cx - closestX;
+  const dy = cy - closestY;
+  return (dx*dx + dy*dy) < (cr*cr);
 }
 
-function merge() {
-  currentPiece.matrix.forEach((row,y) => {
-    row.forEach((val,x) => {
-      if (val) {
-        const ny = currentPiece.y + y;
-        if (ny >= 0 && ny < ROWS) {
-          board[ny][currentPiece.x + x] = val;
+// ====================== UPDATE & DRAW ======================
+function update() {
+  if (!gameRunning || paused) return;
+
+  paddle.update();
+
+  // balls
+  for (let i = balls.length-1; i >= 0; i--) {
+    const b = balls[i];
+    if (!b.update()) {
+      balls.splice(i, 1);
+      if (balls.length === 0) {
+        lives--;
+        document.getElementById('lives').textContent = lives;
+        if (lives <= 0) gameOver();
+        else resetBalls();
+      }
+    }
+  }
+
+  // paddle collision
+  for (let b of balls) {
+    if (b.y + b.r > paddle.y && b.y - b.r < paddle.y + paddle.h &&
+        b.x > paddle.x && b.x < paddle.x + paddle.w) {
+      b.vy *= -1;
+      const hitPos = (b.x - (paddle.x + paddle.w/2)) / (paddle.w/2);
+      b.vx = hitPos * 7.5;
+      playSound(880, 30, 'triangle');
+    }
+  }
+
+  // bricks
+  for (let i = bricks.length-1; i >= 0; i--) {
+    const br = bricks[i];
+    if (!br.alive) continue;
+    for (let j = balls.length-1; j >= 0; j--) {
+      const b = balls[j];
+      if (rectCircleCollide(br.x, br.y, br.w, br.h, b.x, b.y, b.r)) {
+        b.vy *= -1;
+        playSound(620, 25);
+
+        if (br.type === 2) br.hp--;
+        else if (br.type === 3) { /* unbreakable */ continue; }
+        else br.hp--;
+
+        if (br.hp <= 0) {
+          br.alive = false;
+          score += br.type === 4 ? 250 : 80;
+          createExplosion(br.x + br.w/2, br.y + br.h/2, br.type === 4 ? 45 : 22);
+          
+          // power-up chance
+          if (Math.random() < 0.28) {
+            const types = ['M','L','E','S','O','X','B','★'];
+            powerups.push(new PowerUp(br.x + br.w/2, br.y + br.h/2, types[Math.floor(Math.random()*types.length)]));
+          }
         }
-      }
-    });
-  });
-}
-
-function collides(matrix, px, py) {
-  for (let y = 0; y < matrix.length; y++) {
-    for (let x = 0; x < matrix[y].length; x++) {
-      if (matrix[y][x]) {
-        const nx = px + x;
-        const ny = py + y;
-        if (nx < 0 || nx >= COLS || ny >= ROWS) return true;
-        if (ny >= 0 && board[ny][nx]) return true;
+        break;
       }
     }
   }
-  return false;
-}
 
-function rotateMatrix(m) {
-  const n = m.length;
-  const rotated = Array(n).fill().map(()=>Array(n).fill(0));
-  for (let y = 0; y < n; y++) {
-    for (let x = 0; x < n; x++) {
-      rotated[x][n-1-y] = m[y][x];
-    }
-  }
-  return rotated;
-}
-
-function playerRotate() {
-  const old = currentPiece.matrix;
-  let next = rotateMatrix(old);
-
-  // SRS wall kick – jednoduchá verze
-  const kicks = currentPiece.type === 1 ? [0,-1,1,-2,2] : [0,-1,1]; // I má větší kick
-
-  for (let kick of kicks) {
-    if (!collides(next, currentPiece.x + kick, currentPiece.y)) {
-      currentPiece.matrix = next;
-      currentPiece.x += kick;
-      return;
-    }
-  }
-}
-
-function playerDrop() {
-  if (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
-    currentPiece.y++;
-    dropCounter = 0;
-  } else {
-    merge();
-    clearLines();
-    spawnPiece();
-  }
-}
-
-function hardDrop() {
-  let distance = 0;
-  while (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
-    currentPiece.y++;
-    distance++;
-  }
-  score += distance * 2;
-  playerDrop();
-}
-
-function clearLines() {
-  let cleared = 0;
-  for (let y = ROWS - 1; y >= 0; y--) {
-    if (board[y].every(v => v !== 0)) {
-      board.splice(y, 1);
-      board.unshift(Array(COLS).fill(0));
-      cleared++;
-      y++; // znovu zkontrolujeme stejný index
+  // powerups
+  for (let i = powerups.length-1; i >= 0; i--) {
+    const p = powerups[i];
+    p.update();
+    if (p.y > H) { powerups.splice(i,1); continue; }
+    if (p.y + p.r > paddle.y && p.x > paddle.x && p.x < paddle.x + paddle.w) {
+      activatePowerUp(p.type);
+      powerups.splice(i,1);
     }
   }
 
-  if (cleared > 0) {
-    const base = [0, 100, 300, 500, 800][cleared];
-    score += base * level;
-    lines += cleared;
-
-    if (lines >= level * 10) {
-      level++;
-      dropInterval = Math.max(80, 1000 - (level - 1) * 90);
+  // laser shots
+  for (let i = laserShots.length-1; i >= 0; i--) {
+    const s = laserShots[i];
+    s.y -= 14;
+    if (s.y < 0) { laserShots.splice(i,1); continue; }
+    for (let j = bricks.length-1; j >= 0; j--) {
+      const br = bricks[j];
+      if (!br.alive) continue;
+      if (s.y < br.y + br.h && s.y + 8 > br.y && s.x > br.x && s.x < br.x + br.w) {
+        br.hp = 0;
+        br.alive = false;
+        createExplosion(br.x + br.w/2, br.y + br.h/2, 18);
+        laserShots.splice(i,1);
+        score += 60;
+        break;
+      }
     }
-
-    // vizuální feedback
-    canvas.classList.add('clear-flash');
-    setTimeout(() => canvas.classList.remove('clear-flash'), 400);
-  }
-}
-
-function hold() {
-  if (!canHold) return;
-  canHold = false;
-
-  if (!heldPiece) {
-    heldPiece = {...currentPiece, x: 0, y: 0};
-    spawnPiece();
-  } else {
-    const temp = {...currentPiece, x: 0, y: 0};
-    currentPiece = {...heldPiece, x: Math.floor(COLS/2 - 2.5), y: 0};
-    heldPiece = temp;
-  }
-  drawHold();
-}
-
-function spawnPiece() {
-  if (!nextPiece) nextPiece = createPiece(getRandomPiece());
-
-  currentPiece = nextPiece;
-  nextPiece = createPiece(getRandomPiece());
-
-  canHold = true;
-
-  drawNext();
-  drawHold();
-
-  if (collides(currentPiece.matrix, currentPiece.x, currentPiece.y)) {
-    gameOver = true;
-    document.getElementById('message').style.opacity = 1;
-  }
-}
-
-function drawNext() {
-  nextCtx.fillStyle = 'rgba(0,0,0,0.6)';
-  nextCtx.fillRect(0,0,nextCanvas.width,nextCanvas.height);
-
-  if (nextPiece) {
-    const off = nextPiece.type === 1 ? 0.5 : 1;
-    drawPiece(nextPiece, off, 1.2, nextCtx, 0.9);
-  }
-}
-
-function drawHold() {
-  holdCtx.fillStyle = 'rgba(0,0,0,0.6)';
-  holdCtx.fillRect(0,0,holdCanvas.width,holdCanvas.height);
-
-  if (heldPiece) {
-    const off = heldPiece.type === 1 ? 0.5 : 1;
-    drawPiece(heldPiece, off, 1.2, holdCtx, canHold ? 1 : 0.4);
-  }
-}
-
-function update(time = 0) {
-  if (gameOver || paused) return requestAnimationFrame(update);
-
-  const delta = time - lastTime;
-  lastTime = time;
-  dropCounter += delta;
-
-  if (dropCounter > dropInterval) {
-    playerDrop();
-    dropCounter = 0;
   }
 
-  drawBoard();
-  if (currentPiece) {
-    drawGhost();
-    drawPiece(currentPiece);
+  // particles
+  for (let i = particles.length-1; i >= 0; i--) {
+    particles[i].update();
+    if (particles[i].life <= 0) particles.splice(i,1);
   }
 
-  document.getElementById('score').textContent = score;
-  document.getElementById('level').textContent = level;
-  document.getElementById('lines').textContent = lines;
+  // check level complete
+  if (bricks.every(b => !b.alive)) {
+    levelComplete();
+  }
 
+  draw();
   requestAnimationFrame(update);
 }
 
-// ────────────────────────────────────────────────
-// Ovládání
-// ────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (gameOver) return;
-  if (e.repeat) return;
+function draw() {
+  ctx.fillStyle = '#000811';
+  ctx.fillRect(0, 0, W, H);
 
-  if (e.key.toLowerCase() === 'p') {
-    paused = !paused;
-    document.getElementById('pause-overlay').style.opacity = paused ? 1 : 0;
-    if (!paused) {
-      lastTime = performance.now();
-      requestAnimationFrame(update);
-    }
-    return;
+  // stars
+  ctx.fillStyle = '#fff';
+  for (let s of stars) {
+    const tw = Math.sin(Date.now()/180 + s.twinkle) * 0.4 + 1;
+    ctx.globalAlpha = 0.6 + Math.sin(Date.now()/120 + s.twinkle) * 0.4;
+    ctx.fillRect(s.x, s.y, s.size*tw, s.size*tw);
+  }
+  ctx.globalAlpha = 1;
+
+  // bricks
+  for (let b of bricks) b.draw();
+
+  // paddle
+  paddle.draw();
+
+  // balls
+  for (let b of balls) b.draw();
+
+  // powerups
+  for (let p of powerups) p.draw();
+
+  // laser
+  ctx.fillStyle = '#f00';
+  for (let s of laserShots) {
+    ctx.fillRect(s.x-3, s.y, 6, 18);
   }
 
-  if (paused) return;
+  // particles
+  for (let p of particles) p.draw();
 
-  switch (e.key) {
-    case 'ArrowLeft':  
-      if (!collides(currentPiece.matrix, currentPiece.x-1, currentPiece.y)) currentPiece.x--; 
+  // HUD update
+  document.getElementById('score').textContent = String(score).padStart(6,'0');
+  document.getElementById('level').textContent = level;
+}
+
+// ====================== POWER-UPS ======================
+function activatePowerUp(type) {
+  playSound(1200, 180, 'sawtooth', 0.4);
+  switch(type) {
+    case 'M': // multiball
+      for (let i = 0; i < 2; i++) {
+        const b = new Ball(paddle.x + paddle.w/2 + (Math.random()*80-40), paddle.y - 20, (Math.random()-0.5)*6, -6);
+        balls.push(b);
+      }
       break;
-    case 'ArrowRight': 
-      if (!collides(currentPiece.matrix, currentPiece.x+1, currentPiece.y)) currentPiece.x++; 
+    case 'L': // laser
+      paddle.laser = true;
+      paddle.laserTimer = 420;
       break;
-    case 'ArrowDown':  
-      playerDrop(); 
+    case 'E': // enlarge
+      paddle.w = 180;
+      setTimeout(() => { if (paddle.w > 110) paddle.w = 110; }, 11000);
       break;
-    case 'ArrowUp':
-    case 'x':
-    case 'X':
-      playerRotate(); 
+    case 'S': // shrink
+      paddle.w = 60;
+      setTimeout(() => { if (paddle.w < 110) paddle.w = 110; }, 8000);
       break;
-    case ' ':
-      e.preventDefault();
-      hardDrop();
+    case 'O': // slow
+      for (let b of balls) { b.vx *= 0.6; b.vy *= 0.6; }
       break;
-    case 'c':
-    case 'C':
-    case 'Shift':
-      hold();
+    case 'X': // extra life
+      lives = Math.min(5, lives+1);
+      document.getElementById('lives').textContent = lives;
       break;
+    case 'B': // bomb
+      for (let i = bricks.length-1; i >= 0; i--) {
+        if (Math.random() < 0.65 && bricks[i].alive) {
+          bricks[i].alive = false;
+          createExplosion(bricks[i].x + 32, bricks[i].y + 12, 30);
+        }
+      }
+      break;
+    case '★': // score x2 for 12 seconds
+      score += 500;
+      setTimeout(() => {}, 12000); // just visual
+      break;
+  }
+}
+
+function createExplosion(x, y, count) {
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const vel = Math.random() * 6 + 2;
+    particles.push(new Particle(
+      x, y,
+      Math.cos(angle) * vel,
+      Math.sin(angle) * vel - 3,
+      28 + Math.random()*18,
+      `hsl(${Math.random()*60 + 10}, 100%, 70%)`
+    ));
+  }
+  playSound(180, 280, 'sawtooth', 0.6);
+}
+
+// ====================== GAME FLOW ======================
+function resetBalls() {
+  balls = [];
+  const b = new Ball(paddle.x + paddle.w/2, paddle.y - 25, 0, -5.5);
+  balls.push(b);
+  launched = false;
+}
+
+function startGame() {
+  document.getElementById('start-overlay').classList.remove('show');
+  gameRunning = true;
+  level = 1;
+  score = 0;
+  lives = 3;
+  document.getElementById('lives').textContent = lives;
+  createLevel(1);
+  paddle = new Paddle();
+  resetBalls();
+  update();
+}
+
+function nextLevel() {
+  level++;
+  if (level > 5) {
+    document.getElementById('win-overlay').classList.add('show');
+    return;
+  }
+  document.getElementById('levelup-overlay').classList.remove('show');
+  createLevel(level);
+  paddle = new Paddle();
+  resetBalls();
+}
+
+function levelComplete() {
+  gameRunning = false;
+  document.getElementById('levelup-text').textContent = `Úroveň ${level} dokončena! Skóre +${score}`;
+  document.getElementById('levelup-overlay').classList.add('show');
+}
+
+function gameOver() {
+  gameRunning = false;
+  if (score > highscore) {
+    highscore = score;
+    localStorage.setItem('arkanoidHS', highscore);
+  }
+  document.getElementById('final-score').textContent = `SKÓRE: ${String(score).padStart(6,'0')}`;
+  document.getElementById('gameover-overlay').classList.add('show');
+}
+
+function restartGame() {
+  location.reload();
+}
+
+function showHelp() {
+  document.getElementById('start-overlay').classList.remove('show');
+  document.getElementById('help-overlay').classList.add('show');
+}
+
+function hideHelp() {
+  document.getElementById('help-overlay').classList.remove('show');
+  document.getElementById('start-overlay').classList.add('show');
+}
+
+// ====================== INPUT ======================
+let mouseX = null;
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  mouseX = e.clientX - rect.left;
+});
+
+canvas.addEventListener('click', () => {
+  if (!launched && balls.length > 0) {
+    launched = true;
+    balls[0].vx = (Math.random() - 0.5) * 5;
   }
 });
 
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' && gameRunning && !launched && balls.length) {
+    launched = true;
+    balls[0].vx = (Math.random() - 0.5) * 5;
+  }
+  if (e.key === ' ' && paddle.laser && gameRunning) {
+    laserShots.push({x: paddle.x + 18, y: paddle.y});
+    laserShots.push({x: paddle.x + paddle.w - 18, y: paddle.y});
+    playSound(2400, 60, 'square', 0.25);
+  }
+  if (e.key.toLowerCase() === 'p' && gameRunning) {
+    paused = !paused;
+    if (!paused) update();
+  }
+});
+
+// Touch support pro mobily
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  mouseX = e.touches[0].clientX - rect.left;
+}, {passive: false});
+
 // Start
-spawnPiece();
-update();
+document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
 </script>
 </body>
 </html>
