@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>💣 MINESWEEPER • VESMÍRNÝ SAPIÉR 💣</title>
+    <title>💣 MINESWEEPER • BEZPEČNÝ START • VESMÍRNÝ SAPIÉR 💣</title>
     <style>
         * {
             user-select: none;
@@ -187,6 +187,14 @@
             font-size: 0.9rem;
         }
 
+        .safe-zone-indicator {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(0, 255, 100, 0.2);
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
         @media (max-width: 650px) {
             .game-container {
                 padding: 16px;
@@ -220,13 +228,15 @@
         <button class="reset-btn" id="resetGameBtn">💣 NOVÁ HRA</button>
     </div>
     <div id="boardContainer" class="board"></div>
-    <div class="message-area" id="gameMessage">✨ Klikni levým = odkryj | Pravým / dlouhý dotyk = vlajka ✨</div>
+    <div class="message-area" id="gameMessage">
+        ✨ BEZPEČNÝ START ✨ První klik vytvoří zónu bez min (3x3) – nemůžeš trefit bombu!
+    </div>
 </div>
 
 <script>
     (function(){
         // ---------- NASTAVENÍ OBTÍŽNOSTI ----------
-        let DIFFICULTY = {
+        const DIFFICULTY = {
             beginner: { rows: 8, cols: 8, mines: 10, name: "ZAČÁTEČNÍK" },
             intermediate: { rows: 12, cols: 12, mines: 30, name: "STŘEDNÍ" },
             expert: { rows: 16, cols: 16, mines: 55, name: "EXPERT" }
@@ -240,11 +250,13 @@
         // Herní stav
         let board = [];         // 2D pole { isMine, revealed, flag, neighborMines }
         let gameActive = true;
-        let firstMove = true;    // aby se nikdy nezačalo s minou na prvním kliku
+        let firstMove = true;    // první klik - vytvoří bezpečnou zónu
         let flaggedCount = 0;
         let revealedCount = 0;
-        let score = 0;
         let currentGameScore = 0;
+        
+        // Bezpečná zóna (pro první klik)
+        let safeZoneCells = new Set(); // ukládá string "row,col" které jsou v bezpečné zóně
         
         // DOM elementy
         const boardContainer = document.getElementById('boardContainer');
@@ -252,7 +264,6 @@
         const scoreCounterSpan = document.getElementById('scoreCounter');
         const gameMessageDiv = document.getElementById('gameMessage');
         
-        // pomocné funkce
         function updateUI() {
             let remainingMines = totalMines - flaggedCount;
             mineCounterSpan.innerText = Math.max(0, remainingMines);
@@ -262,10 +273,11 @@
         function setMessage(msg, isError = false) {
             gameMessageDiv.innerHTML = msg;
             gameMessageDiv.style.color = isError ? "#ffaa88" : "#bbf0ff";
-            setTimeout(() => {
-                if(gameActive && !isError) gameMessageDiv.innerHTML = "💣 Levý klik = odkrytí | Pravý klik = vlajka / značka 💣";
-                else if(!gameActive && !isError) {}
-            }, 2500);
+            if (!isError) {
+                setTimeout(() => {
+                    if (gameActive) gameMessageDiv.innerHTML = "💣 Levý klik = odkrytí | Pravý klik = vlajka | První klik = bezpečná zóna 💣";
+                }, 3000);
+            }
         }
         
         // výpočet sousedních min
@@ -281,8 +293,24 @@
             return count;
         }
         
-        // generování hracího pole s tím, že první klik (safeRow, safeCol) NEBUDE mina
-        function generateBoard(safeRow, safeCol) {
+        // Získání všech buněk v oblasti 3x3 kolem (safeRow, safeCol) s ořezáním okrajů
+        function getSafeZoneArea(safeRow, safeCol) {
+            const cells = [];
+            for(let dr = -1; dr <= 1; dr++) {
+                for(let dc = -1; dc <= 1; dc++) {
+                    let nr = safeRow + dr;
+                    let nc = safeCol + dc;
+                    if(nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                        cells.push([nr, nc]);
+                    }
+                }
+            }
+            return cells;
+        }
+        
+        // Generování hracího pole s BEZPEČNOU ZÓNOU - v zadané oblasti nebudou žádné miny
+        // safeZoneCells je pole souřadnic [row,col], které musí být bez min
+        function generateBoardWithSafeZone(safeZoneCoordinates) {
             // vytvoř prázdné pole bez min
             let newBoard = Array(rows).fill().map(() => Array(cols).fill().map(() => ({
                 isMine: false,
@@ -291,15 +319,40 @@
                 neighborMines: 0
             })));
             
-            // rozmístit miny - vyhnout se safe pozici
+            // Vytvořit Set pro rychlé vyhledávání bezpečných buněk
+            const safeSet = new Set();
+            for(let [r, c] of safeZoneCoordinates) {
+                safeSet.add(`${r},${c}`);
+            }
+            
+            // rozmístit miny - vyhnout se všem buňkám v bezpečné zóně
             let minesPlaced = 0;
-            while(minesPlaced < totalMines) {
+            const maxAttempts = 5000;
+            let attempts = 0;
+            
+            while(minesPlaced < totalMines && attempts < maxAttempts) {
                 let randRow = Math.floor(Math.random() * rows);
                 let randCol = Math.floor(Math.random() * cols);
-                if((randRow === safeRow && randCol === safeCol)) continue;
-                if(!newBoard[randRow][randCol].isMine) {
+                const cellKey = `${randRow},${randCol}`;
+                
+                // Nesmí být v bezpečné zóně a nesmí už mít minu
+                if(!safeSet.has(cellKey) && !newBoard[randRow][randCol].isMine) {
                     newBoard[randRow][randCol].isMine = true;
                     minesPlaced++;
+                }
+                attempts++;
+            }
+            
+            // Pokud se nepodařilo umístit všechny miny (extrémní případ, malé hřiště), doplníme je mimo safe zónu
+            if(minesPlaced < totalMines) {
+                for(let i = 0; i < rows && minesPlaced < totalMines; i++) {
+                    for(let j = 0; j < cols && minesPlaced < totalMines; j++) {
+                        const cellKey = `${i},${j}`;
+                        if(!safeSet.has(cellKey) && !newBoard[i][j].isMine) {
+                            newBoard[i][j].isMine = true;
+                            minesPlaced++;
+                        }
+                    }
                 }
             }
             
@@ -311,12 +364,15 @@
                     }
                 }
             }
+            
             return newBoard;
         }
         
-        // rekurzivní odkrývání prázdných polí (flood fill)
+        // Rekurzivní odkrývání prázdných polí (flood fill) - bezpečné, kontroluje hranice
         function revealCell(row, col) {
             if(!gameActive) return;
+            if(row < 0 || row >= rows || col < 0 || col >= cols) return;
+            
             const cell = board[row][col];
             if(cell.revealed) return;
             if(cell.flag) return;
@@ -324,7 +380,7 @@
             cell.revealed = true;
             revealedCount++;
             
-            // přidání bodů za odkrytí (bonus za bezpečné pole)
+            // přidání bodů za odkrytí
             if(!cell.isMine) {
                 let points = 5 + (cell.neighborMines * 2);
                 currentGameScore += points;
@@ -332,7 +388,7 @@
             }
             
             if(cell.isMine) {
-                // hráč klikl na minu -> konec hry
+                // hráč klikl na minu - konec hry (teoreticky by se nemělo stát při prvním tahu, ale pro jistotu)
                 gameActive = false;
                 setMessage(`💥 BUM! Šlápl jsi na minu! Konečné skóre: ${currentGameScore} 💥`, true);
                 revealAllMines();
@@ -345,7 +401,8 @@
                     for(let dc = -1; dc <= 1; dc++) {
                         if(dr === 0 && dc === 0) continue;
                         let nr = row + dr, nc = col + dc;
-                        if(nr >= 0 && nr < rows && nc >= 0 && nc < cols && !board[nr][nc].revealed && !board[nr][nc].flag && !board[nr][nc].isMine) {
+                        if(nr >= 0 && nr < rows && nc >= 0 && nc < cols && 
+                           !board[nr][nc].revealed && !board[nr][nc].flag && !board[nr][nc].isMine) {
                             revealCell(nr, nc);
                         }
                     }
@@ -364,8 +421,8 @@
                 currentGameScore += winBonus;
                 updateUI();
                 setMessage(`🏆 VÍTĚZSTVÍ! 🏆 Objevil jsi všechna bezpečná pole! Skóre: ${currentGameScore} + bonus ${winBonus} 🏆`);
-                // Vizuální confetti efekt
                 triggerConfetti();
+                renderBoard();
             }
         }
         
@@ -417,28 +474,60 @@
             }
         }
         
+        // HLAVNÍ FUNKCE PRO PRVNÍ KLIK - vytvoří bezpečnou zónu 3x3 a vygeneruje board
+        function firstClickReveal(row, col) {
+            // 1. Získat bezpečnou zónu (3x3 kolem kliku)
+            const safeZone = getSafeZoneArea(row, col);
+            safeZoneCells.clear();
+            for(let [r,c] of safeZone) {
+                safeZoneCells.add(`${r},${c}`);
+            }
+            
+            // 2. Vygenerovat board s tím, že v safeZone nejsou miny
+            board = generateBoardWithSafeZone(safeZone);
+            
+            // 3. Odkrýt celou bezpečnou zónu (aby hráč viděl, kde může začít)
+            for(let [r,c] of safeZone) {
+                if(!board[r][c].isMine && !board[r][c].revealed) {
+                    // Použijeme speciální flood fill pro plynulé odkrývání, ale aby se odkryla celá oblast
+                    revealCell(r, c);
+                }
+            }
+            
+            // 4. Zajistit, že kliknutá buňka je odhalená (může být již z flood fill)
+            if(!board[row][col].revealed && !board[row][col].isMine) {
+                revealCell(row, col);
+            }
+            
+            renderBoard();
+            setMessage(`✅ BEZPEČNÁ ZÓNA 3x3 vytvořena! Žádné miny v okolí kliku. Pokračuj bezpečně. ✅`);
+        }
+        
         // obsluha kliku
         function handleCellClick(e, row, col, isRightClick = false) {
             e.preventDefault();
             if(!gameActive) return;
             
-            // první tah: dynamické vygenerování pole bez miny na této pozici
+            // PRVNÍ TAH - vždy vytvoří bezpečnou zónu (nemůže trefit bombu)
             if(firstMove && !isRightClick) {
                 firstMove = false;
-                board = generateBoard(row, col);
-                renderBoard();
-                // po vygenerování provedeme samotné odhalení
-                revealCell(row, col);
-                renderBoard();
+                firstClickReveal(row, col);
                 return;
             }
             
+            // Pokud je první tah a hráč zkusí pravý klik, upozorníme ho
+            if(firstMove && isRightClick) {
+                setMessage("⚠️ Nejprve klikni levým tlačítkem pro vytvoření bezpečné zóny! ⚠️", true);
+                return;
+            }
+            
+            // Pravý klik - vlajka
             if(isRightClick) {
                 toggleFlag(row, col);
                 return;
             }
             
-            // levý klik
+            // Levý klik (po prvním tahu)
             const cell = board[row][col];
             if(cell.flag) {
                 setMessage("❌ Odstraň nejdříve vlajku (pravým klikem)", true);
@@ -452,8 +541,12 @@
         
         // ---------- RENDER GRIDU ----------
         function renderBoard() {
-            boardContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(32px, 58px))`;
+            if(!board || board.length === 0) return;
+            
+            const cellSize = Math.min(70, Math.floor(500 / cols));
+            boardContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(32px, ${cellSize}px))`;
             boardContainer.innerHTML = '';
+            
             for(let i=0; i<rows; i++) {
                 for(let j=0; j<cols; j++) {
                     const cell = board[i][j];
@@ -472,12 +565,11 @@
                             else content = neigh;
                         }
                     } else {
-                        if(cell.flag) content = ''; // vlajka je přes pseudo-element
-                        else content = '';
+                        content = '';
                     }
                     cellDiv.innerText = content;
                     
-                    // Barevné číslování pro lepší přehled
+                    // Barevné číslování
                     if(cell.revealed && !cell.isMine && cell.neighborMines > 0) {
                         const colors = ['', '#1976D2', '#2E7D32', '#C62828', '#6A1B9A', '#FF8C00', '#0097A7', '#000000', '#5D4037'];
                         cellDiv.style.color = colors[cell.neighborMines] || '#dd8800';
@@ -489,7 +581,7 @@
                         cellDiv.style.color = '#ffd966';
                     }
                     
-                    // eventy pro myš (pro oba typy)
+                    // eventy pro myš
                     cellDiv.addEventListener('click', (e) => {
                         e.stopPropagation();
                         handleCellClick(e, i, j, false);
@@ -498,6 +590,7 @@
                         e.preventDefault();
                         handleCellClick(e, i, j, true);
                     });
+                    
                     // podpora touch (dlouhý stisk jako pravé tlačítko)
                     let touchTimer = null;
                     cellDiv.addEventListener('touchstart', (e) => {
@@ -523,7 +616,7 @@
             }
         }
         
-        // confetti efekt pro výhru
+        // confetti efekt
         function triggerConfetti() {
             const canvas = document.createElement('canvas');
             canvas.style.position = 'fixed';
@@ -542,13 +635,15 @@
             }, 2800);
         }
         
-        // Reset celé hry podle obtížnosti
+        // Reset celé hry
         function resetGame() {
             gameActive = true;
             firstMove = true;
             flaggedCount = 0;
             revealedCount = 0;
             currentGameScore = 0;
+            safeZoneCells.clear();
+            
             // nastav parametry dle currentDiff
             let cfg = DIFFICULTY[currentDiff];
             rows = cfg.rows;
@@ -565,16 +660,12 @@
             
             updateUI();
             renderBoard();
-            setMessage(`🎯 ${cfg.name} • ${totalMines} min • Klikni na libovolné pole pro start 🎯`);
+            setMessage(`🎯 ${cfg.name} • ${totalMines} min • ✨ PRVNÍ KLIK = BEZPEČNÁ ZÓNA 3x3 ✨ Klikni kamkoliv pro start! 🎯`);
         }
         
         // Změna obtížnosti
         function setDifficulty(diffKey) {
             currentDiff = diffKey;
-            let cfg = DIFFICULTY[diffKey];
-            rows = cfg.rows;
-            cols = cfg.cols;
-            totalMines = cfg.mines;
             resetGame();
             
             // vizuální aktivní tlačítka
@@ -584,7 +675,7 @@
             });
         }
         
-        // ---------- INICIALIZACE + CONFETTI GENERATOR (jednoduchý) ----------
+        // ---------- CONFETTI GENERATOR ----------
         function ConfettiGenerator(params){
             let target = params.target;
             let max = params.max || 100;
@@ -641,7 +732,7 @@
             this.clear = function(){ if(animId) cancelAnimationFrame(animId); ctx.clearRect(0,0,width,height); };
         }
         
-        // eventy pro tlačítka obtížnosti a reset
+        // eventy
         document.querySelectorAll('.diff-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 let diff = btn.getAttribute('data-diff');
