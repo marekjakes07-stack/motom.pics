@@ -1,942 +1,480 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Had 2026 - Nejpropracovanější Snake v jednom souboru</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;display=swap');
-        
-        :root {
-            --primary: #00ff00;
-            --accent: #ff00ff;
-            --bg: #111111;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: linear-gradient(180deg, #0a0a0a, #1a0033);
-            color: #00ff00;
-            font-family: 'Press Start 2P', system-ui;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            image-rendering: pixelated;
-        }
-        
-        h1 {
-            font-size: 3.5rem;
-            text-shadow: 
-                0 0 10px #00ff00,
-                0 0 20px #00ff00,
-                0 0 40px #ff00ff;
-            margin-bottom: 20px;
-            animation: glow 1.5s infinite alternate;
-            letter-spacing: 8px;
-        }
-        
-        @keyframes glow {
-            from { text-shadow: 0 0 10px #00ff00; }
-            to { text-shadow: 0 0 30px #ff00ff, 0 0 50px #00ffff; }
-        }
-        
-        canvas {
-            border: 8px solid #00ff00;
-            border-image: linear-gradient(#00ff00, #ff00ff) 1;
-            image-rendering: pixelated;
-            box-shadow: 
-                0 0 30px #00ff00,
-                0 0 60px #ff00ff;
-            background: #000;
-        }
-        
-        .screen {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(10, 10, 20, 0.95);
-            border: 6px solid #00ff00;
-            padding: 30px;
-            text-align: center;
-            width: 620px;
-            box-shadow: 0 0 40px #ff00ff;
-            display: none;
-            flex-direction: column;
-            gap: 20px;
-            z-index: 100;
-        }
-        
-        .screen.active {
-            display: flex;
-        }
-        
-        button {
-            background: #111;
-            color: #00ff00;
-            border: 4px solid #00ff00;
-            padding: 15px 30px;
-            font-family: 'Press Start 2P';
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-        
-        button:hover {
-            background: #00ff00;
-            color: #000;
-            box-shadow: 0 0 20px #00ff00;
-            transform: scale(1.1);
-        }
-        
-        .hud {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px 25px;
-            border: 4px solid #00ff00;
-            font-size: 1.1rem;
-            display: flex;
-            gap: 40px;
-            z-index: 50;
-        }
-        
-        .score {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .value {
-            font-size: 2rem;
-            color: #ff00ff;
-        }
-        
-        .overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            flex-direction: column;
-            gap: 30px;
-        }
-        
-        .overlay.active {
-            display: flex;
-        }
-        
-        .neon-text {
-            animation: neon 0.8s infinite alternate;
-        }
-        
-        @keyframes neon {
-            from { text-shadow: 0 0 5px #00ff00; }
-            to { text-shadow: 0 0 20px #00ff00, 0 0 40px #ff00ff; }
-        }
-        
-        .touch-controls {
-            position: absolute;
-            bottom: 20px;
-            display: none;
-            gap: 15px;
-            z-index: 300;
-        }
-        
-        @media (max-width: 900px) {
-            .touch-controls {
-                display: flex;
-            }
-        }
-        
-        .touch-btn {
-            width: 70px;
-            height: 70px;
-            background: rgba(0, 255, 0, 0.2);
-            border: 4px solid #00ff00;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: #00ff00;
-            user-select: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tetris – propracovaná verze</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: #111;
+      color: #eee;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    #container {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    #game-area {
+      position: relative;
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      border: 2px solid #444;
+      background: #000;
+      box-shadow: 0 0 30px rgba(0,255,180,0.15);
+    }
+
+    #side-panel {
+      width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .box {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    #next-canvas, #hold-canvas {
+      background: #000;
+      border: 1px solid #555;
+    }
+
+    h2 { margin: 0 0 8px 0; font-size: 1.1rem; color: #0f8; }
+    .stat { font-size: 1.4rem; font-weight: bold; color: #0ff; }
+
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3.5rem;
+      color: #f44;
+      text-shadow: 0 0 20px #f00;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    #pause-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      color: #ff0;
+      font-weight: bold;
+      text-shadow: 0 0 30px #ff0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+  </style>
 </head>
 <body>
-    <h1 class="neon-text">SUPER HAD 2026</h1>
-    
-    <!-- Hlavní canvas -->
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    
-    <!-- HUD -->
-    <div class="hud" id="hud">
-        <div class="score">
-            <div style="font-size:0.9rem;color:#888;">SKÓRE</div>
-            <div class="value" id="scoreValue">000000</div>
-        </div>
-        <div class="score">
-            <div style="font-size:0.9rem;color:#888;">ÚROVEŇ</div>
-            <div class="value" id="levelValue">01</div>
-        </div>
-        <div class="score">
-            <div style="font-size:0.9rem;color:#888;">KOMBO</div>
-            <div class="value" id="comboValue">x1</div>
-        </div>
+
+<div id="container">
+  <div id="game-area">
+    <canvas id="tetris" width="300" height="600"></canvas>
+    <div id="message">GAME OVER</div>
+    <div id="pause-overlay">PAUSE</div>
+  </div>
+
+  <div id="side-panel">
+    <div class="box">
+      <h2>Score</h2>
+      <div id="score" class="stat">0</div>
     </div>
-    
-    <!-- Úvodní obrazovka -->
-    <div class="screen active" id="startScreen">
-        <h2 style="font-size:2.5rem;margin-bottom:30px;color:#ff00ff;">HADÍ DOBRODRUŽSTVÍ</h2>
-        <button onclick="startGame()">START HRY</button>
-        <button onclick="showScreen('optionsScreen')">NASTAVENÍ</button>
-        <button onclick="showScreen('highscoreScreen')">HIGHSCORES</button>
-        <button onclick="showScreen('howtoScreen')">JAK HRÁT</button>
-        <div style="margin-top:40px;font-size:0.8rem;color:#666;">
-            Verze 2026 • 100% v jednom souboru • 1247 řádků kódu
-        </div>
+    <div class="box">
+      <h2>Level</h2>
+      <div id="level" class="stat">1</div>
     </div>
-    
-    <!-- Nastavení -->
-    <div class="screen" id="optionsScreen">
-        <h2>NASTAVENÍ</h2>
-        
-        <div style="display:flex;flex-direction:column;gap:15px;align-items:center;width:100%;">
-            <label style="color:#00ffff;">Rychlost hada: <span id="speedLabel">5</span></label>
-            <input type="range" id="speedSlider" min="3" max="12" value="5" style="width:80%;" oninput="updateSpeed(this.value)">
-            
-            <label style="margin-top:20px;color:#00ffff;">Barva hada</label>
-            <div style="display:flex;gap:10px;">
-                <button onclick="setTheme(0)" style="background:#00ff00;width:50px;height:50px;">🟢</button>
-                <button onclick="setTheme(1)" style="background:#ff00ff;width:50px;height:50px;">🟣</button>
-                <button onclick="setTheme(2)" style="background:#00ffff;width:50px;height:50px;">🔵</button>
-                <button onclick="setTheme(3)" style="background:#ffff00;width:50px;height:50px;">🟡</button>
-            </div>
-            
-            <div style="margin-top:20px;display:flex;gap:30px;">
-                <label>
-                    <input type="checkbox" id="wrapAround" checked onchange="toggleWrap()">
-                    Omotávání přes okraje
-                </label>
-                <label>
-                    <input type="checkbox" id="soundEnabled" checked onchange="toggleSound()">
-                    Zvuky zapnuty
-                </label>
-            </div>
-        </div>
-        
-        <button onclick="showScreen('startScreen')" style="margin-top:30px;">ZPĚT DO MENU</button>
+    <div class="box">
+      <h2>Lines</h2>
+      <div id="lines" class="stat">0</div>
     </div>
-    
-    <!-- Highscore -->
-    <div class="screen" id="highscoreScreen">
-        <h2>HIGHSCORES</h2>
-        <div id="highscoreList" style="font-size:1.1rem;line-height:2.2;color:#ffcc00;text-align:left;margin:20px 0;width:100%;"></div>
-        <button onclick="showScreen('startScreen')">ZPĚT</button>
+
+    <div class="box">
+      <h2>Next</h2>
+      <canvas id="next" width="120" height="120"></canvas>
     </div>
-    
-    <!-- Jak hrát -->
-    <div class="screen" id="howtoScreen">
-        <h2>JAK HRÁT</h2>
-        <div style="text-align:left;font-size:1rem;line-height:1.6;max-width:500px;">
-            <p>→ Šipky nebo WASD = pohyb</p>
-            <p>→ Sbírej jídlo (●) pro body</p>
-            <p>→ Speciální power-upy (★ ♦ ♥):</p>
-            <p style="margin-left:30px;">★ = +500 bodů<br>♦ = zpomalení<br>♥ = zmenšení hada</p>
-            <p>→ Vyhněte se překážkám po 3. úrovni!</p>
-            <p>→ Kombo = násobí skóre</p>
-            <p>→ 10 úrovní • rostoucí obtížnost</p>
-        </div>
-        <button onclick="showScreen('startScreen')">ZPĚT</button>
+
+    <div class="box">
+      <h2>Hold</h2>
+      <canvas id="hold" width="120" height="120"></canvas>
     </div>
-    
-    <!-- Game Over -->
-    <div class="overlay" id="gameOverOverlay">
-        <div style="font-size:3rem;color:#ff0000;text-shadow:0 0 30px #ff0000;">GAME OVER</div>
-        <div style="font-size:1.5rem;margin:20px 0;" id="finalScore">SKÓRE: 000000</div>
-        <div id="newHighscore" style="color:#ffff00;display:none;font-size:1.3rem;">NOVÝ REKORD!!! 🔥</div>
-        <button onclick="restartGame()">HRÁT ZNOVU</button>
-        <button onclick="returnToMenu()" style="background:#333;border-color:#666;">MENU</button>
+
+    <div class="box" style="font-size:0.9rem; color:#aaa; text-align:left;">
+      <strong>Ovládání:</strong><br>
+      ← →    Pohyb<br>
+      ↑      Otočit<br>
+      ↓      Rychleji dolů<br>
+      Mezerník  Hard drop<br>
+      C      Hold / vyměnit<br>
+      P      Pauza
     </div>
-    
-    <!-- Výhra úrovně -->
-    <div class="overlay" id="levelWinOverlay">
-        <div style="font-size:2.8rem;color:#00ff00;">ÚROVEŇ DOKONČENA!</div>
-        <div style="margin:15px 0;font-size:1.4rem;" id="levelScore"></div>
-        <button onclick="nextLevel()">DALŠÍ ÚROVEŇ</button>
-    </div>
-    
-    <!-- Touch ovládání -->
-    <div class="touch-controls">
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:230px;">
-            <div></div>
-            <div class="touch-btn" onclick="simulateKey(38)">↑</div>
-            <div></div>
-            <div class="touch-btn" onclick="simulateKey(37)">←</div>
-            <div></div>
-            <div class="touch-btn" onclick="simulateKey(39)">→</div>
-            <div></div>
-            <div class="touch-btn" onclick="simulateKey(40)">↓</div>
-            <div></div>
-        </div>
-    </div>
-    
-    <script>
-        // ================================================
-        // SUPER HAD 2026 - KOMPLETNÍ HRA V JEDNOM SOUBORU
-        // 1247+ řádků kódu, 10 úrovní, power-upy, částice,
-        // zvuky, highscore, touch, 4 témata, kombo systém
-        // ================================================
-        
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Základní konstanty
-        const GRID_SIZE = 20;
-        const COLS = canvas.width / GRID_SIZE;
-        const ROWS = canvas.height / GRID_SIZE;
-        
-        // Globální proměnné hry
-        let snake = [];
-        let dx = 1;
-        let dy = 0;
-        let food = { x: 0, y: 0, type: 'normal' };
-        let powerUps = [];
-        let obstacles = [];
-        let particles = [];
-        let score = 0;
-        let level = 1;
-        let combo = 1;
-        let comboTimer = 0;
-        let gameSpeed = 120; // ms mezi ticky
-        let lastTick = 0;
-        let gameRunning = false;
-        let gamePaused = false;
-        let wrapAround = true;
-        let soundEnabled = true;
-        let currentTheme = 0;
-        let highScores = [];
-        let audioContext;
-        
-        // Barvy podle tématu
-        const themes = [
-            { snake: '#00ff00', head: '#00cc00', food: '#ffff00', bg: '#001100' },
-            { snake: '#ff00ff', head: '#cc00cc', food: '#00ffff', bg: '#110011' },
-            { snake: '#00ffff', head: '#00cccc', food: '#ffff00', bg: '#001111' },
-            { snake: '#ffff00', head: '#cccc00', food: '#ff00ff', bg: '#111100' }
-        ];
-        
-        // Typy power-upů
-        const powerUpTypes = [
-            { symbol: '★', color: '#ffff00', effect: 'bonus' },
-            { symbol: '♦', color: '#00ffff', effect: 'slow' },
-            { symbol: '♥', color: '#ff00ff', effect: 'shrink' }
-        ];
-        
-        // Inicializace hada
-        function initSnake() {
-            snake = [
-                {x: 10, y: 15},
-                {x: 9, y: 15},
-                {x: 8, y: 15},
-                {x: 7, y: 15},
-                {x: 6, y: 15}
-            ];
-            dx = 1;
-            dy = 0;
-        }
-        
-        // Spawn normálního jídla
-        function spawnFood() {
-            let newFood;
-            do {
-                newFood = {
-                    x: Math.floor(Math.random() * (COLS - 2)) + 1,
-                    y: Math.floor(Math.random() * (ROWS - 2)) + 1,
-                    type: 'normal'
-                };
-            } while (isOccupied(newFood));
-            food = newFood;
-        }
-        
-        // Spawn power-upu (30% šance po jídle)
-        function spawnPowerUp() {
-            if (Math.random() > 0.7) return;
-            
-            let pu;
-            do {
-                pu = {
-                    x: Math.floor(Math.random() * (COLS - 4)) + 2,
-                    y: Math.floor(Math.random() * (ROWS - 4)) + 2,
-                    type: powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)],
-                    life: 180 // 180 ticků = ~15 sekund při 120ms
-                };
-            } while (isOccupied(pu));
-            
-            powerUps.push(pu);
-        }
-        
-        // Generování překážek podle úrovně
-        function generateObstacles() {
-            obstacles = [];
-            if (level < 3) return;
-            
-            const count = Math.min(4 + level, 12);
-            for (let i = 0; i < count; i++) {
-                let obs;
-                do {
-                    obs = {
-                        x: Math.floor(Math.random() * (COLS - 6)) + 3,
-                        y: Math.floor(Math.random() * (ROWS - 6)) + 3
-                    };
-                } while (isOccupied(obs));
-                obstacles.push(obs);
-            }
-        }
-        
-        // Kontrola obsazenosti políčka
-        function isOccupied(pos) {
-            if (snake.some(s => s.x === pos.x && s.y === pos.y)) return true;
-            if (food.x === pos.x && food.y === pos.y) return true;
-            if (obstacles.some(o => o.x === pos.x && o.y === pos.y)) return true;
-            return false;
-        }
-        
-        // Vytvoření částic
-        function createParticles(x, y, color, count = 25) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: x * GRID_SIZE + GRID_SIZE / 2,
-                    y: y * GRID_SIZE + GRID_SIZE / 2,
-                    vx: (Math.random() - 0.5) * 8,
-                    vy: (Math.random() - 0.5) * 8,
-                    life: 35 + Math.random() * 25,
-                    color: color,
-                    size: 3 + Math.random() * 4
-                });
-            }
-        }
-        
-        // Exploze při smrti
-        function deathExplosion() {
-            const head = snake[0];
-            createParticles(head.x, head.y, '#ff0000', 80);
-            if (soundEnabled) playSound(120, 0.8, 'sawtooth');
-        }
-        
-        // Hlavní herní smyčka (requestAnimationFrame)
-        function gameLoop(timestamp) {
-            if (!gameRunning || gamePaused) {
-                requestAnimationFrame(gameLoop);
-                return;
-            }
-            
-            if (!lastTick) lastTick = timestamp;
-            
-            // Tick logika
-            if (timestamp - lastTick > gameSpeed) {
-                updateGame();
-                lastTick = timestamp;
-            }
-            
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Update logika hry (každý tick)
-        function updateGame() {
-            // Pohyb hada
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-            
-            // Omotávání nebo kolize s okrajem
-            if (wrapAround) {
-                head.x = (head.x + COLS) % COLS;
-                head.y = (head.y + ROWS) % ROWS;
-            } else {
-                if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) {
-                    gameOver();
-                    return;
-                }
-            }
-            
-            // Kolize s vlastním tělem
-            if (snake.some((segment, index) => index > 0 && segment.x === head.x && segment.y === head.y)) {
-                gameOver();
-                return;
-            }
-            
-            // Kolize s překážkami
-            if (obstacles.some(o => o.x === head.x && o.y === head.y)) {
-                gameOver();
-                return;
-            }
-            
-            // Přidání nové hlavy
-            snake.unshift(head);
-            
-            // Kontrola jídla
-            let ate = false;
-            if (head.x === food.x && head.y === food.y) {
-                score += 100 * combo;
-                combo++;
-                comboTimer = 60;
-                createParticles(food.x, food.y, '#ffff00', 30);
-                spawnFood();
-                spawnPowerUp();
-                ate = true;
-                if (soundEnabled) playSound(880, 0.1);
-            } else {
-                snake.pop();
-            }
-            
-            // Power-upy
-            for (let i = powerUps.length - 1; i >= 0; i--) {
-                const pu = powerUps[i];
-                pu.life--;
-                
-                if (pu.life <= 0) {
-                    powerUps.splice(i, 1);
-                    continue;
-                }
-                
-                if (head.x === pu.x && head.y === pu.y) {
-                    activatePowerUp(pu);
-                    powerUps.splice(i, 1);
-                }
-            }
-            
-            // Kombo timer
-            if (comboTimer > 0) {
-                comboTimer--;
-            } else {
-                if (combo > 1) combo = 1;
-            }
-            
-            // Aktualizace HUD
-            document.getElementById('scoreValue').textContent = String(score).padStart(6, '0');
-            document.getElementById('levelValue').textContent = String(level).padStart(2, '0');
-            document.getElementById('comboValue').textContent = 'x' + combo;
-            
-            // Zvýšení obtížnosti každých 5 jídel (přibližně)
-            if (score % 800 === 0 && level < 10) {
-                levelUp();
-            }
-            
-            // Update částic
-            updateParticles();
-        }
-        
-        // Aktivace power-upu
-        function activatePowerUp(pu) {
-            createParticles(pu.x, pu.y, pu.type.color, 40);
-            
-            switch (pu.type.effect) {
-                case 'bonus':
-                    score += 500;
-                    if (soundEnabled) playSound(1200, 0.3, 'sine');
-                    break;
-                case 'slow':
-                    gameSpeed = Math.max(80, gameSpeed + 30);
-                    setTimeout(() => {
-                        if (gameRunning) gameSpeed = Math.max(60, gameSpeed - 30);
-                    }, 6000);
-                    if (soundEnabled) playSound(400, 1.2, 'triangle');
-                    break;
-                case 'shrink':
-                    if (snake.length > 6) {
-                        snake.splice(snake.length - 3, 3);
-                    }
-                    if (soundEnabled) playSound(600, 0.4);
-                    break;
-            }
-        }
-        
-        // Update částic
-        function updateParticles() {
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life--;
-                p.vy += 0.15; // gravitace
-                
-                if (p.life <= 0) {
-                    particles.splice(i, 1);
-                }
-            }
-        }
-        
-        // Kreslení celé scény
-        function draw() {
-            // Pozadí
-            ctx.fillStyle = themes[currentTheme].bg;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Mřížka (jemná)
-            ctx.strokeStyle = 'rgba(0,255,0,0.08)';
-            ctx.lineWidth = 1;
-            for (let x = 0; x <= canvas.width; x += GRID_SIZE) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
-                ctx.stroke();
-            }
-            for (let y = 0; y <= canvas.height; y += GRID_SIZE) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
-                ctx.stroke();
-            }
-            
-            // Překážky
-            ctx.fillStyle = '#555555';
-            obstacles.forEach(obs => {
-                ctx.fillRect(obs.x * GRID_SIZE + 2, obs.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4);
-                ctx.fillStyle = '#888888';
-                ctx.fillRect(obs.x * GRID_SIZE + 6, obs.y * GRID_SIZE + 6, GRID_SIZE - 12, GRID_SIZE - 12);
-                ctx.fillStyle = '#555555';
-            });
-            
-            // Had - tělo
-            const theme = themes[currentTheme];
-            snake.forEach((segment, i) => {
-                if (i === 0) {
-                    // Hlava
-                    ctx.fillStyle = theme.head;
-                    ctx.fillRect(segment.x * GRID_SIZE, segment.y * GRID_SIZE, GRID_SIZE, GRID_SIZE);
-                    
-                    // Oči
-                    ctx.fillStyle = '#000000';
-                    const eyeSize = GRID_SIZE / 5;
-                    if (dx === 1) { // vpravo
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.65, segment.y * GRID_SIZE + GRID_SIZE * 0.25, eyeSize, eyeSize);
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.65, segment.y * GRID_SIZE + GRID_SIZE * 0.65, eyeSize, eyeSize);
-                    } else if (dx === -1) { // vlevo
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.15, segment.y * GRID_SIZE + GRID_SIZE * 0.25, eyeSize, eyeSize);
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.15, segment.y * GRID_SIZE + GRID_SIZE * 0.65, eyeSize, eyeSize);
-                    } else if (dy === -1) { // nahoru
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.25, segment.y * GRID_SIZE + GRID_SIZE * 0.15, eyeSize, eyeSize);
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.65, segment.y * GRID_SIZE + GRID_SIZE * 0.15, eyeSize, eyeSize);
-                    } else { // dolů
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.25, segment.y * GRID_SIZE + GRID_SIZE * 0.65, eyeSize, eyeSize);
-                        ctx.fillRect(segment.x * GRID_SIZE + GRID_SIZE * 0.65, segment.y * GRID_SIZE + GRID_SIZE * 0.65, eyeSize, eyeSize);
-                    }
-                } else {
-                    // Tělo s gradientem
-                    const alpha = 1 - (i / snake.length) * 0.4;
-                    ctx.fillStyle = theme.snake;
-                    ctx.globalAlpha = alpha;
-                    ctx.fillRect(segment.x * GRID_SIZE + 2, segment.y * GRID_SIZE + 2, GRID_SIZE - 4, GRID_SIZE - 4);
-                    ctx.globalAlpha = 1;
-                }
-            });
-            
-            // Jídlo
-            ctx.fillStyle = themes[currentTheme].food;
-            ctx.beginPath();
-            ctx.arc(
-                food.x * GRID_SIZE + GRID_SIZE / 2,
-                food.y * GRID_SIZE + GRID_SIZE / 2,
-                GRID_SIZE / 2 - 3,
-                0, Math.PI * 2
-            );
-            ctx.fill();
-            ctx.fillStyle = '#000';
-            ctx.fillRect(food.x * GRID_SIZE + GRID_SIZE / 2 - 2, food.y * GRID_SIZE + 5, 4, 4);
-            
-            // Power-upy
-            powerUps.forEach(pu => {
-                ctx.font = 'bold 22px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = pu.type.color;
-                ctx.shadowColor = pu.type.color;
-                ctx.shadowBlur = 15;
-                ctx.fillText(
-                    pu.type.symbol,
-                    pu.x * GRID_SIZE + GRID_SIZE / 2,
-                    pu.y * GRID_SIZE + GRID_SIZE / 2 + 2
-                );
-                ctx.shadowBlur = 0;
-            });
-            
-            // Částice
-            particles.forEach(p => {
-                const alpha = p.life / 40;
-                ctx.globalAlpha = alpha;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
-            });
-            ctx.globalAlpha = 1;
-        }
-        
-        // Hlavní tick update (pohyb + logika)
-        function updateGame() {
-            // ... (stejný kód jako výše - pro zkrácení jsem ho neopakoval, ale v reálném kódu je kompletní)
-            // Tento blok je v plné verzi 180 řádků dlouhý
-        }
-        
-        // Web Audio API - zvuky
-        function initAudio() {
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            } catch(e) {}
-        }
-        
-        function playSound(freq, duration = 0.1, type = 'square') {
-            if (!soundEnabled || !audioContext) return;
-            
-            const oscillator = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-            gain.gain.value = 0.4;
-            
-            oscillator.connect(gain);
-            gain.connect(audioContext.destination);
-            
-            oscillator.start();
-            setTimeout(() => {
-                gain.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.02);
-                oscillator.stop(audioContext.currentTime + 0.05);
-            }, duration * 1000);
-        }
-        
-        // Game over
-        function gameOver() {
-            gameRunning = false;
-            deathExplosion();
-            if (soundEnabled) playSound(180, 1.2, 'sawtooth');
-            
-            const finalScoreEl = document.getElementById('finalScore');
-            finalScoreEl.textContent = `SKÓRE: ${String(score).padStart(6, '0')}`;
-            
-            // Kontrola rekordu
-            const isNewHigh = checkAndSaveHighscore();
-            if (isNewHigh) {
-                document.getElementById('newHighscore').style.display = 'block';
-            }
-            
-            document.getElementById('gameOverOverlay').classList.add('active');
-        }
-        
-        // Uložení highscore
-        function checkAndSaveHighscore() {
-            let saved = JSON.parse(localStorage.getItem('snakeHighscores') || '[]');
-            saved.push({score: score, date: new Date().toLocaleDateString('cs-CZ')});
-            saved.sort((a, b) => b.score - a.score);
-            saved = saved.slice(0, 8);
-            localStorage.setItem('snakeHighscores', JSON.stringify(saved));
-            highScores = saved;
-            return saved[0] && saved[0].score === score;
-        }
-        
-        // Načtení highscore
-        function loadHighscores() {
-            highScores = JSON.parse(localStorage.getItem('snakeHighscores') || '[]');
-            const list = document.getElementById('highscoreList');
-            list.innerHTML = '';
-            
-            if (highScores.length === 0) {
-                list.innerHTML = '<div style="color:#666;text-align:center;">Žádné rekordy ještě nejsou...</div>';
-                return;
-            }
-            
-            highScores.forEach((hs, i) => {
-                const row = document.createElement('div');
-                row.style.display = 'flex';
-                row.style.justifyContent = 'space-between';
-                row.style.margin = '8px 0';
-                row.innerHTML = `
-                    <span>#${i+1} ${hs.date}</span>
-                    <span style="color:#ffff00;">${String(hs.score).padStart(6, '0')}</span>
-                `;
-                list.appendChild(row);
-            });
-        }
-        
-        // Level up
-        function levelUp() {
-            if (level >= 10) return;
-            
-            level++;
-            gameSpeed = Math.max(45, gameSpeed - 9);
-            generateObstacles();
-            
-            // Efekt
-            createParticles(20, 10, '#00ffff', 60);
-            if (soundEnabled) {
-                playSound(660, 0.2);
-                setTimeout(() => playSound(880, 0.2), 80);
-                setTimeout(() => playSound(1100, 0.4), 180);
-            }
-            
-            // Krátké vítězství obrazovky
-            if (level % 3 === 0) {
-                document.getElementById('levelScore').innerHTML = `ÚROVEŇ ${level}<br>SKÓRE +${score}`;
-                document.getElementById('levelWinOverlay').classList.add('active');
-                gamePaused = true;
-            }
-        }
-        
-        function nextLevel() {
-            document.getElementById('levelWinOverlay').classList.remove('active');
-            gamePaused = false;
-        }
-        
-        // Start hry
-        function startGame() {
-            document.getElementById('startScreen').classList.remove('active');
-            resetGameVariables();
-            gameRunning = true;
-            gamePaused = false;
-            lastTick = 0;
-            requestAnimationFrame(gameLoop);
-        }
-        
-        function resetGameVariables() {
-            initSnake();
-            spawnFood();
-            powerUps = [];
-            obstacles = [];
-            particles = [];
-            score = 0;
-            level = 1;
-            combo = 1;
-            gameSpeed = 120;
-            generateObstacles();
-            
-            document.getElementById('scoreValue').textContent = '000000';
-            document.getElementById('levelValue').textContent = '01';
-            document.getElementById('comboValue').textContent = 'x1';
-        }
-        
-        // Restart
-        function restartGame() {
-            document.getElementById('gameOverOverlay').classList.remove('active');
-            document.getElementById('newHighscore').style.display = 'none';
-            resetGameVariables();
-            gameRunning = true;
-            requestAnimationFrame(gameLoop);
-        }
-        
-        function returnToMenu() {
-            document.getElementById('gameOverOverlay').classList.remove('active');
-            showScreen('startScreen');
-        }
-        
-        // Zobrazení obrazovek
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            if (screenId === 'highscoreScreen') loadHighscores();
-            document.getElementById(screenId).classList.add('active');
-        }
-        
-        // Nastavení rychlosti
-        function updateSpeed(val) {
-            document.getElementById('speedLabel').textContent = val;
-            if (gameRunning) gameSpeed = 180 - (parseInt(val) * 12);
-        }
-        
-        function setTheme(t) {
-            currentTheme = t;
-            if (gameRunning) draw();
-        }
-        
-        function toggleWrap() {
-            wrapAround = document.getElementById('wrapAround').checked;
-        }
-        
-        function toggleSound() {
-            soundEnabled = document.getElementById('soundEnabled').checked;
-        }
-        
-        // Klávesnice
-        let keyBuffer = [];
-        document.addEventListener('keydown', e => {
-            if (!gameRunning || gamePaused) return;
-            
-            switch (e.key) {
-                case 'ArrowUp':
-                case 'w':
-                case 'W':
-                    if (dy !== 1) { dx = 0; dy = -1; }
-                    break;
-                case 'ArrowDown':
-                case 's':
-                case 'S':
-                    if (dy !== -1) { dx = 0; dy = 1; }
-                    break;
-                case 'ArrowLeft':
-                case 'a':
-                case 'A':
-                    if (dx !== 1) { dx = -1; dy = 0; }
-                    break;
-                case 'ArrowRight':
-                case 'd':
-                case 'D':
-                    if (dx !== -1) { dx = 1; dy = 0; }
-                    break;
-                case ' ':
-                case 'p':
-                case 'P':
-                    gamePaused = !gamePaused;
-                    break;
-                case 'Escape':
-                    if (gameRunning) returnToMenu();
-                    break;
-            }
-        });
-        
-        // Simulace kláves pro touch
-        window.simulateKey = function(code) {
-            if (!gameRunning) return;
-            const event = new KeyboardEvent('keydown', {key: String.fromCharCode(code)});
-            document.dispatchEvent(event);
-        };
-        
-        // Inicializace všeho
-        function initializeGame() {
-            initAudio();
-            loadHighscores();
-            initSnake();
-            spawnFood();
-            generateObstacles();
-            
-            // První draw
-            draw();
-            
-            // Skrytí všech overlayů
-            document.querySelectorAll('.overlay').forEach(o => o.classList.remove('active'));
-            
-            // Easter egg: stiskni "K" pro 10000 bodů (jen pro zábavu)
-            document.addEventListener('keypress', e => {
-                if (e.key.toLowerCase() === 'k' && gameRunning) {
-                    score += 10000;
-                    createParticles(snake[0].x, snake[0].y, '#ffff00', 120);
-                }
-            });
-            
-            console.log('%cSuper Had 2026 načten! 1247 řádků čistého kódu. Užij si!', 'color:#00ff00;font-family:monospace');
-        }
-        
-        // Spuštění
-        window.onload = initializeGame;
-    </script>
+  </div>
+</div>
+
+<script>
+// ================================================
+//               TETRIS – 2025 edice
+// ================================================
+
+const canvas = document.getElementById('tetris');
+const ctx = canvas.getContext('2d');
+const nextCanvas = document.getElementById('next');
+const nextCtx = nextCanvas.getContext('2d');
+const holdCanvas = document.getElementById('hold');
+const holdCtx = holdCanvas.getContext('2d');
+
+const COLS = 10;
+const ROWS = 20;
+const BLOCK = 30;
+
+let board = Array(ROWS).fill().map(()=>Array(COLS).fill(0));
+let score = 0;
+let lines = 0;
+let level = 1;
+let dropCounter = 0;
+let dropInterval = 1000;
+let lastTime = 0;
+let gameOver = false;
+let paused = false;
+
+let currentPiece = null;
+let nextPiece = null;
+let heldPiece = null;
+let canHold = true;
+
+const colors = [
+  null,
+  '#00FFFF', // I cyan
+  '#FFFF00', // O yellow
+  '#800080', // T purple
+  '#00FF00', // S green
+  '#FF0000', // Z red
+  '#0000FF', // J blue
+  '#FFA500'  // L orange
+];
+
+// Tetromino tvary (0° rotace)
+const tetrominoes = [
+  null,
+  [[1,1,1,1]],                             // I
+  [[1,1],[1,1]],                           // O
+  [[0,1,0],[1,1,1]],                       // T
+  [[0,1,1],[1,1,0]],                       // S
+  [[1,1,0],[0,1,1]],                       // Z
+  [[1,0,0],[1,1,1]],                       // J
+  [[0,0,1],[1,1,1]]                        // L
+];
+
+function createPiece(type) {
+  const p = tetrominoes[type];
+  const matrix = Array(4).fill().map(()=>Array(4).fill(0));
+  p.forEach((row,y)=>{
+    row.forEach((val,x)=>{
+      if (val) matrix[y+1][x+1] = type;   // offset pro lepší rotaci
+    });
+  });
+  return { matrix, type, x: COLS/2-2|0, y: 0 };
+}
+
+function getRandomPiece() {
+  return Math.floor(Math.random()*7)+1;
+}
+
+function drawBlock(ctx, x, y, color, size = BLOCK) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x*size, y*size, size-1, size-1);
+  
+  // lesklý efekt
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fillRect(x*size+2, y*size+2, size*0.35, size*0.35);
+  
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x*size, y*size, size-1, size-1);
+}
+
+function drawBoard() {
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // mřížka (velmi jemná)
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 1;
+  for(let i=1;i<COLS;i++) {
+    ctx.beginPath(); ctx.moveTo(i*BLOCK,0); ctx.lineTo(i*BLOCK,canvas.height); ctx.stroke();
+  }
+  for(let i=1;i<ROWS;i++) {
+    ctx.beginPath(); ctx.moveTo(0,i*BLOCK); ctx.lineTo(canvas.width,i*BLOCK); ctx.stroke();
+  }
+
+  board.forEach((row,y)=>{
+    row.forEach((val,x)=>{
+      if (val) drawBlock(ctx, x, y, colors[val]);
+    });
+  });
+}
+
+function drawPiece(piece, offsetX = 0, offsetY = 0, ctxToUse = ctx) {
+  piece.matrix.forEach((row,y)=>{
+    row.forEach((val,x)=>{
+      if (val) {
+        drawBlock(ctxToUse, piece.x + x + offsetX, piece.y + y + offsetY, colors[val]);
+      }
+    });
+  });
+}
+
+function drawGhost() {
+  if (!currentPiece) return;
+  let ghostY = currentPiece.y;
+  while (!collides(currentPiece.matrix, currentPiece.x, ghostY+1)) {
+    ghostY++;
+  }
+  ctx.globalAlpha = 0.25;
+  drawPiece(currentPiece, 0, ghostY - currentPiece.y);
+  ctx.globalAlpha = 1;
+}
+
+function merge() {
+  currentPiece.matrix.forEach((row,y)=>{
+    row.forEach((val,x)=>{
+      if (val) {
+        board[currentPiece.y + y][currentPiece.x + x] = val;
+      }
+    });
+  });
+}
+
+function collides(matrix, px, py) {
+  for (let y = 0; y < matrix.length; y++) {
+    for (let x = 0; x < matrix[y].length; x++) {
+      if (matrix[y][x]) {
+        let nx = px + x;
+        let ny = py + y;
+        if (nx < 0 || nx >= COLS || ny >= ROWS) return true;
+        if (ny >= 0 && board[ny]?.[nx]) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function rotate(matrix) {
+  const n = matrix.length;
+  const rotated = Array(n).fill().map(()=>Array(n).fill(0));
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      rotated[x][n-1-y] = matrix[y][x];
+    }
+  }
+  return rotated;
+}
+
+function playerRotate() {
+  const oldMatrix = currentPiece.matrix;
+  let newMatrix = rotate(oldMatrix);
+
+  // wall kick – jednoduchý (zkusíme posunout o -2 až +2)
+  for (let kick of [-2,-1,0,1,2]) {
+    if (!collides(newMatrix, currentPiece.x + kick, currentPiece.y)) {
+      currentPiece.matrix = newMatrix;
+      currentPiece.x += kick;
+      return;
+    }
+  }
+  // nešlo otočit
+}
+
+function playerDrop() {
+  if (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y+1)) {
+    currentPiece.y++;
+    dropCounter = 0;
+  } else {
+    merge();
+    clearLines();
+    spawnPiece();
+  }
+}
+
+function hardDrop() {
+  while (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y+1)) {
+    currentPiece.y++;
+    score += 2; // malý bonus za hard drop
+  }
+  playerDrop(); // uloží a spawn nový
+}
+
+function clearLines() {
+  let rowsCleared = 0;
+  outer: for (let y = ROWS-1; y >= 0; y--) {
+    for (let x = 0; x < COLS; x++) {
+      if (!board[y][x]) continue outer;
+    }
+    // řádek je plný → smažeme
+    board.splice(y,1);
+    board.unshift(Array(COLS).fill(0));
+    rowsCleared++;
+    y++; // znovu kontrolujeme stejný řádek (posunuli jsme dolů)
+  }
+
+  if (rowsCleared > 0) {
+    const points = [0, 100, 300, 500, 800][rowsCleared] * level;
+    score += points;
+    lines += rowsCleared;
+
+    if (lines >= level * 10) {
+      level++;
+      dropInterval = Math.max(100, 1000 - (level-1)*80);
+    }
+
+    // krátký bliknutí
+    document.getElementById('score').style.color = '#ff0';
+    setTimeout(()=>document.getElementById('score').style.color='#0ff', 200);
+  }
+}
+
+function hold() {
+  if (!canHold) return;
+  canHold = false;
+
+  if (!heldPiece) {
+    // první hold → jen uložíme aktuální
+    heldPiece = { ...currentPiece, x:0, y:0 };
+    spawnPiece();
+  } else {
+    // vyměníme
+    const temp = { ...currentPiece, x:0, y:0 };
+    currentPiece = { ...heldPiece, x: COLS/2-2|0, y:0 };
+    heldPiece = temp;
+  }
+  drawHold();
+}
+
+function spawnPiece() {
+  if (!nextPiece) {
+    nextPiece = createPiece(getRandomPiece());
+  }
+  currentPiece = nextPiece;
+  nextPiece = createPiece(getRandomPiece());
+
+  canHold = true;
+
+  drawNext();
+  drawHold();
+
+  if (collides(currentPiece.matrix, currentPiece.x, currentPiece.y)) {
+    gameOver = true;
+    document.getElementById('message').style.opacity = 1;
+  }
+}
+
+function drawNext() {
+  nextCtx.fillStyle = '#000';
+  nextCtx.fillRect(0,0,nextCanvas.width,nextCanvas.height);
+
+  if (nextPiece) {
+    const offsetX = nextPiece.type === 1 ? 0 : 1; // I je delší
+    drawPiece(nextPiece, offsetX, 1, nextCtx);
+  }
+}
+
+function drawHold() {
+  holdCtx.fillStyle = '#000';
+  holdCtx.fillRect(0,0,holdCanvas.width,holdCanvas.height);
+
+  if (heldPiece) {
+    const offsetX = heldPiece.type === 1 ? 0 : 1;
+    drawPiece(heldPiece, offsetX, 1, holdCtx);
+  }
+}
+
+function update(time = 0) {
+  if (gameOver || paused) return requestAnimationFrame(update);
+
+  const delta = time - lastTime;
+  lastTime = time;
+  dropCounter += delta;
+
+  if (dropCounter > dropInterval) {
+    playerDrop();
+    dropCounter = 0;
+  }
+
+  drawBoard();
+  if (currentPiece) {
+    drawGhost();
+    drawPiece(currentPiece);
+  }
+
+  document.getElementById('score').textContent = score;
+  document.getElementById('level').textContent = level;
+  document.getElementById('lines').textContent = lines;
+
+  requestAnimationFrame(update);
+}
+
+// Ovládání
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+
+  if (e.key === 'p' || e.key === 'P') {
+    paused = !paused;
+    document.getElementById('pause-overlay').style.opacity = paused ? 1 : 0;
+    if (!paused) requestAnimationFrame(update);
+    return;
+  }
+
+  if (paused) return;
+
+  switch(e.key) {
+    case 'ArrowLeft':  
+      if (!collides(currentPiece.matrix, currentPiece.x-1, currentPiece.y)) currentPiece.x--; 
+      break;
+    case 'ArrowRight': 
+      if (!collides(currentPiece.matrix, currentPiece.x+1, currentPiece.y)) currentPiece.x++; 
+      break;
+    case 'ArrowDown':  
+      playerDrop(); 
+      break;
+    case 'ArrowUp':    
+      playerRotate(); 
+      break;
+    case ' ':          
+      e.preventDefault(); 
+      hardDrop(); 
+      break;
+    case 'c':
+    case 'C':          
+      hold(); 
+      break;
+  }
+});
+
+// Start hry
+spawnPiece();
+update();
+</script>
 </body>
 </html>
