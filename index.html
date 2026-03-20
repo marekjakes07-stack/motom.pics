@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>✨ GALAKTICKÉ PÁROVÁNÍ ✨ - paměťová hra</title>
+    <title>💣 MINESWEEPER • VESMÍRNÝ SAPIÉR 💣</title>
     <style>
         * {
             user-select: none;
@@ -14,640 +14,646 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: radial-gradient(ellipse at 30% 40%, #0a0f2a, #03050c);
-            font-family: 'Segoe UI', 'Poppins', 'Orbitron', monospace;
+            background: radial-gradient(ellipse at 30% 20%, #0b1120, #03050b);
+            font-family: 'Segoe UI', 'Orbitron', 'Courier New', monospace;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
 
-        .game-wrapper {
-            background: rgba(10, 20, 40, 0.55);
-            backdrop-filter: blur(8px);
-            border-radius: 64px;
-            padding: 24px 28px 32px 28px;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-        }
-
         .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 18px;
+            background: rgba(5, 12, 25, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 56px;
+            padding: 22px 28px 32px 28px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            transition: all 0.2s;
         }
 
-        .stats-panel {
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
             flex-wrap: wrap;
-            background: #03061ad9;
-            padding: 12px 28px;
+            margin-bottom: 24px;
+            background: #01051ce0;
+            padding: 12px 24px;
             border-radius: 80px;
-            backdrop-filter: blur(4px);
-            width: 100%;
-            border: 1px solid cyan;
-            box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+            border: 1px solid #2affb6;
+            box-shadow: 0 0 8px cyan;
         }
 
-        .stat-card {
+        .stats {
+            display: flex;
+            gap: 28px;
+            background: #000000aa;
+            padding: 6px 20px;
+            border-radius: 50px;
+        }
+
+        .stat-item {
             display: flex;
             align-items: baseline;
-            gap: 10px;
+            gap: 8px;
             font-weight: bold;
-            background: #00000066;
-            padding: 6px 20px;
-            border-radius: 40px;
-            font-family: 'Orbitron', monospace;
+            font-family: monospace;
+            font-size: 1.4rem;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            color: #9bd7ff;
+            font-size: 0.8rem;
+            color: #8dd0ff;
             letter-spacing: 1px;
         }
 
         .stat-value {
+            color: #f5b642;
+            text-shadow: 0 0 5px #ffaa33;
             font-size: 1.9rem;
             font-weight: 800;
-            color: #ffd966;
-            text-shadow: 0 0 6px #ffaa33;
-            line-height: 1;
+            min-width: 55px;
+            text-align: center;
         }
 
-        .timer-critical {
-            color: #ff6666;
-            text-shadow: 0 0 8px red;
-            animation: pulse 0.8s infinite;
+        .difficulty-selector {
+            display: flex;
+            gap: 12px;
+            background: #0b1428;
+            padding: 6px 16px;
+            border-radius: 50px;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.8; text-shadow: 0 0 2px red; }
-            100% { opacity: 1; text-shadow: 0 0 12px #ff4444; }
+        .diff-btn {
+            background: #1e2a3a;
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            padding: 6px 16px;
+            border-radius: 40px;
+            color: #bbd9ff;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .diff-btn.active {
+            background: linear-gradient(135deg, #ffaa33, #ff7e05);
+            color: #1a0f00;
+            box-shadow: 0 0 12px orange;
+            text-shadow: none;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #3a86ff, #8338ec);
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            padding: 6px 28px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: 0.2s;
+            box-shadow: 0 3px 0 #1f2a5a;
+        }
+
+        .reset-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #1f2a5a;
         }
 
         .board {
             display: grid;
-            grid-template-columns: repeat(4, minmax(85px, 110px));
-            gap: 16px;
             justify-content: center;
-            margin: 15px 0;
-            padding: 8px;
+            gap: 3px;
+            background: #071126;
+            padding: 12px;
+            border-radius: 32px;
+            box-shadow: inset 0 0 10px #00000055, 0 8px 20px black;
+            margin: 10px 0;
         }
 
-        .card {
+        .cell {
             aspect-ratio: 1 / 1;
-            background: linear-gradient(145deg, #1e2a4a, #0e1a2e);
-            border-radius: 28px;
-            cursor: pointer;
+            background: #1f2b3c;
+            background-image: radial-gradient(circle at 35% 30%, #2f3e55, #121e2c);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
-            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            box-shadow: 0 12px 18px -6px black, inset 0 1px 0 rgba(255,255,255,0.2);
-            border: 1px solid rgba(0, 255, 255, 0.4);
-            transform: scale(1);
+            font-weight: bold;
+            font-size: 1.3rem;
+            font-family: monospace;
+            cursor: pointer;
+            transition: 0.05s linear;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 4px black;
+            color: #ffd966;
         }
 
-        .card.flipped, .card.matched {
-            background: linear-gradient(145deg, #f9e0a0, #ffc978);
-            box-shadow: 0 0 18px rgba(255, 215, 0, 0.7);
-            border-color: #ffd966;
-            transform: scale(0.98);
+        .cell.revealed {
+            background: #cbd5e6;
+            background: linear-gradient(145deg, #cbdae9, #b0c0d4);
+            box-shadow: inset 0 0 0 1px #ffffdd, 0 1px 2px rgba(0,0,0,0.2);
+            color: #1e293b;
         }
 
-        .card.matched {
-            background: linear-gradient(145deg, #6b8c5c, #4c6a3b);
-            box-shadow: 0 0 12px #8bc34a;
-            filter: brightness(0.95);
-            cursor: default;
-            opacity: 0.7;
+        .cell.flagged::before {
+            content: "🚩";
+            font-size: 1.3rem;
+            display: block;
+            line-height: 1;
         }
 
-        .card:active:not(.matched) {
+        .cell.revealed.flagged::before {
+            content: "";
+        }
+
+        .cell:active {
             transform: scale(0.96);
         }
 
-        .card-content {
-            transition: all 0.1s;
-        }
-
-        .btn-reset {
-            background: linear-gradient(95deg, #ff416c, #ff4b2b);
-            border: none;
-            font-family: 'Orbitron', monospace;
-            font-weight: bold;
-            font-size: 1.2rem;
-            padding: 12px 32px;
-            border-radius: 60px;
-            color: white;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 6px 0 #9b2a1a;
-            margin-top: 10px;
-        }
-
-        .btn-reset:active {
-            transform: translateY(3px);
-            box-shadow: 0 3px 0 #9b2a1a;
-        }
-
         .message-area {
-            font-size: 1rem;
-            background: #00000099;
-            padding: 8px 18px;
-            border-radius: 50px;
-            color: #c0e0ff;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
+            margin-top: 18px;
             text-align: center;
-        }
-
-        .combo-indicator {
-            background: #ffaa33cc;
-            color: #2a1e00;
-            padding: 4px 16px;
-            border-radius: 30px;
             font-weight: bold;
-            font-size: 1rem;
-            animation: bounce 0.4s ease;
+            background: #000000aa;
+            padding: 10px 18px;
+            border-radius: 60px;
+            color: #bbf0ff;
+            backdrop-filter: blur(4px);
+            font-size: 0.9rem;
         }
 
-        @keyframes bounce {
-            0% { transform: scale(0.8); opacity: 0; }
-            80% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        h1 {
-            margin: 0 0 5px 0;
-            font-size: 1.7rem;
-            text-align: center;
-            background: linear-gradient(135deg, #ffe6b0, #ffb347);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 2px;
-        }
-
-        @media (max-width: 550px) {
-            .board {
-                grid-template-columns: repeat(4, minmax(70px, 85px));
-                gap: 12px;
-            }
-            .card {
-                font-size: 2.4rem;
+        @media (max-width: 650px) {
+            .game-container {
+                padding: 16px;
             }
             .stat-value {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
+                min-width: 40px;
             }
-            .stats-panel {
-                gap: 12px;
+            .cell {
+                font-size: 0.9rem;
+            }
+            .diff-btn {
+                padding: 3px 10px;
+                font-size: 0.7rem;
             }
         }
     </style>
 </head>
 <body>
-<div class="game-wrapper">
-    <div class="game-container">
-        <h1>🌀 GALAKTICKÉ PÁROVÁNÍ 🪐</h1>
-        <div class="stats-panel">
-            <div class="stat-card"><span class="stat-label">⭐ SKÓRE</span><span class="stat-value" id="scoreDisplay">0</span></div>
-            <div class="stat-card"><span class="stat-label">🔥 KOMBO</span><span class="stat-value" id="comboDisplay">0</span></div>
-            <div class="stat-card"><span class="stat-label">⏱️ ČAS</span><span class="stat-value" id="timerDisplay">00:00</span></div>
-            <div class="stat-card"><span class="stat-label">🎯 POŠKOZENÍ</span><span class="stat-value" id="pairsMatched">0</span><span class="stat-label">/8</span></div>
+<div class="game-container">
+    <div class="header">
+        <div class="stats">
+            <div class="stat-item"><span class="stat-label">💣 MINY</span><span class="stat-value" id="mineCounter">0</span></div>
+            <div class="stat-item"><span class="stat-label">🏆 SKÓRE</span><span class="stat-value" id="scoreCounter">0</span></div>
         </div>
-        <div class="board" id="gameBoard"></div>
-        <button class="btn-reset" id="resetGameBtn">🔄 NOVÁ HRA / RESTART</button>
-        <div class="message-area" id="statusMsg">✨ Najdi dvojice! ✨</div>
+        <div class="difficulty-selector">
+            <button class="diff-btn" data-diff="beginner">🌱 ZAČÁTEČNÍK</button>
+            <button class="diff-btn active" data-diff="intermediate">⭐ STŘEDNÍ</button>
+            <button class="diff-btn" data-diff="expert">💀 EXPERT</button>
+        </div>
+        <button class="reset-btn" id="resetGameBtn">💣 NOVÁ HRA</button>
     </div>
+    <div id="boardContainer" class="board"></div>
+    <div class="message-area" id="gameMessage">✨ Klikni levým = odkryj | Pravým / dlouhý dotyk = vlajka ✨</div>
 </div>
 
 <script>
     (function(){
-        // ---------- KONFIGURACE HRY ----------
-        const BOARD_SIZE = 4;      // 4x4 = 16 karet = 8 párů
-        const TOTAL_PAIRS = 8;
+        // ---------- NASTAVENÍ OBTÍŽNOSTI ----------
+        let DIFFICULTY = {
+            beginner: { rows: 8, cols: 8, mines: 10, name: "ZAČÁTEČNÍK" },
+            intermediate: { rows: 12, cols: 12, mines: 30, name: "STŘEDNÍ" },
+            expert: { rows: 16, cols: 16, mines: 55, name: "EXPERT" }
+        };
         
-        // Seznam emotikon / vesmírných symbolů (8 párů)
-        const ICONS = [
-            "🚀", "🛸", "🌕", "🌌", "⭐", "☄️", "🪐", "👽",
-            "🚀", "🛸", "🌕", "🌌", "⭐", "☄️", "🪐", "👽"
-        ];
+        let currentDiff = "intermediate";
+        let rows = DIFFICULTY.intermediate.rows;
+        let cols = DIFFICULTY.intermediate.cols;
+        let totalMines = DIFFICULTY.intermediate.mines;
         
-        // Herní proměnné
-        let cards = [];            // { id, icon, isFlipped, isMatched, element, index }
-        let cardElements = [];
-        let lockBoard = false;
-        let firstCard = null;
-        let secondCard = null;
-        let currentScore = 0;
-        let currentCombo = 0;
-        let matchedPairs = 0;
-        let timeLeft = 75;         // 75 sekund na hru
-        let timerInterval = null;
+        // Herní stav
+        let board = [];         // 2D pole { isMine, revealed, flag, neighborMines }
         let gameActive = true;
-        
-        // Efekty
-        let floatingMsgTimeout = null;
+        let firstMove = true;    // aby se nikdy nezačalo s minou na prvním kliku
+        let flaggedCount = 0;
+        let revealedCount = 0;
+        let score = 0;
+        let currentGameScore = 0;
         
         // DOM elementy
-        const boardContainer = document.getElementById('gameBoard');
-        const scoreDisplay = document.getElementById('scoreDisplay');
-        const comboDisplay = document.getElementById('comboDisplay');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const pairsMatchedSpan = document.getElementById('pairsMatched');
-        const statusMsgDiv = document.getElementById('statusMsg');
+        const boardContainer = document.getElementById('boardContainer');
+        const mineCounterSpan = document.getElementById('mineCounter');
+        const scoreCounterSpan = document.getElementById('scoreCounter');
+        const gameMessageDiv = document.getElementById('gameMessage');
         
-        // ---------- POMOCNÉ FUNKCE ----------
-        function formatTime(seconds) {
-            let mins = Math.floor(seconds / 60);
-            let secs = seconds % 60;
-            return `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-        }
-        
+        // pomocné funkce
         function updateUI() {
-            scoreDisplay.innerText = currentScore;
-            comboDisplay.innerText = currentCombo;
-            pairsMatchedSpan.innerText = matchedPairs;
-            timerDisplay.innerText = formatTime(timeLeft);
-            if(timeLeft <= 10) {
-                timerDisplay.classList.add('timer-critical');
-            } else {
-                timerDisplay.classList.remove('timer-critical');
-            }
+            let remainingMines = totalMines - flaggedCount;
+            mineCounterSpan.innerText = Math.max(0, remainingMines);
+            scoreCounterSpan.innerText = currentGameScore;
         }
         
-        // Zobraz zprávu s možným combo bonusem
-        function setStatusMessage(msg, isError = false) {
-            statusMsgDiv.innerHTML = msg;
-            statusMsgDiv.style.color = isError ? "#ffaa99" : "#c0e0ff";
-            if(floatingMsgTimeout) clearTimeout(floatingMsgTimeout);
-            floatingMsgTimeout = setTimeout(() => {
-                if(gameActive) statusMsgDiv.innerHTML = "✨ Hledej dvojice a buduj KOMBO! ✨";
-                else statusMsgDiv.innerHTML = "💀 HRA SKONČILA 💀 Klikni na NOVÁ HRA";
-            }, 2000);
-        }
-        
-        // Aktualizace skóre a comba
-        function addScore(basePoints) {
-            if(!gameActive) return;
-            let comboBonus = Math.floor(currentCombo * 12);
-            let totalGain = basePoints + comboBonus;
-            currentScore += totalGain;
-            // combo se zvyšuje při správném páru
-            currentCombo++;
-            updateUI();
-            // vizuální efekt combo
-            const comboEl = document.getElementById('comboDisplay');
-            comboEl.style.transform = 'scale(1.2)';
-            setTimeout(() => { if(comboEl) comboEl.style.transform = ''; }, 200);
-            setStatusMessage(`🎉 +${totalGain} bodů! (základ ${basePoints} + combo x${currentCombo-1}) 🎉`);
-            return totalGain;
-        }
-        
-        function resetCombo() {
-            if(currentCombo > 2) {
-                setStatusMessage(`💔 KOMBO PŘERUŠENO! Ztratil jsi ${currentCombo}x násobič...`, true);
-            }
-            currentCombo = 0;
-            updateUI();
-        }
-        
-        function gameOver(win = false) {
-            if(!gameActive) return;
-            gameActive = false;
-            if(timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-            lockBoard = true;  // zamknout další klikání
-            if(win && matchedPairs === TOTAL_PAIRS) {
-                setStatusMessage(`🏆 VÍTĚZSTVÍ! Skóre: ${currentScore} 🏆 Gratulace! 🎉`);
-                statusMsgDiv.style.color = "#ffd966";
-                // ohňostrojová zpráva
-                confettiEffect();
-            } else {
-                setStatusMessage(`⏰ ČAS VYPRŠEL! Konečné skóre: ${currentScore} ⏰`, true);
-            }
-        }
-        
-        // jednoduchý confetti efekt (canvas)
-        function confettiEffect() {
-            const canvasConf = document.createElement('canvas');
-            canvasConf.style.position = 'fixed';
-            canvasConf.style.top = '0';
-            canvasConf.style.left = '0';
-            canvasConf.style.width = '100%';
-            canvasConf.style.height = '100%';
-            canvasConf.style.pointerEvents = 'none';
-            canvasConf.style.zIndex = '9999';
-            document.body.appendChild(canvasConf);
-            const myConfetti = new ConfettiGenerator({ target: canvasConf, max: 150, size: 1.2, animate: true, props: ['circle', 'square'], colors: [[255,215,0],[100,200,255],[255,100,100]] });
-            myConfetti.render();
+        function setMessage(msg, isError = false) {
+            gameMessageDiv.innerHTML = msg;
+            gameMessageDiv.style.color = isError ? "#ffaa88" : "#bbf0ff";
             setTimeout(() => {
-                document.body.removeChild(canvasConf);
+                if(gameActive && !isError) gameMessageDiv.innerHTML = "💣 Levý klik = odkrytí | Pravý klik = vlajka / značka 💣";
+                else if(!gameActive && !isError) {}
+            }, 2500);
+        }
+        
+        // výpočet sousedních min
+        function calculateNeighbors(boardData, r, c, rowsCnt, colsCnt) {
+            let count = 0;
+            for(let dr = -1; dr <= 1; dr++) {
+                for(let dc = -1; dc <= 1; dc++) {
+                    if(dr === 0 && dc === 0) continue;
+                    let nr = r + dr, nc = c + dc;
+                    if(nr >= 0 && nr < rowsCnt && nc >= 0 && nc < colsCnt && boardData[nr][nc].isMine) count++;
+                }
+            }
+            return count;
+        }
+        
+        // generování hracího pole s tím, že první klik (safeRow, safeCol) NEBUDE mina
+        function generateBoard(safeRow, safeCol) {
+            // vytvoř prázdné pole bez min
+            let newBoard = Array(rows).fill().map(() => Array(cols).fill().map(() => ({
+                isMine: false,
+                revealed: false,
+                flag: false,
+                neighborMines: 0
+            })));
+            
+            // rozmístit miny - vyhnout se safe pozici
+            let minesPlaced = 0;
+            while(minesPlaced < totalMines) {
+                let randRow = Math.floor(Math.random() * rows);
+                let randCol = Math.floor(Math.random() * cols);
+                if((randRow === safeRow && randCol === safeCol)) continue;
+                if(!newBoard[randRow][randCol].isMine) {
+                    newBoard[randRow][randCol].isMine = true;
+                    minesPlaced++;
+                }
+            }
+            
+            // spočítat sousední miny
+            for(let i = 0; i < rows; i++) {
+                for(let j = 0; j < cols; j++) {
+                    if(!newBoard[i][j].isMine) {
+                        newBoard[i][j].neighborMines = calculateNeighbors(newBoard, i, j, rows, cols);
+                    }
+                }
+            }
+            return newBoard;
+        }
+        
+        // rekurzivní odkrývání prázdných polí (flood fill)
+        function revealCell(row, col) {
+            if(!gameActive) return;
+            const cell = board[row][col];
+            if(cell.revealed) return;
+            if(cell.flag) return;
+            
+            cell.revealed = true;
+            revealedCount++;
+            
+            // přidání bodů za odkrytí (bonus za bezpečné pole)
+            if(!cell.isMine) {
+                let points = 5 + (cell.neighborMines * 2);
+                currentGameScore += points;
+                updateUI();
+            }
+            
+            if(cell.isMine) {
+                // hráč klikl na minu -> konec hry
+                gameActive = false;
+                setMessage(`💥 BUM! Šlápl jsi na minu! Konečné skóre: ${currentGameScore} 💥`, true);
+                revealAllMines();
+                return;
+            }
+            
+            // pokud je sousedních min 0, odkrýváme okolí
+            if(cell.neighborMines === 0) {
+                for(let dr = -1; dr <= 1; dr++) {
+                    for(let dc = -1; dc <= 1; dc++) {
+                        if(dr === 0 && dc === 0) continue;
+                        let nr = row + dr, nc = col + dc;
+                        if(nr >= 0 && nr < rows && nc >= 0 && nc < cols && !board[nr][nc].revealed && !board[nr][nc].flag && !board[nr][nc].isMine) {
+                            revealCell(nr, nc);
+                        }
+                    }
+                }
+            }
+            
+            // kontrola výhry
+            checkWin();
+        }
+        
+        function checkWin() {
+            let safeCellsCount = rows * cols - totalMines;
+            if(revealedCount === safeCellsCount && gameActive) {
+                gameActive = false;
+                let winBonus = Math.floor(safeCellsCount * 3.5);
+                currentGameScore += winBonus;
+                updateUI();
+                setMessage(`🏆 VÍTĚZSTVÍ! 🏆 Objevil jsi všechna bezpečná pole! Skóre: ${currentGameScore} + bonus ${winBonus} 🏆`);
+                // Vizuální confetti efekt
+                triggerConfetti();
+            }
+        }
+        
+        function revealAllMines() {
+            for(let i=0; i<rows; i++) {
+                for(let j=0; j<cols; j++) {
+                    if(board[i][j].isMine) {
+                        board[i][j].revealed = true;
+                    }
+                }
+            }
+            renderBoard();
+        }
+        
+        // označení vlajky
+        function toggleFlag(row, col) {
+            if(!gameActive) return;
+            const cell = board[row][col];
+            if(cell.revealed) return;
+            
+            if(!cell.flag && flaggedCount >= totalMines) {
+                setMessage("⚠️ Už nemůžeš umístit více vlajek! Odstraň nějakou nejdřív.", true);
+                return;
+            }
+            
+            cell.flag = !cell.flag;
+            if(cell.flag) flaggedCount++;
+            else flaggedCount--;
+            updateUI();
+            renderBoard();
+            
+            // rychlá kontrola výhry (všechny miny označeny + vše odkryto)
+            let allMinesFlagged = true;
+            let allSafeRevealed = true;
+            for(let i=0;i<rows;i++){
+                for(let j=0;j<cols;j++){
+                    if(board[i][j].isMine && !board[i][j].flag) allMinesFlagged = false;
+                    if(!board[i][j].isMine && !board[i][j].revealed) allSafeRevealed = false;
+                }
+            }
+            if(allMinesFlagged && allSafeRevealed && gameActive) {
+                gameActive = false;
+                let bonus = 500;
+                currentGameScore += bonus;
+                updateUI();
+                setMessage(`🎉 IMPRESSIVNÍ! Všechny miny označeny + pole odkryta! +${bonus} bodů! 🎉`);
+                triggerConfetti();
+                renderBoard();
+            }
+        }
+        
+        // obsluha kliku
+        function handleCellClick(e, row, col, isRightClick = false) {
+            e.preventDefault();
+            if(!gameActive) return;
+            
+            // první tah: dynamické vygenerování pole bez miny na této pozici
+            if(firstMove && !isRightClick) {
+                firstMove = false;
+                board = generateBoard(row, col);
+                renderBoard();
+                // po vygenerování provedeme samotné odhalení
+                revealCell(row, col);
+                renderBoard();
+                return;
+            }
+            
+            if(isRightClick) {
+                toggleFlag(row, col);
+                return;
+            }
+            
+            // levý klik
+            const cell = board[row][col];
+            if(cell.flag) {
+                setMessage("❌ Odstraň nejdříve vlajku (pravým klikem)", true);
+                return;
+            }
+            if(cell.revealed) return;
+            
+            revealCell(row, col);
+            renderBoard();
+        }
+        
+        // ---------- RENDER GRIDU ----------
+        function renderBoard() {
+            boardContainer.style.gridTemplateColumns = `repeat(${cols}, minmax(32px, 58px))`;
+            boardContainer.innerHTML = '';
+            for(let i=0; i<rows; i++) {
+                for(let j=0; j<cols; j++) {
+                    const cell = board[i][j];
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'cell';
+                    if(cell.revealed) cellDiv.classList.add('revealed');
+                    if(cell.flag && !cell.revealed) cellDiv.classList.add('flagged');
+                    
+                    let content = '';
+                    if(cell.revealed) {
+                        if(cell.isMine) {
+                            content = '💣';
+                        } else {
+                            let neigh = cell.neighborMines;
+                            if(neigh === 0) content = '';
+                            else content = neigh;
+                        }
+                    } else {
+                        if(cell.flag) content = ''; // vlajka je přes pseudo-element
+                        else content = '';
+                    }
+                    cellDiv.innerText = content;
+                    
+                    // Barevné číslování pro lepší přehled
+                    if(cell.revealed && !cell.isMine && cell.neighborMines > 0) {
+                        const colors = ['', '#1976D2', '#2E7D32', '#C62828', '#6A1B9A', '#FF8C00', '#0097A7', '#000000', '#5D4037'];
+                        cellDiv.style.color = colors[cell.neighborMines] || '#dd8800';
+                        cellDiv.style.fontWeight = 'bold';
+                    } else if(cell.revealed && cell.isMine) {
+                        cellDiv.style.color = '#d32f2f';
+                        cellDiv.style.textShadow = '0 0 4px red';
+                    } else {
+                        cellDiv.style.color = '#ffd966';
+                    }
+                    
+                    // eventy pro myš (pro oba typy)
+                    cellDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        handleCellClick(e, i, j, false);
+                    });
+                    cellDiv.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        handleCellClick(e, i, j, true);
+                    });
+                    // podpora touch (dlouhý stisk jako pravé tlačítko)
+                    let touchTimer = null;
+                    cellDiv.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        touchTimer = setTimeout(() => {
+                            handleCellClick(e, i, j, true);
+                            touchTimer = null;
+                        }, 500);
+                    });
+                    cellDiv.addEventListener('touchend', (e) => {
+                        if(touchTimer) {
+                            clearTimeout(touchTimer);
+                            handleCellClick(e, i, j, false);
+                            touchTimer = null;
+                        }
+                    });
+                    cellDiv.addEventListener('touchmove', () => {
+                        if(touchTimer) clearTimeout(touchTimer);
+                    });
+                    
+                    boardContainer.appendChild(cellDiv);
+                }
+            }
+        }
+        
+        // confetti efekt pro výhru
+        function triggerConfetti() {
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.pointerEvents = 'none';
+            canvas.style.zIndex = '10000';
+            document.body.appendChild(canvas);
+            const confettiSettings = { target: canvas, max: 180, size: 1.3, animate: true, colors: [[255,200,50],[50,200,255],[255,80,120],[180,130,255]] };
+            let confetti = new ConfettiGenerator(confettiSettings);
+            confetti.render();
+            setTimeout(() => {
+                document.body.removeChild(canvas);
             }, 2800);
         }
         
-        // Zkontrolovat výhru
-        function checkWin() {
-            if(matchedPairs === TOTAL_PAIRS && gameActive) {
-                gameOver(true);
-            }
-        }
-        
-        // Odkrytí karty (hlavní logika)
-        function flipCard(cardObj, cardElement) {
-            if(!gameActive) return;
-            if(lockBoard) return;
-            if(cardObj.isMatched) return;
-            if(cardObj.isFlipped) return;
-            if(secondCard !== null) return; // čekáme na reset
-        
-            // otočení karty
-            cardObj.isFlipped = true;
-            updateCardDisplay(cardObj, cardElement);
+        // Reset celé hry podle obtížnosti
+        function resetGame() {
+            gameActive = true;
+            firstMove = true;
+            flaggedCount = 0;
+            revealedCount = 0;
+            currentGameScore = 0;
+            // nastav parametry dle currentDiff
+            let cfg = DIFFICULTY[currentDiff];
+            rows = cfg.rows;
+            cols = cfg.cols;
+            totalMines = cfg.mines;
             
-            if(firstCard === null) {
-                // první karta
-                firstCard = { obj: cardObj, el: cardElement };
-            } else {
-                // druhá karta – zkontrolujeme pár
-                secondCard = { obj: cardObj, el: cardElement };
-                lockBoard = true;
-                checkMatch();
-            }
-        }
-        
-        function checkMatch() {
-            const card1 = firstCard.obj;
-            const card2 = secondCard.obj;
-            const isMatch = (card1.icon === card2.icon);
+            // prázdná tabulka (placeholder) - vygenerujeme až při prvním kliku
+            board = Array(rows).fill().map(() => Array(cols).fill().map(() => ({
+                isMine: false,
+                revealed: false,
+                flag: false,
+                neighborMines: 0
+            })));
             
-            if(isMatch) {
-                // ÚSPĚCH
-                card1.isMatched = true;
-                card2.isMatched = true;
-                card1.isFlipped = true;
-                card2.isFlipped = true;
-                updateCardDisplay(card1, firstCard.el);
-                updateCardDisplay(card2, secondCard.el);
-                matchedPairs++;
-                updateUI();
-                
-                // Přidání skóre: základ 100 + časový bonus (čím dřív, tím víc)
-                let timeBonus = Math.floor(Math.max(5, timeLeft) * 1.5);
-                let basePoints = 100 + timeBonus;
-                addScore(basePoints);
-                
-                // Vizuální radost
-                createSparkle(firstCard.el);
-                createSparkle(secondCard.el);
-                
-                // Kontrola výhry
-                checkWin();
-                
-                // resetování výběru a odemčení
-                resetBoardState();
-            } else {
-                // CHYBA – reset comba a po krátké době skrytí
-                resetCombo();
-                setStatusMessage(`❌ ŠPATNÁ DVOJICE! (${card1.icon} ≠ ${card2.icon})`, true);
-                // zobrazení karet na 0.8s a pak skrytí
-                setTimeout(() => {
-                    if(!gameActive) return;
-                    if(card1 && !card1.isMatched) {
-                        card1.isFlipped = false;
-                        updateCardDisplay(card1, firstCard.el);
-                    }
-                    if(card2 && !card2.isMatched) {
-                        card2.isFlipped = false;
-                        updateCardDisplay(card2, secondCard.el);
-                    }
-                    resetBoardState();
-                }, 800);
-            }
+            updateUI();
+            renderBoard();
+            setMessage(`🎯 ${cfg.name} • ${totalMines} min • Klikni na libovolné pole pro start 🎯`);
         }
         
-        function resetBoardState() {
-            firstCard = null;
-            secondCard = null;
-            lockBoard = false;
-        }
-        
-        // Vizuální aktualizace karty
-        function updateCardDisplay(card, element) {
-            const contentSpan = element.querySelector('.card-content');
-            if(card.isMatched) {
-                element.classList.add('matched');
-                element.classList.add('flipped');
-                contentSpan.innerHTML = card.icon;
-                contentSpan.style.opacity = '0.8';
-                element.style.cursor = 'default';
-            } else if(card.isFlipped) {
-                element.classList.add('flipped');
-                element.classList.remove('matched');
-                contentSpan.innerHTML = card.icon;
-                contentSpan.style.opacity = '1';
-            } else {
-                element.classList.remove('flipped', 'matched');
-                contentSpan.innerHTML = "❓";
-                contentSpan.style.opacity = '1';
-                element.style.cursor = 'pointer';
-            }
-        }
-        
-        function createSparkle(element) {
-            element.style.transform = 'scale(0.98)';
-            setTimeout(() => { if(element) element.style.transform = ''; }, 150);
-            // jiskření
-            const rect = element.getBoundingClientRect();
-            for(let i=0;i<6;i++) {
-                let spark = document.createElement('div');
-                spark.innerHTML = '✨';
-                spark.style.position = 'fixed';
-                spark.style.left = rect.left + rect.width/2 + (Math.random() - 0.5)*40 + 'px';
-                spark.style.top = rect.top + rect.height/2 + (Math.random() - 0.5)*40 + 'px';
-                spark.style.fontSize = '20px';
-                spark.style.pointerEvents = 'none';
-                spark.style.zIndex = '9999';
-                spark.style.opacity = '1';
-                spark.style.transition = 'all 0.5s ease-out';
-                document.body.appendChild(spark);
-                setTimeout(() => {
-                    spark.style.opacity = '0';
-                    spark.style.transform = 'translateY(-30px)';
-                    setTimeout(() => spark.remove(), 500);
-                }, 20);
-            }
-        }
-        
-        // ---------- ČASOVAČ ----------
-        function startTimer() {
-            if(timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if(!gameActive) return;
-                if(timeLeft <= 1) {
-                    // konec hry - čas vypršel
-                    if(gameActive) {
-                        clearInterval(timerInterval);
-                        timerInterval = null;
-                        gameOver(false);
-                    }
-                } else {
-                    timeLeft--;
-                    updateUI();
-                    if(timeLeft === 10) {
-                        setStatusMessage("⚠️ POSLEDNÍCH 10 SEKUND! ⚠️", true);
-                    }
-                }
-            }, 1000);
-        }
-        
-        // ---------- GENEROVÁNÍ HRACÍHO POLE ----------
-        function shuffleArray(arr) {
-            for(let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-        
-        function initGameBoard() {
-            // Zamíchat ikony
-            const shuffledIcons = shuffleArray([...ICONS]);
-            cards = [];
-            for(let i=0; i<shuffledIcons.length; i++) {
-                cards.push({
-                    id: i,
-                    icon: shuffledIcons[i],
-                    isFlipped: false,
-                    isMatched: false,
-                });
-            }
-            // Vykreslení DOM
-            boardContainer.innerHTML = '';
-            cardElements = [];
-            cards.forEach((card, idx) => {
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'card';
-                const contentSpan = document.createElement('div');
-                contentSpan.className = 'card-content';
-                contentSpan.innerHTML = "❓";
-                cardDiv.appendChild(contentSpan);
-                cardDiv.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    flipCard(card, cardDiv);
-                });
-                boardContainer.appendChild(cardDiv);
-                cardElements.push(cardDiv);
-                updateCardDisplay(card, cardDiv);
+        // Změna obtížnosti
+        function setDifficulty(diffKey) {
+            currentDiff = diffKey;
+            let cfg = DIFFICULTY[diffKey];
+            rows = cfg.rows;
+            cols = cfg.cols;
+            totalMines = cfg.mines;
+            resetGame();
+            
+            // vizuální aktivní tlačítka
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                if(btn.getAttribute('data-diff') === diffKey) btn.classList.add('active');
+                else btn.classList.remove('active');
             });
         }
         
-        // ---------- RESET HRY (plný restart) ----------
-        function fullReset() {
-            // zastavit časovač
-            if(timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-            // reset proměnných
-            gameActive = true;
-            lockBoard = false;
-            firstCard = null;
-            secondCard = null;
-            currentScore = 0;
-            currentCombo = 0;
-            matchedPairs = 0;
-            timeLeft = 75;
-            // obnovit board
-            initGameBoard();
-            updateUI();
-            setStatusMessage("🚀 Nová hra! Najdi všech 8 párů, buduj KOMBO! 🚀");
-            // spustit časovač znovu
-            startTimer();
-            // odstranit všechny třídy timer-critical
-            timerDisplay.classList.remove('timer-critical');
-        }
-        
-        // ---------- NAČÍTACÍ SCRIPT + confetti knihovna (lehká inline) ----------
-        // Jednoduchý ConfettiGenerator (minifikovaná verze pro radost)
-        function ConfettiGenerator(params) {
+        // ---------- INICIALIZACE + CONFETTI GENERATOR (jednoduchý) ----------
+        function ConfettiGenerator(params){
             let target = params.target;
             let max = params.max || 100;
             let size = params.size || 1;
             let animate = params.animate !== false;
             let colors = params.colors || [[165,104,246],[230,61,135],[0,199,228],[253,214,126]];
             let props = params.props || ['circle','square'];
-            let context = target.getContext('2d');
+            let ctx = target.getContext('2d');
             let width = window.innerWidth;
             let height = window.innerHeight;
             let particles = [];
-            let animationId = null;
+            let animId = null;
             target.width = width;
             target.height = height;
-            
             function random(min,max){ return Math.random()*(max-min)+min; }
             function init(){
                 for(let i=0;i<max;i++){
                     let color = colors[Math.floor(Math.random()*colors.length)];
-                    let prop = props[Math.floor(Math.random()*props.length)];
+                    let shape = props[Math.floor(Math.random()*props.length)];
                     particles.push({
                         x: random(0,width), y: random(0,height),
-                        size: random(0.5,size*2), speedY: random(2,8), speedX: random(-2,2),
-                        color: `rgb(${color[0]},${color[1]},${color[2]})`, shape: prop, rotation: random(0,360)
+                        size: random(0.5,size*2), speedY: random(2,9), speedX: random(-2.5,2.5),
+                        color: `rgb(${color[0]},${color[1]},${color[2]})`, shape: shape, rot: random(0,360)
                     });
                 }
                 animateConfetti();
             }
             function draw(){
-                context.clearRect(0,0,width,height);
+                ctx.clearRect(0,0,width,height);
                 for(let p of particles){
-                    context.save();
-                    context.translate(p.x,p.y);
-                    context.rotate(p.rotation*Math.PI/180);
-                    context.fillStyle = p.color;
+                    ctx.save();
+                    ctx.translate(p.x,p.y);
+                    ctx.rotate(p.rot*Math.PI/180);
+                    ctx.fillStyle = p.color;
                     if(p.shape === 'circle'){
-                        context.beginPath();
-                        context.arc(0,0,p.size,0,Math.PI*2);
-                        context.fill();
+                        ctx.beginPath();
+                        ctx.arc(0,0,p.size,0,Math.PI*2);
+                        ctx.fill();
                     } else {
-                        context.fillRect(-p.size/2,-p.size/2,p.size,p.size);
+                        ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);
                     }
-                    context.restore();
+                    ctx.restore();
                     p.y += p.speedY;
                     p.x += p.speedX;
-                    p.rotation += 5;
-                    if(p.y > height+30){ p.y = -20; p.x = random(0,width); }
-                    if(p.x > width+30) p.x = -30;
-                    if(p.x < -30) p.x = width+30;
+                    p.rot += 7;
+                    if(p.y > height+40){ p.y = -20; p.x = random(0,width); }
+                    if(p.x > width+50) p.x = -50;
+                    if(p.x < -50) p.x = width+30;
                 }
-                if(animate) animationId = requestAnimationFrame(draw);
+                if(animate) animId = requestAnimationFrame(draw);
             }
             function animateConfetti(){ draw(); }
             this.render = function(){ init(); };
-            this.clear = function(){ if(animationId) cancelAnimationFrame(animationId); context.clearRect(0,0,width,height); };
+            this.clear = function(){ if(animId) cancelAnimationFrame(animId); ctx.clearRect(0,0,width,height); };
         }
         
-        // Spuštění hry
-        function startGame() {
-            fullReset();
-        }
-        
-        // Event listener pro tlačítko
+        // eventy pro tlačítka obtížnosti a reset
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let diff = btn.getAttribute('data-diff');
+                if(diff) setDifficulty(diff);
+            });
+        });
         document.getElementById('resetGameBtn').addEventListener('click', () => {
-            if(timerInterval) clearInterval(timerInterval);
-            fullReset();
+            resetGame();
         });
         
-        startGame();
+        // spuštění hry
+        resetGame();
     })();
 </script>
 </body>
