@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tetris – propracovaná verze</title>
+  <title>Tetris 2025 – vylepšená verze</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: #111;
+      background: radial-gradient(circle at 50% 50%, #0a1f1a, #000);
       color: #eee;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Segoe UI', Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -20,71 +20,101 @@
 
     #container {
       display: flex;
-      gap: 40px;
+      gap: 50px;
       align-items: flex-start;
+      perspective: 1200px;
     }
 
     #game-area {
       position: relative;
+      transform-style: preserve-3d;
     }
 
     canvas {
       image-rendering: pixelated;
-      border: 2px solid #444;
-      background: #000;
-      box-shadow: 0 0 30px rgba(0,255,180,0.15);
+      border: 3px solid #333;
+      border-radius: 12px;
+      background: #0a0a0a;
+      box-shadow: 
+        0 0 40px rgba(0, 220, 180, 0.2),
+        inset 0 0 60px rgba(0,0,0,0.8);
     }
 
     #side-panel {
-      width: 180px;
+      width: 200px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 24px;
     }
 
     .box {
-      background: #1a1a1a;
+      background: rgba(20,20,30,0.7);
       border: 1px solid #444;
-      border-radius: 8px;
-      padding: 12px;
+      border-radius: 12px;
+      padding: 16px 12px;
       text-align: center;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
     #next-canvas, #hold-canvas {
-      background: #000;
-      border: 1px solid #555;
+      background: rgba(0,0,0,0.6);
+      border: 2px solid #555;
+      border-radius: 8px;
     }
 
-    h2 { margin: 0 0 8px 0; font-size: 1.1rem; color: #0f8; }
-    .stat { font-size: 1.4rem; font-weight: bold; color: #0ff; }
+    h2 { 
+      margin: 0 0 10px 0; 
+      font-size: 1.2rem; 
+      color: #0fc; 
+      text-shadow: 0 0 8px #0fc;
+    }
+    .stat { 
+      font-size: 2rem; 
+      font-weight: bold; 
+      color: #0ff; 
+      text-shadow: 0 0 12px #0ff;
+    }
 
     #message {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 3.5rem;
+      font-size: 5rem;
+      font-weight: bold;
       color: #f44;
-      text-shadow: 0 0 20px #f00;
+      text-shadow: 0 0 40px #f00, 0 0 80px #800;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.4s;
+      transition: opacity 0.6s;
+      z-index: 10;
     }
 
     #pause-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 4rem;
+      font-size: 5.5rem;
       color: #ff0;
       font-weight: bold;
-      text-shadow: 0 0 30px #ff0;
+      text-shadow: 0 0 50px #ff0;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s;
+      transition: opacity 0.4s;
+      z-index: 5;
+    }
+
+    .clear-flash {
+      animation: flash 0.4s ease-out;
+    }
+
+    @keyframes flash {
+      0% { background: rgba(255,255,100,0.4); }
+      100% { background: transparent; }
     }
   </style>
 </head>
@@ -92,7 +122,7 @@
 
 <div id="container">
   <div id="game-area">
-    <canvas id="tetris" width="300" height="600"></canvas>
+    <canvas id="tetris" width="320" height="640"></canvas>
     <div id="message">GAME OVER</div>
     <div id="pause-overlay">PAUSE</div>
   </div>
@@ -113,29 +143,29 @@
 
     <div class="box">
       <h2>Next</h2>
-      <canvas id="next" width="120" height="120"></canvas>
+      <canvas id="next" width="140" height="140"></canvas>
     </div>
 
     <div class="box">
       <h2>Hold</h2>
-      <canvas id="hold" width="120" height="120"></canvas>
+      <canvas id="hold" width="140" height="140"></canvas>
     </div>
 
-    <div class="box" style="font-size:0.9rem; color:#aaa; text-align:left;">
+    <div class="box" style="font-size:0.95rem; color:#ccc; text-align:left; line-height:1.5;">
       <strong>Ovládání:</strong><br>
       ← →    Pohyb<br>
-      ↑      Otočit<br>
-      ↓      Rychleji dolů<br>
+      ↑      Otočit (nebo X)<br>
+      ↓      Soft drop<br>
       Mezerník  Hard drop<br>
-      C      Hold / vyměnit<br>
-      P      Pauza
+      C / Shift  Hold<br>
+      P      Pauza / resume
     </div>
   </div>
 </div>
 
 <script>
 // ================================================
-//               TETRIS – 2025 edice
+//          TETRIS – vylepšená verze 2025
 // ================================================
 
 const canvas = document.getElementById('tetris');
@@ -147,7 +177,7 @@ const holdCtx = holdCanvas.getContext('2d');
 
 const COLS = 10;
 const ROWS = 20;
-const BLOCK = 30;
+const BLOCK = 32;
 
 let board = Array(ROWS).fill().map(()=>Array(COLS).fill(0));
 let score = 0;
@@ -166,102 +196,136 @@ let canHold = true;
 
 const colors = [
   null,
-  '#00FFFF', // I cyan
-  '#FFFF00', // O yellow
-  '#800080', // T purple
-  '#00FF00', // S green
-  '#FF0000', // Z red
-  '#0000FF', // J blue
-  '#FFA500'  // L orange
+  {main: '#4de6ff', light: '#a5f0ff'}, // I
+  {main: '#ffe64d', light: '#fff7a5'}, // O
+  {main: '#b366ff', light: '#d9a3ff'}, // T
+  {main: '#66ff66', light: '#a3ffa3'}, // S
+  {main: '#ff4d4d', light: '#ffa3a3'}, // Z
+  {main: '#4d79ff', light: '#a3b8ff'}, // J
+  {main: '#ff9933', light: '#ffcc99'}  // L
 ];
 
-// Tetromino tvary (0° rotace)
+// Tvary – I je teď správně 4×1 (a otočený 1×4)
 const tetrominoes = [
   null,
-  [[1,1,1,1]],                             // I
-  [[1,1],[1,1]],                           // O
-  [[0,1,0],[1,1,1]],                       // T
-  [[0,1,1],[1,1,0]],                       // S
-  [[1,1,0],[0,1,1]],                       // Z
-  [[1,0,0],[1,1,1]],                       // J
-  [[0,0,1],[1,1,1]]                        // L
+  [[1,1,1,1]],               // I – vodorovně
+  [[1,1],[1,1]],             // O
+  [[0,1,0],[1,1,1]],         // T
+  [[0,1,1],[1,1,0]],         // S
+  [[1,1,0],[0,1,1]],         // Z
+  [[1,0,0],[1,1,1]],         // J
+  [[0,0,1],[1,1,1]]          // L
 ];
 
 function createPiece(type) {
-  const p = tetrominoes[type];
-  const matrix = Array(4).fill().map(()=>Array(4).fill(0));
-  p.forEach((row,y)=>{
+  const shape = tetrominoes[type];
+  const h = shape.length;
+  const w = shape[0].length;
+  const matrix = Array(5).fill().map(()=>Array(5).fill(0)); // 5×5 → bezpečná rotace
+
+  // centrovanější umístění
+  const ox = Math.floor((5 - w)/2);
+  const oy = Math.floor((5 - h)/2);
+
+  shape.forEach((row,y)=>{
     row.forEach((val,x)=>{
-      if (val) matrix[y+1][x+1] = type;   // offset pro lepší rotaci
+      if (val) matrix[oy + y][ox + x] = type;
     });
   });
-  return { matrix, type, x: COLS/2-2|0, y: 0 };
+
+  return {
+    matrix,
+    type,
+    x: Math.floor(COLS/2 - 2.5),
+    y: type === 1 ? -1 : 0   // I začíná výš
+  };
 }
 
 function getRandomPiece() {
-  return Math.floor(Math.random()*7)+1;
+  return Math.floor(Math.random() * 7) + 1;
 }
 
-function drawBlock(ctx, x, y, color, size = BLOCK) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x*size, y*size, size-1, size-1);
-  
-  // lesklý efekt
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.fillRect(x*size+2, y*size+2, size*0.35, size*0.35);
-  
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(x*size, y*size, size-1, size-1);
+function drawBlock(x, y, color, ctxToUse = ctx, size = BLOCK) {
+  const gx = x * size;
+  const gy = y * size;
+
+  // gradient
+  const grad = ctxToUse.createLinearGradient(gx, gy, gx+size, gy+size);
+  grad.addColorStop(0, color.light);
+  grad.addColorStop(0.4, color.main);
+  grad.addColorStop(1, color.main);
+
+  ctxToUse.fillStyle = grad;
+  ctxToUse.fillRect(gx+1, gy+1, size-2, size-2);
+
+  // lesk
+  ctxToUse.fillStyle = 'rgba(255,255,255,0.45)';
+  ctxToUse.fillRect(gx+3, gy+3, size*0.4, size*0.4);
+
+  // obrys
+  ctxToUse.strokeStyle = 'rgba(0,0,0,0.7)';
+  ctxToUse.lineWidth = 1.5;
+  ctxToUse.strokeRect(gx+1, gy+1, size-2, size-2);
 }
 
 function drawBoard() {
-  ctx.fillStyle = '#000';
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  // mřížka (velmi jemná)
-  ctx.strokeStyle = '#111';
+  // jemná mřížka
+  ctx.strokeStyle = '#1a1a2a';
   ctx.lineWidth = 1;
-  for(let i=1;i<COLS;i++) {
-    ctx.beginPath(); ctx.moveTo(i*BLOCK,0); ctx.lineTo(i*BLOCK,canvas.height); ctx.stroke();
+  for (let i = 1; i < COLS; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i*BLOCK, 0);
+    ctx.lineTo(i*BLOCK, canvas.height);
+    ctx.stroke();
   }
-  for(let i=1;i<ROWS;i++) {
-    ctx.beginPath(); ctx.moveTo(0,i*BLOCK); ctx.lineTo(canvas.width,i*BLOCK); ctx.stroke();
+  for (let i = 1; i < ROWS; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, i*BLOCK);
+    ctx.lineTo(canvas.width, i*BLOCK);
+    ctx.stroke();
   }
 
-  board.forEach((row,y)=>{
-    row.forEach((val,x)=>{
-      if (val) drawBlock(ctx, x, y, colors[val]);
+  board.forEach((row,y) => {
+    row.forEach((val,x) => {
+      if (val) drawBlock(x, y, colors[val]);
     });
   });
 }
 
-function drawPiece(piece, offsetX = 0, offsetY = 0, ctxToUse = ctx) {
-  piece.matrix.forEach((row,y)=>{
-    row.forEach((val,x)=>{
+function drawPiece(piece, ox = 0, oy = 0, ctxToUse = ctx, alpha = 1) {
+  ctxToUse.globalAlpha = alpha;
+  piece.matrix.forEach((row,y) => {
+    row.forEach((val,x) => {
       if (val) {
-        drawBlock(ctxToUse, piece.x + x + offsetX, piece.y + y + offsetY, colors[val]);
+        drawBlock(piece.x + x + ox, piece.y + y + oy, colors[val], ctxToUse);
       }
     });
   });
+  ctxToUse.globalAlpha = 1;
 }
 
 function drawGhost() {
   if (!currentPiece) return;
-  let ghostY = currentPiece.y;
-  while (!collides(currentPiece.matrix, currentPiece.x, ghostY+1)) {
-    ghostY++;
-  }
-  ctx.globalAlpha = 0.25;
-  drawPiece(currentPiece, 0, ghostY - currentPiece.y);
+  let gy = currentPiece.y;
+  while (!collides(currentPiece.matrix, currentPiece.x, gy + 1)) gy++;
+  ctx.globalAlpha = 0.18;
+  ctx.filter = 'blur(1px)';
+  drawPiece(currentPiece, 0, gy - currentPiece.y);
+  ctx.filter = 'none';
   ctx.globalAlpha = 1;
 }
 
 function merge() {
-  currentPiece.matrix.forEach((row,y)=>{
-    row.forEach((val,x)=>{
+  currentPiece.matrix.forEach((row,y) => {
+    row.forEach((val,x) => {
       if (val) {
-        board[currentPiece.y + y][currentPiece.x + x] = val;
+        const ny = currentPiece.y + y;
+        if (ny >= 0 && ny < ROWS) {
+          board[ny][currentPiece.x + x] = val;
+        }
       }
     });
   });
@@ -271,44 +335,45 @@ function collides(matrix, px, py) {
   for (let y = 0; y < matrix.length; y++) {
     for (let x = 0; x < matrix[y].length; x++) {
       if (matrix[y][x]) {
-        let nx = px + x;
-        let ny = py + y;
+        const nx = px + x;
+        const ny = py + y;
         if (nx < 0 || nx >= COLS || ny >= ROWS) return true;
-        if (ny >= 0 && board[ny]?.[nx]) return true;
+        if (ny >= 0 && board[ny][nx]) return true;
       }
     }
   }
   return false;
 }
 
-function rotate(matrix) {
-  const n = matrix.length;
+function rotateMatrix(m) {
+  const n = m.length;
   const rotated = Array(n).fill().map(()=>Array(n).fill(0));
   for (let y = 0; y < n; y++) {
     for (let x = 0; x < n; x++) {
-      rotated[x][n-1-y] = matrix[y][x];
+      rotated[x][n-1-y] = m[y][x];
     }
   }
   return rotated;
 }
 
 function playerRotate() {
-  const oldMatrix = currentPiece.matrix;
-  let newMatrix = rotate(oldMatrix);
+  const old = currentPiece.matrix;
+  let next = rotateMatrix(old);
 
-  // wall kick – jednoduchý (zkusíme posunout o -2 až +2)
-  for (let kick of [-2,-1,0,1,2]) {
-    if (!collides(newMatrix, currentPiece.x + kick, currentPiece.y)) {
-      currentPiece.matrix = newMatrix;
+  // SRS wall kick – jednoduchá verze
+  const kicks = currentPiece.type === 1 ? [0,-1,1,-2,2] : [0,-1,1]; // I má větší kick
+
+  for (let kick of kicks) {
+    if (!collides(next, currentPiece.x + kick, currentPiece.y)) {
+      currentPiece.matrix = next;
       currentPiece.x += kick;
       return;
     }
   }
-  // nešlo otočit
 }
 
 function playerDrop() {
-  if (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y+1)) {
+  if (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
     currentPiece.y++;
     dropCounter = 0;
   } else {
@@ -319,39 +384,39 @@ function playerDrop() {
 }
 
 function hardDrop() {
-  while (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y+1)) {
+  let distance = 0;
+  while (!collides(currentPiece.matrix, currentPiece.x, currentPiece.y + 1)) {
     currentPiece.y++;
-    score += 2; // malý bonus za hard drop
+    distance++;
   }
-  playerDrop(); // uloží a spawn nový
+  score += distance * 2;
+  playerDrop();
 }
 
 function clearLines() {
-  let rowsCleared = 0;
-  outer: for (let y = ROWS-1; y >= 0; y--) {
-    for (let x = 0; x < COLS; x++) {
-      if (!board[y][x]) continue outer;
+  let cleared = 0;
+  for (let y = ROWS - 1; y >= 0; y--) {
+    if (board[y].every(v => v !== 0)) {
+      board.splice(y, 1);
+      board.unshift(Array(COLS).fill(0));
+      cleared++;
+      y++; // znovu zkontrolujeme stejný index
     }
-    // řádek je plný → smažeme
-    board.splice(y,1);
-    board.unshift(Array(COLS).fill(0));
-    rowsCleared++;
-    y++; // znovu kontrolujeme stejný řádek (posunuli jsme dolů)
   }
 
-  if (rowsCleared > 0) {
-    const points = [0, 100, 300, 500, 800][rowsCleared] * level;
-    score += points;
-    lines += rowsCleared;
+  if (cleared > 0) {
+    const base = [0, 100, 300, 500, 800][cleared];
+    score += base * level;
+    lines += cleared;
 
     if (lines >= level * 10) {
       level++;
-      dropInterval = Math.max(100, 1000 - (level-1)*80);
+      dropInterval = Math.max(80, 1000 - (level - 1) * 90);
     }
 
-    // krátký bliknutí
-    document.getElementById('score').style.color = '#ff0';
-    setTimeout(()=>document.getElementById('score').style.color='#0ff', 200);
+    // vizuální feedback
+    canvas.classList.add('clear-flash');
+    setTimeout(() => canvas.classList.remove('clear-flash'), 400);
   }
 }
 
@@ -360,22 +425,19 @@ function hold() {
   canHold = false;
 
   if (!heldPiece) {
-    // první hold → jen uložíme aktuální
-    heldPiece = { ...currentPiece, x:0, y:0 };
+    heldPiece = {...currentPiece, x: 0, y: 0};
     spawnPiece();
   } else {
-    // vyměníme
-    const temp = { ...currentPiece, x:0, y:0 };
-    currentPiece = { ...heldPiece, x: COLS/2-2|0, y:0 };
+    const temp = {...currentPiece, x: 0, y: 0};
+    currentPiece = {...heldPiece, x: Math.floor(COLS/2 - 2.5), y: 0};
     heldPiece = temp;
   }
   drawHold();
 }
 
 function spawnPiece() {
-  if (!nextPiece) {
-    nextPiece = createPiece(getRandomPiece());
-  }
+  if (!nextPiece) nextPiece = createPiece(getRandomPiece());
+
   currentPiece = nextPiece;
   nextPiece = createPiece(getRandomPiece());
 
@@ -391,22 +453,22 @@ function spawnPiece() {
 }
 
 function drawNext() {
-  nextCtx.fillStyle = '#000';
+  nextCtx.fillStyle = 'rgba(0,0,0,0.6)';
   nextCtx.fillRect(0,0,nextCanvas.width,nextCanvas.height);
 
   if (nextPiece) {
-    const offsetX = nextPiece.type === 1 ? 0 : 1; // I je delší
-    drawPiece(nextPiece, offsetX, 1, nextCtx);
+    const off = nextPiece.type === 1 ? 0.5 : 1;
+    drawPiece(nextPiece, off, 1.2, nextCtx, 0.9);
   }
 }
 
 function drawHold() {
-  holdCtx.fillStyle = '#000';
+  holdCtx.fillStyle = 'rgba(0,0,0,0.6)';
   holdCtx.fillRect(0,0,holdCanvas.width,holdCanvas.height);
 
   if (heldPiece) {
-    const offsetX = heldPiece.type === 1 ? 0 : 1;
-    drawPiece(heldPiece, offsetX, 1, holdCtx);
+    const off = heldPiece.type === 1 ? 0.5 : 1;
+    drawPiece(heldPiece, off, 1.2, holdCtx, canHold ? 1 : 0.4);
   }
 }
 
@@ -435,20 +497,26 @@ function update(time = 0) {
   requestAnimationFrame(update);
 }
 
+// ────────────────────────────────────────────────
 // Ovládání
+// ────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (gameOver) return;
+  if (e.repeat) return;
 
-  if (e.key === 'p' || e.key === 'P') {
+  if (e.key.toLowerCase() === 'p') {
     paused = !paused;
     document.getElementById('pause-overlay').style.opacity = paused ? 1 : 0;
-    if (!paused) requestAnimationFrame(update);
+    if (!paused) {
+      lastTime = performance.now();
+      requestAnimationFrame(update);
+    }
     return;
   }
 
   if (paused) return;
 
-  switch(e.key) {
+  switch (e.key) {
     case 'ArrowLeft':  
       if (!collides(currentPiece.matrix, currentPiece.x-1, currentPiece.y)) currentPiece.x--; 
       break;
@@ -458,21 +526,24 @@ document.addEventListener('keydown', e => {
     case 'ArrowDown':  
       playerDrop(); 
       break;
-    case 'ArrowUp':    
+    case 'ArrowUp':
+    case 'x':
+    case 'X':
       playerRotate(); 
       break;
-    case ' ':          
-      e.preventDefault(); 
-      hardDrop(); 
+    case ' ':
+      e.preventDefault();
+      hardDrop();
       break;
     case 'c':
-    case 'C':          
-      hold(); 
+    case 'C':
+    case 'Shift':
+      hold();
       break;
   }
 });
 
-// Start hry
+// Start
 spawnPiece();
 update();
 </script>
