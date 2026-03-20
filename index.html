@@ -1,374 +1,712 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Arkanoid ULTIMATE 2025 – opravený start</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-    
-    body {
-      margin: 0;
-      height: 100vh;
-      background: #000;
-      color: #0ff;
-      font-family: 'Press Start 2P', cursive;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      image-rendering: pixelated;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>✨ VESMÍRNÝ LOVEC ✨ - akční střílečka</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    #game-container {
-      position: relative;
-      width: 800px;
-      box-shadow: 0 0 80px #0ff, inset 0 0 80px #00f;
-      border: 8px solid #0ff;
-      border-radius: 12px;
-      background: #001122;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 30%, #0a0f1e, #03050b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Orbitron', 'Courier New', monospace;
+            font-weight: bold;
+        }
 
-    canvas {
-      display: block;
-      background: #000811;
-      image-rendering: pixelated;
-    }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            border-radius: 48px;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px);
+        }
 
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 10, 30, 0.92);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #0ff;
-      text-align: center;
-      z-index: 100;
-      font-size: 28px;
-      text-shadow: 0 0 20px #0ff;
-    }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 28px;
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.3), 0 20px 30px rgba(0,0,0,0.5);
+            cursor: none;
+            transition: all 0.2s ease;
+        }
 
-    .overlay.show { display: flex; }
-    .overlay h1 { font-size: 52px; margin: 0 0 30px; color: #ff0; text-shadow: 0 0 30px #ff0; }
-    button {
-      background: #003366;
-      color: #0ff;
-      border: 4px solid #0ff;
-      padding: 15px 40px;
-      margin: 15px;
-      font-family: inherit;
-      font-size: 22px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    button:hover {
-      background: #00ffff;
-      color: #000;
-      transform: scale(1.1);
-    }
+        .info-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            width: 100%;
+            gap: 40px;
+            margin-top: 18px;
+            margin-bottom: 12px;
+            padding: 12px 28px;
+            background: rgba(10, 20, 35, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
 
-    #hud {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      right: 20px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 18px;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .stat { text-shadow: 0 0 10px #0ff; }
-  </style>
+        .stat {
+            background: #000000aa;
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 1.4rem;
+            color: #0ff;
+            text-shadow: 0 0 5px #0ff, 0 0 10px #00aaff;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .stat span {
+            color: #f0f0f0;
+            font-size: 1rem;
+            margin-right: 8px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            border: none;
+            font-family: inherit;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 6px 22px;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 8px #ff4b2b;
+            letter-spacing: 1px;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 15px #ff6a4b;
+            background: linear-gradient(135deg, #ff5e7e, #ff5e2e);
+        }
+
+        .controls-hint {
+            font-size: 0.75rem;
+            color: #8ecae6;
+            background: #0a142baa;
+            padding: 6px 18px;
+            border-radius: 50px;
+            margin-top: 12px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; text-shadow: 0 0 2px cyan;}
+            100% { opacity: 1; text-shadow: 0 0 12px cyan;}
+        }
+        
+        .game-over-msg {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff3366;
+            text-shadow: 0 0 12px red;
+            animation: pulse 0.8s infinite alternate;
+        }
+    </style>
 </head>
 <body>
-
-<div id="game-container">
-  <canvas id="canvas" width="800" height="600"></canvas>
-  
-  <div id="hud">
-    <div class="stat">SKÓRE: <span id="score">000000</span></div>
-    <div class="stat">ÚROVEŇ: <span id="level">1</span></div>
-    <div class="stat">ŽIVOTY: <span id="lives">3</span></div>
-    <div class="stat">HIGH: <span id="highscore">000000</span></div>
-  </div>
-
-  <div id="start-overlay" class="overlay show">
-    <h1>ARKANOID<br>ULTIMATE</h1>
-    <p style="font-size:18px;margin:20px 0 40px;color:#0cc;">opravený start – klikni START</p>
-    <button id="start-btn">START HRY</button>
-    <button id="help-btn">NÁVOD + OVLÁDÁNÍ</button>
-  </div>
-
-  <div id="gameover-overlay" class="overlay">
-    <h1>GAME OVER</h1>
-    <p id="final-score" style="font-size:28px;margin:20px 0;">SKÓRE: 000000</p>
-    <button id="restart-btn">HRÁT ZNOVU</button>
-  </div>
-
-  <div id="levelup-overlay" class="overlay">
-    <h1>ÚROVEŇ DOKONČENA!</h1>
-    <p id="levelup-text" style="font-size:24px;margin:30px 0;">Příprava na další level...</p>
-    <button id="nextlevel-btn">POKRAČOVAT</button>
-  </div>
-
-  <div id="win-overlay" class="overlay">
-    <h1>VYHRÁL JSI!</h1>
-    <p style="font-size:22px;margin:20px 0;">Dokončil jsi všech 5 levelů!</p>
-    <button id="win-restart-btn">HRÁT ZNOVU</button>
-  </div>
-
-  <div id="help-overlay" class="overlay">
-    <h1>NÁVOD</h1>
-    <div style="max-width:520px;text-align:left;font-size:15px;line-height:1.6;">
-      • Myš = pohyb pádla<br>
-      • Klik / Mezerník = vypustit míček / střílet laserem (když máš power-up L)<br>
-      • P = pauza<br><br>
-      <strong>Power-upy:</strong><br>
-      M = Multiball L = Laser E = Zvětšit S = Zmenšit<br>
-      O = Zpomalit X = +Život B = Bomba ★ = ×2 skóre
+<div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        <div class="info-panel">
+            <div class="stat"><span>❤️ ŽIVOTY</span> <span id="livesValue">3</span></div>
+            <div class="stat"><span>💥 SKÓRE</span> <span id="scoreValue">0</span></div>
+            <div class="stat"><span>✨ ÚROVEŇ</span> <span id="levelValue">1</span></div>
+            <button class="restart-btn" id="restartButton">🔄 NOVÁ HRA</button>
+        </div>
+        <div class="controls-hint">
+            🖱️ MYŠÍ MÍŘÍŠ → 💥 KLIK / MEZERNÍK STŘÍLÍ | 🚀 Nič nepřátele, sbírej HVĚZDY → VYLEPŠENÍ!
+        </div>
     </div>
-    <button id="back-btn">ZPĚT</button>
-  </div>
 </div>
 
 <script>
-// ────────────────────────────────────────────────
-// ARKANOID ULTIMATE – opravený start + stabilita
-// ────────────────────────────────────────────────
-
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
-
-let score = 0, level = 1, lives = 3;
-let highscore = localStorage.getItem('arkanoidHS') || 0;
-document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
-
-let gameRunning = false;
-let paused = false;
-let launched = false;
-
-let audioCtx = null; // inicializujeme až po interakci
-
-// ─── TŘÍDY (zkráceně, ale kompletně) ───
-class Paddle {
-  constructor() {
-    this.w = 110; this.h = 18;
-    this.x = W/2 - this.w/2;
-    this.y = H - 40;
-    this.laser = false; this.laserTimer = 0;
-  }
-  update(mx) {
-    if (mx !== null) this.x = mx - this.w/2;
-    this.x = Math.max(0, Math.min(W - this.w, this.x));
-    if (this.laserTimer > 0) this.laserTimer--; else this.laser = false;
-  }
-  draw() {
-    ctx.fillStyle = this.laser ? '#f0f' : '#0ff';
-    ctx.fillRect(this.x, this.y, this.w, this.h);
-    ctx.fillStyle = '#fff8'; ctx.fillRect(this.x+8, this.y+4, this.w-16, 4);
-  }
-}
-
-class Ball {
-  constructor(x, y, vx=0, vy=-5.5) {
-    this.x = x; this.y = y; this.r = 9;
-    this.vx = vx; this.vy = vy;
-  }
-  update() {
-    this.x += this.vx; this.y += this.vy;
-    if (this.x-this.r<0 || this.x+this.r>W) this.vx *= -1;
-    if (this.y-this.r<0) this.vy *= -1;
-    if (this.y > H+50) return false;
-    return true;
-  }
-  draw() {
-    ctx.fillStyle = '#ff0';
-    ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); ctx.fill();
-  }
-}
-
-let paddle = new Paddle();
-let balls = [];
-let bricks = [];
-let powerups = [];
-let laserShots = [];
-let mouseX = null;
-
-// ─── LEVEL DATA (jednoduchý start) ───
-const levels = [
-  [[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1,1,1]],
-  [[2,2,2,2,2,2,2,2,2,2],[2,2,2,2,2,2,2,2,2,2]],
-  [[3,3,3,3,3,3,3,3,3,3]]
-];
-
-function createLevel(l) {
-  bricks = [];
-  const lay = levels[l-1] || levels[0];
-  for (let y=0; y<lay.length; y++) {
-    for (let x=0; x<10; x++) {
-      if (lay[y][x]) {
-        bricks.push({
-          x: 50 + x*70, y: 80 + y*40,
-          w: 64, h: 24,
-          type: lay[y][x],
-          alive: true
-        });
-      }
-    }
-  }
-}
-
-function resetBalls() {
-  balls = [new Ball(paddle.x + paddle.w/2, paddle.y - 25)];
-  launched = false;
-}
-
-// ─── START HRY ───
-function startGame() {
-  document.getElementById('start-overlay').classList.remove('show');
-  
-  // Web Audio až po uživatelském kliku (nutné pro Chrome/Firefox)
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-  score = 0; level = 1; lives = 3;
-  document.getElementById('score').textContent = '000000';
-  document.getElementById('level').textContent = '1';
-  document.getElementById('lives').textContent = '3';
-
-  paddle = new Paddle();
-  createLevel(1);
-  resetBalls();
-  gameRunning = true;
-  paused = false;
-  requestAnimationFrame(gameLoop);
-}
-
-function gameLoop() {
-  if (!gameRunning || paused) return requestAnimationFrame(gameLoop);
-
-  ctx.fillStyle = '#000811'; ctx.fillRect(0,0,W,H);
-
-  paddle.update(mouseX);
-  paddle.draw();
-
-  // míčky
-  for (let i=balls.length-1; i>=0; i--) {
-    const b = balls[i];
-    if (!b.update()) {
-      balls.splice(i,1);
-      if (balls.length === 0) {
-        lives--;
-        document.getElementById('lives').textContent = lives;
-        if (lives <= 0) {
-          gameRunning = false;
-          document.getElementById('final-score').textContent = `SKÓRE: ${String(score).padStart(6,'0')}`;
-          document.getElementById('gameover-overlay').classList.add('show');
-          if (score > highscore) {
-            highscore = score;
-            localStorage.setItem('arkanoidHS', highscore);
-            document.getElementById('highscore').textContent = String(highscore).padStart(6,'0');
-          }
-        } else {
-          resetBalls();
+    (function(){
+        // ---------- KANVAS A KONTEXT ----------
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // ---------- HERNÍ PROMĚNNÉ ----------
+        let gameRunning = true;
+        let score = 0;
+        let lives = 3;
+        let level = 1;
+        
+        // Hráč
+        const PLAYER_RADIUS = 18;
+        let player = { x: canvas.width/2, y: canvas.height - 60, radius: PLAYER_RADIUS };
+        
+        // Projektil (střely)
+        let bullets = [];
+        const BULLET_RADIUS = 5;
+        const BULLET_SPEED = -7.5;
+        let shootCooldown = 0;
+        const SHOOT_DELAY_FRAMES = 12;   // cadence střelby
+        
+        // Nepřátelé
+        let enemies = [];
+        const BASE_ENEMY_RADIUS = 14;
+        let enemySpeedY = 2.2;
+        
+        // Vylepšení (power-up hvězdy)
+        let powerups = [];
+        const POWERUP_RADIUS = 12;
+        
+        // Efekty (exploze, text)
+        let explosions = [];
+        let floatingTexts = [];
+        
+        // Vylepšené statistiky hráče (power-up efekty)
+        let fireRateBonus = 0;      // snížení cooldownu (čím víc, tím rychleji)
+        let extraDamage = false;     // dvojnásobný damage (ničí nepřátele jedním zásahem, ale již tak mají 1 život, použijeme pro zvláštní efekt + bonusové skóre)
+        let magnetActive = false;     // přitahuje powerupy k hráči
+        
+        // Úroveň a spawnování
+        let enemiesToSpawn = 0;
+        let spawnTimer = 0;
+        let enemiesThisWave = 0;
+        let waveInProgress = false;
+        
+        // Časovač pro magnet
+        let magnetDuration = 0;
+        
+        // ---------- POMOCNÉ FUNKCE ----------
+        function updateUI() {
+            document.getElementById('livesValue').innerText = lives;
+            document.getElementById('scoreValue').innerText = Math.floor(score);
+            document.getElementById('levelValue').innerText = level;
         }
-      }
-    } else {
-      b.draw();
-      // kolize s pádlem
-      if (b.y + b.r > paddle.y && b.y - b.r < paddle.y + paddle.h &&
-          b.x > paddle.x && b.x < paddle.x + paddle.w) {
-        b.vy *= -1;
-        b.vx += (b.x - (paddle.x + paddle.w/2)) * 0.12;
-      }
-    }
-  }
-
-  // cihly
-  for (let b of bricks) {
-    if (b.alive) {
-      ctx.fillStyle = b.type===1 ? '#0f0' : b.type===2 ? '#f80' : '#888';
-      ctx.fillRect(b.x, b.y, b.w, b.h);
-    }
-  }
-
-  // jednoduchá kolize míč-cihla (pro test)
-  for (let i=bricks.length-1; i>=0; i--) {
-    const b = bricks[i];
-    if (!b.alive) continue;
-    for (let j=balls.length-1; j>=0; j--) {
-      const ball = balls[j];
-      if (ball.x > b.x && ball.x < b.x+b.w &&
-          ball.y > b.y && ball.y < b.y+b.h) {
-        ball.vy *= -1;
-        b.alive = false;
-        score += 50;
-        document.getElementById('score').textContent = String(score).padStart(6,'0');
-      }
-    }
-  }
-
-  // level hotový?
-  if (bricks.every(b => !b.alive)) {
-    level++;
-    if (level > levels.length) {
-      gameRunning = false;
-      document.getElementById('win-overlay').classList.add('show');
-    } else {
-      createLevel(level);
-      document.getElementById('level').textContent = level;
-      resetBalls();
-    }
-  }
-
-  requestAnimationFrame(gameLoop);
-}
-
-// ─── EVENTY ───
-document.getElementById('start-btn').onclick = startGame;
-
-document.getElementById('help-btn').onclick = () => {
-  document.getElementById('start-overlay').classList.remove('show');
-  document.getElementById('help-overlay').classList.add('show');
-};
-
-document.getElementById('back-btn').onclick = () => {
-  document.getElementById('help-overlay').classList.remove('show');
-  document.getElementById('start-overlay').classList.add('show');
-};
-
-document.getElementById('restart-btn').onclick = () => {
-  document.getElementById('gameover-overlay').classList.remove('show');
-  startGame();
-};
-
-document.getElementById('win-restart-btn').onclick = document.getElementById('restart-btn').onclick;
-
-canvas.addEventListener('mousemove', e => {
-  const rect = canvas.getBoundingClientRect();
-  mouseX = e.clientX - rect.left;
-});
-
-canvas.addEventListener('click', () => {
-  if (!launched && balls.length > 0 && gameRunning) {
-    launched = true;
-    balls[0].vx = (Math.random()-0.5)*4;
-  }
-});
-
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' && gameRunning && !launched && balls.length) {
-    launched = true;
-    balls[0].vx = (Math.random()-0.5)*4;
-  }
-  if (e.key.toLowerCase() === 'p') {
-    paused = !paused;
-    if (!paused) requestAnimationFrame(gameLoop);
-  }
-});
+        
+        // Přidání plovoucího textu (škálování)
+        function addFloatingText(x, y, text, color = "#ffd966") {
+            floatingTexts.push({ x, y, text, life: 45, color: color });
+        }
+        
+        // Exploze
+        function addExplosion(x, y) {
+            explosions.push({ x, y, radius: 8, life: 14 });
+        }
+        
+        // Reset hry
+        function restartGame() {
+            gameRunning = true;
+            score = 0;
+            lives = 3;
+            level = 1;
+            enemySpeedY = 2.2;
+            bullets = [];
+            enemies = [];
+            powerups = [];
+            explosions = [];
+            floatingTexts = [];
+            fireRateBonus = 0;
+            extraDamage = false;
+            magnetActive = false;
+            magnetDuration = 0;
+            shootCooldown = 0;
+            
+            player.x = canvas.width/2;
+            player.y = canvas.height - 60;
+            
+            // nastavení vln
+            enemiesToSpawn = 0;
+            spawnTimer = 0;
+            enemiesThisWave = 0;
+            waveInProgress = false;
+            startWave();  // první vlna
+            updateUI();
+        }
+        
+        // Spawn nové vlny (závisí na levelu)
+        function startWave() {
+            if(!gameRunning) return;
+            let baseCount = 4 + Math.floor(level * 1.3);
+            let count = Math.min(baseCount, 18); // max 18 najednou
+            enemiesThisWave = count;
+            enemiesToSpawn = count;
+            spawnTimer = 0;
+            waveInProgress = true;
+        }
+        
+        // Vytvoření nepřítele na náhodné pozici nahoře
+        function spawnSingleEnemy() {
+            let randX = Math.random() * (canvas.width - 2 * BASE_ENEMY_RADIUS) + BASE_ENEMY_RADIUS;
+            // Různé typy podle levelu (barva, velikost)
+            let enemyType = Math.random();
+            let radius = BASE_ENEMY_RADIUS;
+            let color = "#e34d4d";
+            let hp = 1;
+            let points = 10;
+            if(level >= 2 && enemyType < 0.25) {
+                radius = BASE_ENEMY_RADIUS + 2;
+                color = "#c97e5a";
+                hp = 2;       // těžší nepřítel
+                points = 25;
+            } else if(level >= 3 && enemyType < 0.2) {
+                radius = BASE_ENEMY_RADIUS - 2;
+                color = "#b03ae0";
+                hp = 1;
+                points = 30;
+                // rychlejší nepřítel
+                enemies.push({ x: randX, y: -radius, radius: radius, hp: hp, color: color, points: points, speedY: enemySpeedY * 1.45 });
+                return;
+            }
+            enemies.push({ x: randX, y: -radius, radius: radius, hp: hp, color: color, points: points, speedY: enemySpeedY });
+        }
+        
+        // Spawn power-upu (hvězda) při zničení nepřítele s 18% šancí, extra pokud extraDamage
+        function trySpawnPowerup(x, y) {
+            let chance = 0.18;
+            if(extraDamage) chance = 0.28;
+            if(Math.random() < chance) {
+                let type = "fireRate";   // hlavní typ
+                let r = Math.random();
+                if(r < 0.3 && !magnetActive) type = "magnet";
+                else if(r < 0.55 && !extraDamage) type = "damage";
+                else type = "fireRate";
+                powerups.push({ x: x, y: y, radius: POWERUP_RADIUS, type: type, life: true });
+            }
+        }
+        
+        // Aplikace power-upu
+        function applyPowerup(type) {
+            switch(type) {
+                case "fireRate":
+                    fireRateBonus = Math.min(fireRateBonus + 1, 4);
+                    addFloatingText(player.x, player.y-20, "⚡ RYCHLOST STŘELBY +1", "#88ffaa");
+                    break;
+                case "damage":
+                    if(!extraDamage) {
+                        extraDamage = true;
+                        addFloatingText(player.x, player.y-20, "💢 DVOJITÉ SKÓRE / NIČITEL!", "#ffaa66");
+                    } else {
+                        // pokud už má, přidá skóre bonus
+                        score += 50;
+                        addFloatingText(player.x, player.y-20, "⭐ BONUS 50 BODŮ", "gold");
+                        updateUI();
+                    }
+                    break;
+                case "magnet":
+                    magnetActive = true;
+                    magnetDuration = 450;  // cca 7.5 sekund při 60 fps
+                    addFloatingText(player.x, player.y-20, "🧲 MAGNET PŘITAŽUJE HVĚZDY", "#aaffff");
+                    break;
+            }
+        }
+        
+        // Pohyb a kolize
+        function updateGame() {
+            if(!gameRunning) return;
+            
+            // 1. Cooldown střelby
+            if(shootCooldown > 0) shootCooldown--;
+            
+            // 2. Pohyb střel
+            for(let i=0; i<bullets.length; i++) {
+                bullets[i].y += BULLET_SPEED;
+                if(bullets[i].y + BULLET_RADIUS < 0 || bullets[i].y - BULLET_RADIUS > canvas.height) {
+                    bullets.splice(i,1);
+                    i--;
+                }
+            }
+            
+            // 3. Pohyb nepřátel a kolize s hráčem / střelami
+            for(let i=0; i<enemies.length; i++) {
+                const e = enemies[i];
+                e.y += e.speedY;
+                // kolize s hráčem
+                const dx = player.x - e.x;
+                const dy = player.y - e.y;
+                const dist = Math.hypot(dx, dy);
+                if(dist < player.radius + e.radius) {
+                    // poškození hráče
+                    lives--;
+                    updateUI();
+                    addExplosion(e.x, e.y);
+                    addFloatingText(e.x, e.y-10, "-1 ŽIVOT", "#ff8888");
+                    enemies.splice(i,1);
+                    i--;
+                    if(lives <= 0) {
+                        gameRunning = false;
+                        addFloatingText(canvas.width/2, canvas.height/2, "💀 GAME OVER 💀", "#ff3366");
+                        return;
+                    }
+                    continue;
+                }
+                // pokud je mimo obrazovku dole -> ztráta života
+                if(e.y + e.radius > canvas.height + 40) {
+                    lives--;
+                    updateUI();
+                    addFloatingText(e.x, e.y, "⚠️ PROPÁDNUTÍ", "#ff884d");
+                    enemies.splice(i,1);
+                    i--;
+                    if(lives <= 0) {
+                        gameRunning = false;
+                        addFloatingText(canvas.width/2, canvas.height/2, "💀 GAME OVER 💀", "#ff3366");
+                        return;
+                    }
+                    continue;
+                }
+            }
+            
+            // 4. Kolize střel s nepřáteli
+            for(let i=0; i<bullets.length; i++) {
+                const b = bullets[i];
+                let hitIndex = -1;
+                for(let j=0; j<enemies.length; j++) {
+                    const e = enemies[j];
+                    const distToEnemy = Math.hypot(b.x - e.x, b.y - e.y);
+                    if(distToEnemy < BULLET_RADIUS + e.radius) {
+                        hitIndex = j;
+                        break;
+                    }
+                }
+                if(hitIndex !== -1) {
+                    const enemy = enemies[hitIndex];
+                    let isDestroyed = false;
+                    if(extraDamage) {
+                        isDestroyed = true;
+                        score += enemy.points * 2;
+                    } else {
+                        enemy.hp -= 1;
+                        if(enemy.hp <= 0) isDestroyed = true;
+                        score += enemy.points;
+                    }
+                    if(isDestroyed) {
+                        addExplosion(enemy.x, enemy.y);
+                        addFloatingText(enemy.x, enemy.y-8, `+${extraDamage ? enemy.points*2 : enemy.points}`, "#ffff77");
+                        trySpawnPowerup(enemy.x, enemy.y);
+                        enemies.splice(hitIndex,1);
+                    } else {
+                        // zásah, ale nepřítel přežil (efekt)
+                        addFloatingText(enemy.x, enemy.y-5, "💢", "#ffaa66");
+                    }
+                    bullets.splice(i,1);
+                    i--;
+                    updateUI();
+                }
+            }
+            
+            // 5. Power-upy + magnet
+            if(magnetActive) {
+                magnetDuration--;
+                if(magnetDuration <= 0) {
+                    magnetActive = false;
+                    addFloatingText(player.x, player.y-15, "Magnet vypršel", "#aaaaff");
+                } else {
+                    // přitahování powerupů k hráči
+                    for(let p of powerups) {
+                        const dx = player.x - p.x;
+                        const dy = player.y - p.y;
+                        const dist = Math.hypot(dx, dy);
+                        if(dist > 0.5) {
+                            const angle = Math.atan2(dy, dx);
+                            const pull = 5.2;
+                            p.x += Math.cos(angle) * pull;
+                            p.y += Math.sin(angle) * pull;
+                        }
+                    }
+                }
+            }
+            
+            // Kolize hráč vs powerup
+            for(let i=0; i<powerups.length; i++) {
+                const p = powerups[i];
+                const distToPlayer = Math.hypot(player.x - p.x, player.y - p.y);
+                if(distToPlayer < player.radius + p.radius) {
+                    applyPowerup(p.type);
+                    powerups.splice(i,1);
+                    i--;
+                }
+                // pokud powerup zmizí dole (mimo obrazovku)
+                if(p.y + p.radius > canvas.height + 60 || p.y + p.radius < -60) {
+                    powerups.splice(i,1);
+                    i--;
+                }
+            }
+            
+            // 6. Spawnování vln a zvyšování levelu
+            if(gameRunning) {
+                if(waveInProgress && enemiesToSpawn > 0) {
+                    if(spawnTimer <= 0) {
+                        spawnSingleEnemy();
+                        enemiesToSpawn--;
+                        spawnTimer = 18;  // prodleva mezi spawny
+                    } else {
+                        spawnTimer--;
+                    }
+                } else if(waveInProgress && enemiesToSpawn === 0 && enemies.length === 0) {
+                    // vlna dokončena -> zvýšení levelu
+                    waveInProgress = false;
+                    level++;
+                    enemySpeedY = Math.min(2.2 + (level-1) * 0.38, 6.5);
+                    // přidá bonusové životy za každý 3. level
+                    if(level % 3 === 0 && lives < 5) {
+                        lives = Math.min(lives+1, 5);
+                        addFloatingText(player.x, player.y-30, "❤️ +1 ŽIVOT (level)", "#ff8888");
+                        updateUI();
+                    }
+                    updateUI();
+                    addFloatingText(canvas.width/2, canvas.height*0.3, `⭐ ÚROVEŇ ${level} ⭐`, "#ffcc44");
+                    startWave(); // spustí další vlnu
+                } else if(!waveInProgress && enemies.length === 0 && enemiesToSpawn === 0) {
+                    startWave();
+                }
+            }
+            
+            // Omezení hráče v pohybu (myš)
+            let mouseX = player.x;
+            let mouseY = player.y;
+            player.x = Math.min(Math.max(player.x, player.radius + 5), canvas.width - player.radius - 5);
+            player.y = Math.min(Math.max(player.y, player.radius + 30), canvas.height - player.radius - 10);
+            
+            // aktualizace efektů
+            for(let i=0; i<explosions.length; i++) {
+                explosions[i].life--;
+                if(explosions[i].life <= 0) explosions.splice(i,1), i--;
+            }
+            for(let i=0; i<floatingTexts.length; i++) {
+                floatingTexts[i].life--;
+                floatingTexts[i].y -= 1.2;
+                if(floatingTexts[i].life <= 0) floatingTexts.splice(i,1), i--;
+            }
+        }
+        
+        // ---------- VYKRESLOVÁNÍ ----------
+        function drawStars() {
+            for(let i=0; i<300; i++) {
+                if(i%2 === 0) continue;
+                let sx = (i*131)%canvas.width;
+                let sy = (i*253)%canvas.height;
+                ctx.fillStyle = `rgba(255,240,200,${0.3+Math.sin(Date.now()*0.001+i)*0.2})`;
+                ctx.beginPath();
+                ctx.arc(sx, sy, 1.2, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+        
+        function drawPlayer() {
+            ctx.save();
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = "#0af";
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.radius-2, 0, Math.PI*2);
+            ctx.fillStyle = "#2ad4ff";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(player.x, player.y-18);
+            ctx.lineTo(player.x-12, player.y+4);
+            ctx.lineTo(player.x-4, player.y);
+            ctx.lineTo(player.x, player.y+12);
+            ctx.lineTo(player.x+4, player.y);
+            ctx.lineTo(player.x+12, player.y+4);
+            ctx.fillStyle = "#ffdd77";
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(player.x-5, player.y-4, 3, 0, Math.PI*2);
+            ctx.arc(player.x+5, player.y-4, 3, 0, Math.PI*2);
+            ctx.fillStyle = "#ffffff";
+            ctx.fill();
+            ctx.fillStyle = "#0a1a2a";
+            ctx.beginPath();
+            ctx.arc(player.x-5, player.y-5, 1.2, 0, Math.PI*2);
+            ctx.arc(player.x+5, player.y-5, 1.2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.restore();
+        }
+        
+        function drawBullets() {
+            for(let b of bullets) {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, BULLET_RADIUS-1, 0, Math.PI*2);
+                ctx.fillStyle = "#ffff80";
+                ctx.shadowBlur = 8;
+                ctx.fill();
+                ctx.fillStyle = "orange";
+                ctx.arc(b.x, b.y, 2, 0, Math.PI*2);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawEnemies() {
+            for(let e of enemies) {
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.arc(e.x, e.y, e.radius-2, 0, Math.PI*2);
+                ctx.fillStyle = e.color;
+                ctx.fill();
+                ctx.fillStyle = "#3a1f1f";
+                ctx.beginPath();
+                ctx.ellipse(e.x-3, e.y-2, 3, 4, 0, 0, Math.PI*2);
+                ctx.ellipse(e.x+3, e.y-2, 3, 4, 0, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                ctx.arc(e.x-3, e.y-4, 1.2, 0, Math.PI*2);
+                ctx.arc(e.x+3, e.y-4, 1.2, 0, Math.PI*2);
+                ctx.fill();
+                if(e.hp > 1) {
+                    ctx.fillStyle = "#ffaa55";
+                    ctx.font = "bold 14monospace";
+                    ctx.shadowBlur = 2;
+                    ctx.fillText("🛡️", e.x-8, e.y-10);
+                }
+            }
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawPowerups() {
+            for(let p of powerups) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius-2, 0, Math.PI*2);
+                let grad = ctx.createRadialGradient(p.x-3, p.y-3, 3, p.x, p.y, p.radius);
+                grad.addColorStop(0, "#f9f047");
+                grad.addColorStop(1, "#f5b042");
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.fillStyle = "#fff3b0";
+                ctx.font = "18px monospace";
+                ctx.shadowBlur = 4;
+                if(p.type === "fireRate") ctx.fillText("⚡", p.x-8, p.y+7);
+                if(p.type === "damage") ctx.fillText("💥", p.x-8, p.y+7);
+                if(p.type === "magnet") ctx.fillText("🧲", p.x-8, p.y+7);
+            }
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawEffects() {
+            for(let ex of explosions) {
+                let size = 12 - ex.life/2;
+                ctx.beginPath();
+                ctx.arc(ex.x, ex.y, size, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(255, 100, 30, ${ex.life/12})`;
+                ctx.fill();
+            }
+            for(let txt of floatingTexts) {
+                ctx.font = "bold 20monospace";
+                ctx.shadowBlur = 3;
+                ctx.fillStyle = txt.color;
+                ctx.fillText(txt.text, txt.x-15, txt.y-8);
+            }
+            ctx.shadowBlur = 0;
+        }
+        
+        function drawUIOverlay() {
+            if(!gameRunning) {
+                ctx.font = "bold 42px 'Orbitron'";
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "#ff5588";
+                ctx.shadowColor = "#aa0000";
+                ctx.fillText("💀 GAME OVER 💀", canvas.width/2-170, canvas.height/2-40);
+                ctx.font = "24px monospace";
+                ctx.fillStyle = "#ccddff";
+                ctx.fillText("Klikni na NOVÁ HRA", canvas.width/2-110, canvas.height/2+40);
+            }
+            if(magnetActive) {
+                ctx.font = "bold 16px monospace";
+                ctx.fillStyle = "#7df9ff";
+                ctx.shadowBlur = 0;
+                ctx.fillText("🧲 MAGNET AKTIVNÍ", 20, 45);
+            }
+            if(extraDamage) {
+                ctx.fillStyle = "#ffaa66";
+                ctx.fillText("💢 DVOJITÁ SÍLA", 20, 80);
+            }
+        }
+        
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // pozadí
+            ctx.fillStyle = "#03050f";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            drawStars();
+            drawPowerups();
+            drawEnemies();
+            drawBullets();
+            drawPlayer();
+            drawEffects();
+            drawUIOverlay();
+        }
+        
+        // ---------- OVLÁDÁNÍ ----------
+        function shoot() {
+            if(!gameRunning) return;
+            let baseCooldown = SHOOT_DELAY_FRAMES - fireRateBonus;
+            if(baseCooldown < 5) baseCooldown = 5;
+            if(shootCooldown <= 0) {
+                bullets.push({ x: player.x, y: player.y-12, radius: BULLET_RADIUS });
+                shootCooldown = baseCooldown;
+                // zvukově-textový feedback
+            }
+        }
+        
+        // Myš
+        function onMouseMove(e) {
+            if(!gameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let mouseCanvasX = (e.clientX - rect.left) * scaleX;
+            let mouseCanvasY = (e.clientY - rect.top) * scaleY;
+            mouseCanvasX = Math.min(Math.max(mouseCanvasX, player.radius), canvas.width - player.radius);
+            mouseCanvasY = Math.min(Math.max(mouseCanvasY, player.radius+20), canvas.height - player.radius-10);
+            player.x = mouseCanvasX;
+            player.y = mouseCanvasY;
+        }
+        
+        function onCanvasClick(e) {
+            e.preventDefault();
+            shoot();
+        }
+        
+        function onKeyDown(e) {
+            if(e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+                e.preventDefault();
+                shoot();
+            }
+            if(e.code === 'KeyR') {
+                restartGame();
+            }
+        }
+        
+        // animační smyčka
+        let lastTimestamp = 0;
+        function gameLoop() {
+            updateGame();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // inicializace a eventy
+        function init() {
+            restartGame();
+            canvas.addEventListener('mousemove', onMouseMove);
+            canvas.addEventListener('click', onCanvasClick);
+            window.addEventListener('keydown', onKeyDown);
+            document.getElementById('restartButton').addEventListener('click', () => restartGame());
+            gameLoop();
+        }
+        
+        init();
+    })();
 </script>
 </body>
 </html>
